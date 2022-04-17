@@ -1,0 +1,10 @@
+flutter_native_splash:
+  color: "#6A46AA"
+  color_dark: "#000000"
+  fullscreen: true
+  image: assets/bryte_logo.png
+  android_gravity: center
+  web: false
+  android12: true
+  branding: assets/prasmul_logo.png
+  branding_mode: bottom
