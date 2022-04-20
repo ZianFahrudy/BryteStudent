@@ -1,7 +1,7 @@
 import 'package:bryte/pages/auth/pages/forgot_password.dart';
 import 'package:bryte/pages/auth/pages/new_password.dart';
 import 'package:bryte/pages/auth/pages/otp_password.dart';
-import 'package:bryte/pages/dashboard_page.dart';
+import 'package:bryte/pages/navigation.dart';
 
 import 'package:get/route_manager.dart';
 
@@ -40,11 +40,11 @@ import 'pages/auth/pages/signin.dart';
 
 class Routes {
   static List<GetPage> page = [
-    GetPage<void>(
-      name: DashboardPage.route,
-      page: () => const DashboardPage(),
-      transition: Transition.cupertino,
-    ),
+    // GetPage<void>(
+    //   name: DashboardPage.route,
+    //   page: () => const DashboardPage(),
+    //   transition: Transition.cupertino,
+    // ),
     GetPage<void>(
       name: Signin.route,
       page: () => const Signin(),
@@ -68,6 +68,11 @@ class Routes {
       page: () => NewPassword(
         username: Get.arguments as String,
       ),
+      transition: Transition.cupertino,
+    ),
+    GetPage<void>(
+      name: Navigation.route,
+      page: () => const Navigation(),
       transition: Transition.cupertino,
     ),
   ];

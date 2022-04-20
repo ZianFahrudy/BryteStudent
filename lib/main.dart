@@ -1,6 +1,6 @@
 import 'package:bryte/core/di/injection.dart';
 import 'package:bryte/pages/auth/pages/signin.dart';
-import 'package:bryte/pages/dashboard_page.dart';
+import 'package:bryte/pages/navigation.dart';
 import 'package:bryte/routes.dart';
 import 'package:bryte/theme.dart';
 import 'package:bryte/utils/bloc_observer.dart';
@@ -11,7 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'core/auth/auth_bloc.dart';
-import 'core/repo/endpoint.dart';
+import 'core/repo/auth/auth_repository.dart';
 
 void main() async {
   await GetStorage.init();
@@ -30,11 +30,10 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final box = GetStorage();
-
+  // final dio = Dio();
   @override
   void initState() {
     super.initState();
-    // initialization();
   }
 
   @override
@@ -44,7 +43,7 @@ class _MyAppState extends State<MyApp> {
 
     String initialRoute() {
       if (isLogin) {
-        return DashboardPage.route;
+        return Navigation.route;
       } else {
         return Signin.route;
       }
@@ -54,7 +53,7 @@ class _MyAppState extends State<MyApp> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    ApiRepository apiRepository = ApiRepository();
+    AuthRepository apiRepository = AuthRepository();
 
     return MultiBlocProvider(
         providers: [

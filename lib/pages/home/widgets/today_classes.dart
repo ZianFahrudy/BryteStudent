@@ -17,7 +17,6 @@ class TodayClasses extends StatefulWidget {
 class _TodayClassesState extends State<TodayClasses> {
   final todayClassesTotal = ValueNotifier<int>(0);
   final ongoingClassesTotal = ValueNotifier<int>(0);
-
   final totalToday = ValueNotifier<int>(0);
 
   @override

@@ -4,9 +4,9 @@ part 'upcoming_assign_model.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake, createToJson: false)
 class UpcomingAssignModel {
-  final int status;
-  final String message;
-  final List<DataUpcomingAssignModel> data;
+  int status;
+  String message;
+  List<DataUpcomingAssignModel> data;
   UpcomingAssignModel({
     required this.status,
     required this.message,
@@ -20,25 +20,25 @@ class UpcomingAssignModel {
 @JsonSerializable(fieldRename: FieldRename.snake, createToJson: false)
 class DataUpcomingAssignModel {
   @JsonKey(name: 'idCourse')
-  final String idCourse;
+  String idCourse;
   @JsonKey(name: 'idAssign')
-  final String idAssign;
-  final String courseName;
-  final String assignName;
-  final String assignDescp;
-  final String assignAllowfrom;
-  final String assignDeadline;
-  final int assignSession;
-  final bool assignAttempt;
+  String idAssign;
+  String courseName;
+  String assignName;
+  String assignDescp;
+  String assignAllowfrom;
+  String assignDeadline;
+  int assignSession;
+  bool assignAttempt;
   @JsonKey(name: 'bg_color_1')
-  final String bgColor1;
+  String bgColor1;
   @JsonKey(name: 'bg_color_2')
-  final String bgColor2;
+  String bgColor2;
   @JsonKey(name: 'text_color_1')
-  final String textColor1;
+  String textColor1;
   @JsonKey(name: 'text_color_2')
-  final String textColor2;
-  final String dropShadow;
+  String textColor2;
+  String dropShadow;
   DataUpcomingAssignModel({
     required this.idCourse,
     required this.idAssign,

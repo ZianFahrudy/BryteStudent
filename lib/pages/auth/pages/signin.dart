@@ -1,5 +1,4 @@
 import 'package:bryte/core/auth/auth_bloc.dart';
-import 'package:bryte/pages/dashboard_page.dart';
 import 'package:bryte/pages/auth/pages/forgot_password.dart';
 import 'package:bryte/widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +6,8 @@ import 'package:bryte/theme.dart';
 import 'package:bryte/widgets/text_field_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import '../../navigation.dart';
 
 class Signin extends StatefulWidget {
   const Signin({Key? key}) : super(key: key);
@@ -127,8 +128,7 @@ class _SigninState extends State<Signin> {
             if (state is AuthSubmited) {
               Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const DashboardPage()),
+                  MaterialPageRoute(builder: (context) => const Navigation()),
                   ModalRoute.withName('Dashboard'));
             }
             if (state is AuthRoleFailure) {

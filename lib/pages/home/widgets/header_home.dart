@@ -35,9 +35,13 @@ class _HeaderHomeState extends State<HeaderHome> {
             text: 'You have ',
             style: brytStyleJudul.copyWith(fontSize: 14),
             children: [
-              TextSpan(
-                  text: '${state.response.data.todayClasses} classes ',
-                  style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
+              (state.response.data.todayClasses == 1)
+                  ? TextSpan(
+                      text: '${state.response.data.todayClasses} class ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14))
+                  : TextSpan(
+                      text: '${state.response.data.todayClasses} classes ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
               TextSpan(
                 text: 'today and ',
                 style: brytStyleJudul.copyWith(fontSize: 14),
@@ -59,9 +63,13 @@ class _HeaderHomeState extends State<HeaderHome> {
             text: 'You have ',
             style: brytStyleJudul.copyWith(fontSize: 14),
             children: [
-              TextSpan(
-                  text: '${state.response.data.todayClasses} classes ',
-                  style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
+              (state.response.data.todayClasses == 1)
+                  ? TextSpan(
+                      text: '${state.response.data.todayClasses} class ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14))
+                  : TextSpan(
+                      text: '${state.response.data.todayClasses} classes ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
               TextSpan(
                 text: 'today and ',
                 style: brytStyleJudul.copyWith(fontSize: 14),
@@ -83,9 +91,13 @@ class _HeaderHomeState extends State<HeaderHome> {
             text: 'You have ',
             style: brytStyleJudul.copyWith(fontSize: 14),
             children: [
-              TextSpan(
-                  text: '${state.response.data.todayClasses} classes ',
-                  style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
+              (state.response.data.todayClasses == 1)
+                  ? TextSpan(
+                      text: '${state.response.data.todayClasses} class ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14))
+                  : TextSpan(
+                      text: '${state.response.data.todayClasses} classes ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
               TextSpan(
                 text: 'today and ',
                 style: brytStyleJudul.copyWith(fontSize: 14),
@@ -103,9 +115,13 @@ class _HeaderHomeState extends State<HeaderHome> {
             text: 'You have ',
             style: brytStyleJudul.copyWith(fontSize: 14),
             children: [
-              TextSpan(
-                  text: '${state.response.data.todayClasses} classes ',
-                  style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
+              (state.response.data.todayClasses == 1)
+                  ? TextSpan(
+                      text: '${state.response.data.todayClasses} class ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14))
+                  : TextSpan(
+                      text: '${state.response.data.todayClasses} classes ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
               TextSpan(
                 text: 'today.',
                 style: brytStyleJudul.copyWith(fontSize: 14),
@@ -166,9 +182,13 @@ class _HeaderHomeState extends State<HeaderHome> {
             text: 'You have ',
             style: brytStyleJudul.copyWith(fontSize: 14),
             children: [
-              TextSpan(
-                  text: '${state.response.data.todayClasses} classes, ',
-                  style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
+              (state.response.data.todayClasses == 1)
+                  ? TextSpan(
+                      text: '${state.response.data.todayClasses} class ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14))
+                  : TextSpan(
+                      text: '${state.response.data.todayClasses} classes ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
               TextSpan(
                 text: 'today ',
                 style: brytStyleJudul.copyWith(fontSize: 14),
@@ -186,9 +206,13 @@ class _HeaderHomeState extends State<HeaderHome> {
             text: 'You have ',
             style: brytStyleJudul.copyWith(fontSize: 14),
             children: [
-              TextSpan(
-                  text: '${state.response.data.todayClasses} classes ',
-                  style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
+              (state.response.data.todayClasses == 1)
+                  ? TextSpan(
+                      text: '${state.response.data.todayClasses} class ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14))
+                  : TextSpan(
+                      text: '${state.response.data.todayClasses} classes ',
+                      style: brytStyleDarkPurlple.copyWith(fontSize: 14)),
               TextSpan(
                 text: 'today and ',
                 style: brytStyleJudul.copyWith(fontSize: 14),

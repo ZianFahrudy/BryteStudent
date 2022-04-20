@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:bryte/core/model/auth/auth_model.dart';
 import 'package:bryte/core/model/auth/request/authorization_body.dart';
-import 'package:bryte/core/repo/endpoint.dart';
+import 'package:bryte/core/repo/auth/auth_repository.dart';
 import 'package:bryte/utils/constant.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:injectable/injectable.dart';
@@ -12,7 +12,7 @@ part 'auth_state.dart';
 
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  ApiRepository apiRepository;
+  AuthRepository apiRepository;
   final box = GetStorage();
 
   AuthBloc(this.apiRepository) : super(AuthInitial()) {

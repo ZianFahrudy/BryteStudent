@@ -8,7 +8,7 @@ import 'package:get_it/get_it.dart' as _i1;
 import 'package:injectable/injectable.dart' as _i2;
 
 import '../auth/auth_bloc.dart' as _i3;
-import '../repo/endpoint.dart' as _i4;
+import '../repo/auth/auth_repository.dart' as _i4;
 import '../repo/student/student_repository.dart' as _i5;
 import '../student/class/class_bloc.dart' as _i8;
 import '../student/student_bloc.dart' as _i9;
@@ -21,7 +21,7 @@ import '../student/upcoming/upcoming_bloc.dart'
 _i1.GetIt $initGetIt(_i1.GetIt get,
     {String? environment, _i2.EnvironmentFilter? environmentFilter}) {
   final gh = _i2.GetItHelper(get, environment, environmentFilter);
-  gh.factory<_i3.AuthBloc>(() => _i3.AuthBloc(get<_i4.ApiRepository>()));
+  gh.factory<_i3.AuthBloc>(() => _i3.AuthBloc(get<_i4.AuthRepository>()));
   gh.lazySingleton<_i5.StudentRepository>(() => _i5.StudentRepositoryImpl());
   gh.factory<_i6.SummaryBloc>(
       () => _i6.SummaryBloc(get<_i5.StudentRepository>()));

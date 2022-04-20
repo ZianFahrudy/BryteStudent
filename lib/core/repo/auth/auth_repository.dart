@@ -8,8 +8,8 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 final box = GetStorage();
 
-class ApiRepository {
-  String? token = box.read(KeyConstant.token);
+class AuthRepository {
+  String? token = box.read(KeyConstant.token) ?? '';
 
   Dio get dio => Dio(
         BaseOptions(
@@ -31,6 +31,20 @@ class ApiRepository {
               compact: true,
               maxWidth: 300),
         );
+  // ..interceptors.add(RetryOnConnectionChangeInterceptor(
+  //     requestRetrier: DioConnectivityRequestRetrier(
+  //         dio: dio, connectivity: Connectivity())));
+  // ..interceptors.add(
+  //   RetryInterceptor(
+  //     dio: dio, logPrint: print, // specify log function
+  //     retries: 3, // retry count
+  //     retryDelays: const [
+  //       Duration(seconds: 1), // wait 1 sec before first retry
+  //       Duration(seconds: 2), // wait 2 sec before second retry
+  //       Duration(seconds: 3), // wait 3 sec before third retry
+  //     ],
+  //   ),
+  // );
 
   Future<AuthModel?> login(String? email, String? password) async {
     try {

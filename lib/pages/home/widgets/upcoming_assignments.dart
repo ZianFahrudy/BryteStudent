@@ -1,3 +1,5 @@
+
+import 'package:bryte/core/model/student/response/upcoming_assign_model.dart';
 import 'package:bryte/core/student/upcoming/upcoming_bloc.dart';
 import 'package:bryte/theme.dart';
 import 'package:bryte/utils/palette.dart';
@@ -6,24 +8,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-class UpcomingAssignments extends StatelessWidget {
+class UpcomingAssignments extends StatefulWidget {
   const UpcomingAssignments({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<UpcomingAssignments> createState() => _UpcomingAssignmentsState();
+}
+
+class _UpcomingAssignmentsState extends State<UpcomingAssignments> {
+  final listNotAssign = <DataUpcomingAssignModel>[];
+
+  @override
   Widget build(BuildContext context) {
-    final assignNotAttempt = ValueNotifier<int>(0);
+    // final assignNotAttempt = ValueNotifier<int>(0);
     return BlocListener<UpcomingBloc, UpcomingState>(
       listener: (context, state) {
-        if (state is UpcomingSuccess) {}
+        if (state is UpcomingSuccess) {
+          for (var i = 0; i < state.response.data.length; i++) {
+            if (state.response.data[i].assignAttempt == false) {
+              listNotAssign.addAll([state.response.data[i]]);
+            }
+          }
+        }
       },
       child: BlocBuilder<UpcomingBloc, UpcomingState>(
         builder: (context, state) {
           if (state is UpcomingSuccess) {
-            assignNotAttempt.value = state.response.data
-                .where((element) => element.assignAttempt == false)
-                .length;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -55,7 +67,7 @@ class UpcomingAssignments extends StatelessWidget {
                                 borderRadius:
                                     BorderRadiusDirectional.circular(12)),
                             child: Text(
-                              '${assignNotAttempt.value}',
+                              '${state.response.data.where((element) => element.assignAttempt == false).length}',
                               style: brytStylePurlple,
                               textAlign: TextAlign.center,
                             ),
@@ -74,59 +86,56 @@ class UpcomingAssignments extends StatelessWidget {
                 const SizedBox(
                   height: 15,
                 ),
-                (assignNotAttempt.value != 0)
-                    ? Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(
-                            assignNotAttempt.value > 1 ? 2 : 1, (i) {
-                          final dateTimeNow =
-                              DateFormat('dd MMMM').format(DateTime.now());
-                          final compareDueDate = DateFormat('dd MMMM').format(
-                              DateTime.parse(
-                                  state.response.data[i].assignDeadline));
-                          final dueDate = DateFormat('dd MMMM • HH:mm').format(
-                              DateTime.parse(
-                                  state.response.data[i].assignDeadline));
-                          // final dueHour = DateFormat('HH:mm').format(
-                          //     DateTime.parse(
-                          //         state.response.data[i].assignDeadline));
-                          final now = DateTime.now();
+                if (listNotAssign.isNotEmpty)
+                  Column(
+                    children: List.generate(
+                        listNotAssign.length >= 2 ? 2 : listNotAssign.length,
+                        (i) {
+                      final dateTimeNow =
+                          DateFormat('dd MMMM').format(DateTime.now());
+                      final compareDueDate = DateFormat('dd MMMM').format(
+                          DateTime.parse(listNotAssign[i].assignDeadline));
+                      final dueDate = DateFormat('dd MMMM • HH:mm').format(
+                          DateTime.parse(listNotAssign[i].assignDeadline));
+                      // final dueHour = DateFormat('HH:mm').format(
+                      //     DateTime.parse(
+                      //         state.response.data[i].assignDeadline));
+                      final now = DateTime.now();
 
-                          final tomorrow = DateFormat('dd MMMM')
-                              .format(now.subtract(const Duration(days: 1)));
-
-                          return CardUpcoming(
-                              color1: Color(int.parse(state
-                                  .response.data[i].bgColor1
-                                  .replaceAll('#', '0xff'))),
-                              color2: Color(int.parse(state
-                                  .response.data[i].bgColor2
-                                  .replaceAll('#', '0xff'))),
-                              textColor1: Color(int.parse(state
-                                  .response.data[i].textColor1
-                                  .replaceAll('#', '0xff'))),
-                              textColor2: Color(
-                                  int.parse(state.response.data[i].textColor2.replaceAll('#', '0xff'))),
-                              dropShadow: Color(int.parse(state.response.data[i].dropShadow.replaceAll('#', '0xff'))),
-                              assignName: state.response.data[i].assignName,
-                              title: state.response.data[i].courseName,
-                              session: state.response.data[i].assignSession,
-                              deadline: dateTimeNow == compareDueDate
-                                  ? 'Today • '
-                                  : tomorrow == compareDueDate
-                                      ? 'Tomorrow • '
-                                      : dueDate,
-                              instructions: state.response.data[i].assignDescp,
-                              assignAttempt: state.response.data[i].assignAttempt);
-                        }),
-                      )
-                    : Center(
-                        child: Image.asset(
-                          'assets/no_assignment.png',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                      final tomorrow = DateFormat('dd MMMM')
+                          .format(now.subtract(const Duration(days: 1)));
+                      return CardUpcoming(
+                          color1: Color(int.parse(listNotAssign[i]
+                              .bgColor1
+                              .replaceAll('#', '0xff'))),
+                          color2: Color(int.parse(listNotAssign[i]
+                              .bgColor2
+                              .replaceAll('#', '0xff'))),
+                          textColor1: Color(int.parse(listNotAssign[i]
+                              .textColor1
+                              .replaceAll('#', '0xff'))),
+                          textColor2: Color(int.parse(listNotAssign[i]
+                              .textColor2
+                              .replaceAll('#', '0xff'))),
+                          dropShadow: Color(
+                              int.parse(listNotAssign[i].dropShadow.replaceAll('#', '0xff'))),
+                          assignName: listNotAssign[i].assignName,
+                          title: listNotAssign[i].courseName,
+                          session: listNotAssign[i].assignSession,
+                          deadline: dateTimeNow == compareDueDate
+                              ? 'Today • '
+                              : tomorrow == compareDueDate
+                                  ? 'Tomorrow • '
+                                  : dueDate,
+                          instructions: listNotAssign[i].assignDescp,
+                          assignAttempt: listNotAssign[i].assignAttempt);
+                      // : SizedBox();
+                    }),
+                  )
+                else //   Center(
+                  Center(
+                    child: Image.asset('assets/no_assignment.png'),
+                  ),
                 const SizedBox(
                   height: 15,
                 ),

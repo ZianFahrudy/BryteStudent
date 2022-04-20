@@ -7,9 +7,13 @@ import 'package:bryte/core/model/student/response/class_summary_student_model.da
 import 'package:bryte/core/model/student/response/today_classes_model.dart';
 import 'package:bryte/core/model/student/response/upcoming_assign_model.dart';
 import 'package:bryte/utils/constant.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+
+import '../../interceptor/dio_connectivity_request_retry.dart';
+import '../../interceptor/retry_interceptor.dart';
 
 abstract class StudentRepository {
   Future<ClassSummaryStudentModel> getClassSummaryStudent(
@@ -21,27 +25,57 @@ abstract class StudentRepository {
 
 @LazySingleton(as: StudentRepository)
 class StudentRepositoryImpl extends StudentRepository {
-  // String? token;
-  Dio get dio => Dio(
-        BaseOptions(
-            receiveDataWhenStatusError: true,
-            baseUrl: Url.baseUrl,
-            sendTimeout: 60000,
-            followRedirects: false,
-            headers: {
-              "Accept": "application/json",
-              // 'Authorization': "Bearer dbc5828b35478576423d83c274e9845b",
-            }),
-      )..interceptors.add(
-          PrettyDioLogger(
-              requestHeader: true,
-              requestBody: true,
-              responseBody: true,
-              responseHeader: false,
-              error: true,
-              compact: true,
-              maxWidth: 300),
-        );
+  Dio get dio => _getDio();
+
+  Dio _getDio() {
+    final options = BaseOptions(
+        receiveDataWhenStatusError: true,
+        baseUrl: Url.baseUrl,
+        sendTimeout: 60000,
+        followRedirects: false,
+        headers: {
+          "Accept": "application/json",
+          // 'Authorization': "Bearer dbc5828b35478576423d83c274e9845b",
+        });
+
+    final dio = Dio(options);
+
+    dio.interceptors.add(PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseBody: true,
+        responseHeader: false,
+        error: true,
+        compact: true,
+        maxWidth: 300));
+
+    dio.interceptors.add(RetryOnConnectionChangeInterceptor(
+        requestRetrier: DioConnectivityRequestRetrier(
+            dio: dio, connectivity: Connectivity())));
+
+    return dio;
+  }
+
+  // final dio = Dio(
+  //   BaseOptions(
+  //       receiveDataWhenStatusError: true,
+  //       baseUrl: Url.baseUrl,
+  //       sendTimeout: 60000,
+  //       followRedirects: false,
+  //       headers: {
+  //         "Accept": "application/json",
+  //         // 'Authorization': "Bearer dbc5828b35478576423d83c274e9845b",
+  //       }),
+  // )..interceptors.add(
+  //     PrettyDioLogger(
+  //         requestHeader: true,
+  //         requestBody: true,
+  //         responseBody: true,
+  //         responseHeader: false,
+  //         error: true,
+  //         compact: true,
+  //         maxWidth: 300),
+  //   );
 
   @override
   Future<ClassSummaryStudentModel> getClassSummaryStudent(
