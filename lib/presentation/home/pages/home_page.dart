@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                   body: TodayClassesBody(
                 date: '',
                 token: token,
-                type: CourseType.monthly,
+                type: CourseType.daily,
                 userid: userId,
               ))),
           ),
@@ -169,9 +169,7 @@ class _HomePageState extends State<HomePage> {
                   TodayClasses(),
                   UpcomingAssignments(),
                   Announcements(),
-                  SizedBox(
-                    height: 100,
-                  )
+                  SizedBox(height: 100)
                 ],
               ),
             ),
