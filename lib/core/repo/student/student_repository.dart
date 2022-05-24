@@ -8,7 +8,6 @@ import 'package:bryte/core/data/model/student/request/today_classes_body.dart';
 import 'package:bryte/core/data/model/student/request/upcoming_assign_body.dart';
 import 'package:bryte/core/data/model/student/response/announcement_model.dart';
 import 'package:bryte/core/data/model/student/response/class_summary_student_model.dart';
-import 'package:bryte/core/data/model/student/response/moodle_attendance_model.dart';
 import 'package:bryte/core/data/model/student/response/today_classes_model.dart';
 import 'package:bryte/core/data/model/student/response/upcoming_assign_model.dart';
 import 'package:connectivity/connectivity.dart';
@@ -26,7 +25,7 @@ abstract class StudentRepository {
   Future<TodayClassesModel> getTodayClasses(TodayClassesBody body);
   Future<UpcomingAssignModel> getUpcomingAssign(UpcomingAssignBody body);
   Future<CalendarEventModel> getCalendarEvent(EventBody body);
-  Future<MoodleAttendanceModel> submitAttendance(SubmitAttendanceBody body);
+  Future<String> submitAttendance(SubmitAttendanceBody body);
 }
 
 @LazySingleton(as: StudentRepository)
@@ -179,16 +178,19 @@ class StudentRepositoryImpl extends StudentRepository {
   }
 
   @override
-  Future<MoodleAttendanceModel> submitAttendance(
-      SubmitAttendanceBody body) async {
+  Future<String> submitAttendance(SubmitAttendanceBody body) async {
     try {
       Response response =
-          await dio.post(Url.calendarEvent, data: body.toJson());
-      return MoodleAttendanceModel.fromJson(response.data);
+          await dio.post(Url.attendance, queryParameters: body.toJson());
+
+      if (response.data != null) {
+        return "Gagal";
+      }
+      return "Sukses";
     } catch (e) {
       if (e is DioError) {
         if (e.type == DioErrorType.response) {
-          return MoodleAttendanceModel.fromJson(e.response?.data);
+          return 'Gagal';
         } else {
           throw Exception(e.message);
         }

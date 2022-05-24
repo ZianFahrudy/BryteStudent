@@ -1,32 +1,38 @@
 // ignore_for_file: avoid_print
 
+import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/utils/theme.dart';
+import 'package:bryte/core/blocs/attend/attend_bloc.dart';
+import 'package:bryte/core/data/model/student/request/submit_attendance_body.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:recase/recase.dart';
 
 import '../utils/palette.dart';
 
 class CardClasses extends StatelessWidget {
-  const CardClasses(
-      {Key? key,
-      required this.selected,
-      required this.color1,
-      required this.color2,
-      required this.className,
-      required this.absentTotal,
-      required this.credits,
-      required this.startTime,
-      required this.endTime,
-      required this.session,
-      required this.absentLeft,
-      required this.textColor1,
-      required this.textColor2,
-      required this.boxShadowColor,
-      required this.status,
-      required this.startTimeNoFormat,
-      required this.endTimeNoFormat})
-      : super(key: key);
+  const CardClasses({
+    Key? key,
+    required this.selected,
+    required this.color1,
+    required this.color2,
+    required this.className,
+    required this.absentTotal,
+    required this.credits,
+    required this.startTime,
+    required this.endTime,
+    required this.session,
+    required this.absentLeft,
+    required this.textColor1,
+    required this.textColor2,
+    required this.boxShadowColor,
+    required this.status,
+    required this.startTimeNoFormat,
+    required this.endTimeNoFormat,
+    required this.attendBloc,
+    required this.userid,
+    required this.sessionId,
+    required this.attdStatusset,
+  }) : super(key: key);
 
   final bool selected;
   final Color color1;
@@ -44,16 +50,23 @@ class CardClasses extends StatelessWidget {
   final Color boxShadowColor;
   final String startTimeNoFormat;
   final String endTimeNoFormat;
+  final String userid;
+  final AttendBloc attendBloc;
+  final String sessionId;
+  final String attdStatusset;
 
   @override
   Widget build(BuildContext context) {
-    final now = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+    var listAttdStatusset = attdStatusset.split(',');
 
-    final sekarang = TimeOfDay.now();
-    print('NOWW $now');
-    print('STARTNOW $startTime');
-    print('STARTEND $endTime');
-    print('Sekarang $sekarang');
+    String presentId = listAttdStatusset[2];
+
+    List<int> listAttdStatusInt = [
+      int.parse(listAttdStatusset[0]),
+      int.parse(listAttdStatusset[1]),
+      int.parse(listAttdStatusset[2]),
+      int.parse(listAttdStatusset[3]),
+    ];
 
     TimeOfDay _startTime = TimeOfDay(
         hour: int.parse(startTime.split(":")[0]),
@@ -223,7 +236,23 @@ class CardClasses extends StatelessWidget {
                         ),
                         if (isValidTimeRange(_startTime, _endTime))
                           TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                attendBloc.add(
+                                  SubmitAttendance(
+                                    SubmitAttendanceBody(
+                                      wstoken: SharedConstant.wstoken,
+                                      wsfunction: SharedConstant.wsfunction,
+                                      moodlewsrestformat:
+                                          SharedConstant.moodlewsrestformat,
+                                      sessionid: int.parse(sessionId),
+                                      studentid: int.parse(userid),
+                                      takenbyid: int.parse(userid),
+                                      statusid: int.parse(presentId),
+                                      statusset: listAttdStatusInt,
+                                    ),
+                                  ),
+                                );
+                              },
                               style: TextButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 18),

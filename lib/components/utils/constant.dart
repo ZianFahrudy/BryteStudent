@@ -18,6 +18,8 @@ class Url {
   static const String authorization = baseUrl + "ws_bryte/public/authorization";
   static const String calendarEvent =
       baseUrl + "ws_bryte/public/calendarEventDet";
+  static const String attendance =
+      baseUrl + "moodle/webservice/rest/server.php";
 }
 
 // key constant
@@ -26,6 +28,12 @@ class KeyConstant {
   static const role = 'KeyRole';
   static const username = 'KeyUsername';
   static const userId = 'KeyUserId';
+}
+
+class SharedConstant {
+  static const wstoken = 'b2da5fd4933d2cb261f06b8248d67600';
+  static const wsfunction = 'mod_attendance_update_user_status';
+  static const moodlewsrestformat = 'json';
 }
 
 class AssetConstant {

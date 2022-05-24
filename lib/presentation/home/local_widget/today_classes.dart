@@ -1,16 +1,22 @@
 import 'package:bryte/components/utils/constant.dart';
+import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/widgets/card_class.dart';
 import 'package:bryte/components/widgets/empty_state.dart';
+import 'package:bryte/core/blocs/attend/attend_bloc.dart';
 import 'package:bryte/core/blocs/class/class_bloc.dart';
 import 'package:bryte/components/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class TodayClasses extends StatefulWidget {
   const TodayClasses({
     Key? key,
+    required this.attendBloc,
   }) : super(key: key);
+
+  final AttendBloc attendBloc;
 
   @override
   State<TodayClasses> createState() => _TodayClassesState();
@@ -23,15 +29,30 @@ class _TodayClassesState extends State<TodayClasses> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ClassBloc, ClassState>(
-      listener: (context, state) {
-        if (state is ClassSuccess) {
-          if (state.response.data
-              .every((element) => element.status == 'past')) {
-            state.response.message = 'all_past';
-          }
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AttendBloc, AttendState>(
+          listener: (context, state) {
+            if (state is AttendSuccess) {
+              Get.snackbar('Sukses', 'Berhasil Presensi',
+                  colorText: Colors.white, backgroundColor: Palette.sprite500);
+            } else if (state is AttendFailure) {
+              Get.snackbar('Gagal', 'Gagal Presensi',
+                  backgroundColor: Palette.coke400);
+            }
+          },
+        ),
+        BlocListener<ClassBloc, ClassState>(
+          listener: (context, state) {
+            if (state is ClassSuccess) {
+              if (state.response.data
+                  .every((element) => element.status == 'past')) {
+                state.response.message = 'all_past';
+              }
+            }
+          },
+        ),
+      ],
       child: BlocBuilder<ClassBloc, ClassState>(
         builder: (context, state) {
           if (state is ClassSuccess) {
@@ -136,6 +157,10 @@ class _TodayClassesState extends State<TodayClasses> {
               return (state.response.data[i].status == 'ongoing' ||
                       state.response.data[i].status == 'today')
                   ? CardClasses(
+                      attdStatusset: state.response.data[i].attdStatusset,
+                      sessionId: state.response.data[i].idAttdSes,
+                      userid: state.response.data[i].userid,
+                      attendBloc: widget.attendBloc,
                       endTimeNoFormat: DateFormat('yyyy-MM-dd HH:mm').format(
                           DateTime.parse(state.response.data[i].endTime)),
                       startTimeNoFormat: DateFormat('yyyy-MM-dd HH:mm').format(

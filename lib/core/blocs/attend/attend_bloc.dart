@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:bryte/core/data/model/student/request/submit_attendance_body.dart';
-import 'package:bryte/core/data/model/student/response/moodle_attendance_model.dart';
 import 'package:bryte/core/repo/student/student_repository.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
@@ -18,10 +17,10 @@ class AttendBloc extends Bloc<AttendEvent, AttendState> {
         emit(AttendLoading());
         final data = await apiRepository.submitAttendance(event.body);
 
-        if (data.status == 200) {
+        if (data == 'Sukses') {
           emit(AttendSuccess(response: data));
-        } else if (data.status == 404) {
-          emit(AttendFailure(msg: data.message));
+        } else if (data == 'Gagal') {
+          emit(AttendFailure(msg: data));
         }
       } catch (e) {
         emit(AttendFailure(msg: e.toString()));

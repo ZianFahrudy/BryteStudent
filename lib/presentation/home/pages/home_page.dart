@@ -1,3 +1,4 @@
+import 'package:bryte/core/blocs/attend/attend_bloc.dart';
 import 'package:bryte/core/blocs/class/class_bloc.dart';
 import 'package:bryte/core/blocs/student/student_bloc.dart';
 import 'package:bryte/core/blocs/summary/summary_bloc.dart';
@@ -33,6 +34,7 @@ class _HomePageState extends State<HomePage> {
   final summaryBloc = getIt<SummaryBloc>();
   final classBloc = getIt<ClassBloc>();
   final upcomingBloc = getIt<UpcomingBloc>();
+  final attendBloc = getIt<AttendBloc>();
 
   @override
   void initState() {
@@ -50,13 +52,19 @@ class _HomePageState extends State<HomePage> {
           body: TodayClassesBody(
         date: '',
         token: token,
-        type: CourseType.daily,
+        type: CourseType.monthly,
         userid: userId,
       )));
-      summaryBloc.add(GetClassSummaryStudent(
-          ClassSummaryStudentBody(token: token, userid: userId)));
-      upcomingBloc.add(GetUpcomingAssignEvent(
-          body: UpcomingAssignBody(token: token, userid: userId)));
+      summaryBloc.add(
+        GetClassSummaryStudent(
+          ClassSummaryStudentBody(token: token, userid: userId),
+        ),
+      );
+      upcomingBloc.add(
+        GetUpcomingAssignEvent(
+          body: UpcomingAssignBody(token: token, userid: userId),
+        ),
+      );
     }
 
     PreferredSize appbar() {
@@ -79,7 +87,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              // const Spacer(),
               Stack(
                 children: [
                   GestureDetector(
@@ -91,16 +98,17 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const Positioned(
-                      top: 1,
-                      right: -1,
-                      child: CircleAvatar(
-                        maxRadius: 7,
-                        backgroundColor: Colors.red,
-                        child: Text(
-                          '2',
-                          style: TextStyle(color: Colors.white, fontSize: 10),
-                        ),
-                      ))
+                    top: 1,
+                    right: -1,
+                    child: CircleAvatar(
+                      maxRadius: 7,
+                      backgroundColor: Colors.red,
+                      child: Text(
+                        '2',
+                        style: TextStyle(color: Colors.white, fontSize: 10),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ],
@@ -138,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                   body: TodayClassesBody(
                 date: '',
                 token: token,
-                type: CourseType.daily,
+                type: CourseType.monthly,
                 userid: userId,
               ))),
           ),
@@ -153,6 +161,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
           ),
+          BlocProvider(
+            create: (context) => attendBloc,
+          ),
         ],
         child: RefreshIndicator(
           onRefresh: () async => onRefresh(),
@@ -164,12 +175,14 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  HeaderHome(),
-                  TodayClasses(),
-                  UpcomingAssignments(),
-                  Announcements(),
-                  SizedBox(height: 100)
+                children: [
+                  const HeaderHome(),
+                  TodayClasses(
+                    attendBloc: attendBloc,
+                  ),
+                  const UpcomingAssignments(),
+                  const Announcements(),
+                  const SizedBox(height: 100)
                 ],
               ),
             ),

@@ -8,7 +8,7 @@ class AttendInitial extends AttendState {}
 class AttendLoading extends AttendState {}
 
 class AttendSuccess extends AttendState {
-  final MoodleAttendanceModel response;
+  final String response;
   AttendSuccess({
     required this.response,
   });

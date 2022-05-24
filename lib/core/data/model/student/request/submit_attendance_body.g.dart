@@ -11,7 +11,7 @@ Map<String, dynamic> _$SubmitAttendanceBodyToJson(
     <String, dynamic>{
       'wstoken': instance.wstoken,
       'wsfunction': instance.wsfunction,
-      'moodlewrestformat': instance.moodlewrestformat,
+      'moodlewsrestformat': instance.moodlewsrestformat,
       'sessionid': instance.sessionid,
       'studentid': instance.studentid,
       'takenbyid': instance.takenbyid,

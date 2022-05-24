@@ -7,7 +7,7 @@ class SubmitAttendanceBody {
   SubmitAttendanceBody({
     required this.wstoken,
     required this.wsfunction,
-    required this.moodlewrestformat,
+    required this.moodlewsrestformat,
     required this.sessionid,
     required this.studentid,
     required this.takenbyid,
@@ -17,7 +17,7 @@ class SubmitAttendanceBody {
 
   final String wstoken;
   final String wsfunction;
-  final String moodlewrestformat;
+  final String moodlewsrestformat;
   final int sessionid;
   final int studentid;
   final int takenbyid;
