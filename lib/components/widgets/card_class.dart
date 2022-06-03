@@ -32,6 +32,7 @@ class CardClasses extends StatelessWidget {
     required this.userid,
     required this.sessionId,
     required this.attdStatusset,
+    required this.attdStatus,
   }) : super(key: key);
 
   final bool selected;
@@ -54,12 +55,13 @@ class CardClasses extends StatelessWidget {
   final AttendBloc attendBloc;
   final String sessionId;
   final String attdStatusset;
+  final String attdStatus;
 
   @override
   Widget build(BuildContext context) {
     var listAttdStatusset = attdStatusset.split(',');
 
-    String presentId = listAttdStatusset[2];
+    String presentId = listAttdStatusset.last;
 
     List<int> listAttdStatusInt = [
       int.parse(listAttdStatusset[0]),
@@ -234,7 +236,8 @@ class CardClasses extends StatelessWidget {
                                     fontSize: 11, fontWeight: FontWeight.w500))
                           ],
                         ),
-                        if (isValidTimeRange(_startTime, _endTime))
+                        if (isValidTimeRange(_startTime, _endTime) &&
+                            attdStatus == 'W')
                           TextButton(
                               onPressed: () {
                                 attendBloc.add(

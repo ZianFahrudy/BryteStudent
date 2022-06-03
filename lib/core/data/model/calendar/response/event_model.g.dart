@@ -24,6 +24,7 @@ DataCalendarEvent _$DataCalendarEventFromJson(Map<String, dynamic> json) =>
     );
 
 Event _$EventFromJson(Map<String, dynamic> json) => Event(
+      json['attd_status'] as String?,
       assignDescp: json['assign_descp'] as String?,
       assignName: json['assign_name'] as String?,
       idAssign: json['idAssign'] as String?,

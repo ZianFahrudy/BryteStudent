@@ -31,7 +31,7 @@ class KeyConstant {
 }
 
 class SharedConstant {
-  static const wstoken = 'b2da5fd4933d2cb261f06b8248d67600';
+  static const wstoken = 'c66dcf796b6cf10d0971da5b7c027847';
   static const wsfunction = 'mod_attendance_update_user_status';
   static const moodlewsrestformat = 'json';
 }

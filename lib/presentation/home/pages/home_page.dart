@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
           body: TodayClassesBody(
         date: '',
         token: token,
-        type: CourseType.monthly,
+        type: CourseType.daily,
         userid: userId,
       )));
       summaryBloc.add(
@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                   body: TodayClassesBody(
                 date: '',
                 token: token,
-                type: CourseType.monthly,
+                type: CourseType.daily,
                 userid: userId,
               ))),
           ),

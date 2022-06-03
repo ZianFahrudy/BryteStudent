@@ -34,7 +34,8 @@ class DataCalendarEvent {
 
 @JsonSerializable(fieldRename: FieldRename.snake, createToJson: false)
 class Event {
-  const Event({
+  const Event(
+    this.attdStatus, {
     this.assignDescp,
     this.assignName,
     this.idAssign,
@@ -92,6 +93,7 @@ class Event {
   @JsonKey(name: 'text_color_2')
   final String textColor2;
   final String dropShadow;
+  final String? attdStatus;
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 }

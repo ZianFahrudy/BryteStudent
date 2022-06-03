@@ -44,6 +44,7 @@ class DataTodayClassesModel {
   String dropShadow;
   String attdStatusset;
   List<StatussetModel> statusset;
+  final String attdStatus;
 
   DataTodayClassesModel(
       {required this.idCourse,
@@ -62,6 +63,7 @@ class DataTodayClassesModel {
       required this.textColor2,
       required this.dropShadow,
       required this.attdStatusset,
+      required this.attdStatus,
       required this.statusset});
 
   factory DataTodayClassesModel.fromJson(Map<String, dynamic> json) =>

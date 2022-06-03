@@ -157,6 +157,7 @@ class _TodayClassesState extends State<TodayClasses> {
               return (state.response.data[i].status == 'ongoing' ||
                       state.response.data[i].status == 'today')
                   ? CardClasses(
+                      attdStatus: state.response.data[i].attdStatus,
                       attdStatusset: state.response.data[i].attdStatusset,
                       sessionId: state.response.data[i].idAttdSes,
                       userid: state.response.data[i].userid,

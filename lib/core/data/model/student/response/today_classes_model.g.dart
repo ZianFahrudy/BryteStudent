@@ -35,6 +35,7 @@ DataTodayClassesModel _$DataTodayClassesModelFromJson(
       textColor2: json['text_color_2'] as String,
       dropShadow: json['drop_shadow'] as String,
       attdStatusset: json['attd_statusset'] as String,
+      attdStatus: json['attd_status'] as String,
       statusset: (json['statusset'] as List<dynamic>)
           .map((e) => StatussetModel.fromJson(e as Map<String, dynamic>))
           .toList(),
