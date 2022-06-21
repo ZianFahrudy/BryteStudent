@@ -56,4 +56,7 @@ class AssetConstant {
   static const prasmulSplash = 'assets/rummage/prasmul-splash.png';
   static const prasmul = 'assets/rummage/prasmul.png';
   static const emptyZzz = 'assets/rummage/empty-zzz.png';
+  static const iconZoom = 'assets/rummage/icon_zoom.png';
+  static const iconYoutube = 'assets/rummage/icon_youtube.png';
+  static const iconUpload = 'assets/rummage/icon_upload.png';
 }

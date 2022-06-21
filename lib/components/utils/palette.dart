@@ -21,6 +21,12 @@ class Palette {
   static const lighterRed = Color(0xffEC7A7A);
   static const orange = Color(0xffFFBC58);
   static const red = Color(0xffFF5858);
+  static const grey1 = Color(0xffA5A5A5);
+  static const grey2 = Color(0xffCCCCCC);
+  static const orange1 = Color(0xffD67E4D);
+  static const orange2 = Color(0xffFF9458);
+  static const purple1 = Color(0xffEADEFF);
+
 
   /// bryte coloring system
   static const primary100 = Color(0xffFCF1FF);

@@ -71,12 +71,14 @@ class CardClasses extends StatelessWidget {
     ];
 
     TimeOfDay _startTime = TimeOfDay(
-        hour: int.parse(startTime.split(":")[0]),
-        minute: int.parse(startTime.split(":")[1]));
+      hour: int.parse(startTime.split(":")[0]),
+      minute: int.parse(startTime.split(":")[1]),
+    );
 
     TimeOfDay _endTime = TimeOfDay(
-        hour: int.parse(endTime.split(":")[0]),
-        minute: int.parse(endTime.split(":")[1]));
+      hour: int.parse(endTime.split(":")[0]),
+      minute: int.parse(endTime.split(":")[1]),
+    );
 
     bool isValidTimeRange(TimeOfDay startTime, TimeOfDay endTime) {
       TimeOfDay now = TimeOfDay.now();
@@ -103,20 +105,24 @@ class CardClasses extends StatelessWidget {
                     blurRadius: 10,
                   )
                 ],
-                color:
-                    status == 'ongoing' ? Palette.purple : Colors.transparent,
+                color: status == 'ongoing' || status == 'today'
+                    ? Palette.purple
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(18),
               ),
             ),
+
             Container(
-              margin:
-                  const EdgeInsets.only(top: 14, left: 4, right: 4, bottom: 4),
-              // padding: EdgeInsets.only(top: 10, left: 12, right: 12),
+              margin: const EdgeInsets.only(
+                top: 14,
+                left: 4,
+                right: 4,
+                bottom: 4,
+              ),
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 color: color1,
-                // border: Border.all(color: Palette.purpleColor, width: 3),
               ),
               height: 198,
               child: Column(
@@ -166,7 +172,9 @@ class CardClasses extends StatelessWidget {
                             Text(
                               '$absentLeft out of $absentTotal',
                               style: brytStyleWhite.copyWith(
-                                  fontSize: 16, fontWeight: FontWeight.w800),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                              ),
                             )
                           ],
                         ),
@@ -239,33 +247,34 @@ class CardClasses extends StatelessWidget {
                         if (isValidTimeRange(_startTime, _endTime) &&
                             attdStatus == 'W')
                           TextButton(
-                              onPressed: () {
-                                attendBloc.add(
-                                  SubmitAttendance(
-                                    SubmitAttendanceBody(
-                                      wstoken: SharedConstant.wstoken,
-                                      wsfunction: SharedConstant.wsfunction,
-                                      moodlewsrestformat:
-                                          SharedConstant.moodlewsrestformat,
-                                      sessionid: int.parse(sessionId),
-                                      studentid: int.parse(userid),
-                                      takenbyid: int.parse(userid),
-                                      statusid: int.parse(presentId),
-                                      statusset: listAttdStatusInt,
-                                    ),
+                            onPressed: () {
+                              attendBloc.add(
+                                SubmitAttendance(
+                                  SubmitAttendanceBody(
+                                    wstoken: SharedConstant.wstoken,
+                                    wsfunction: SharedConstant.wsfunction,
+                                    moodlewsrestformat:
+                                        SharedConstant.moodlewsrestformat,
+                                    sessionid: int.parse(sessionId),
+                                    studentid: int.parse(userid),
+                                    takenbyid: int.parse(userid),
+                                    statusid: int.parse(presentId),
+                                    statusset: listAttdStatusInt,
                                   ),
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 18),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20)),
-                                  backgroundColor: Colors.white),
-                              child: Text(
-                                'ATTEND',
-                                style: TextStyle(fontSize: 10, color: color2),
-                              ))
+                                ),
+                              );
+                            },
+                            style: TextButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 18),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                backgroundColor: Colors.white),
+                            child: Text(
+                              'ATTEND',
+                              style: TextStyle(fontSize: 10, color: color2),
+                            ),
+                          )
                       ],
                     ),
                   ),

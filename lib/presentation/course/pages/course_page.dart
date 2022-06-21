@@ -1,13 +1,18 @@
+import 'package:bryte/presentation/course/pages/course_section_page.dart';
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:flutter/material.dart';
+
 import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/utils/theme.dart';
-import 'package:flutter/material.dart';
-import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:get/route_manager.dart';
 
 import '../../../components/utils/palette.dart';
 import '../../../components/widgets/filter_courses.dart';
 
 enum TabType { course, assignments }
+
 enum FilterCourseType { inProgress, past, future }
+
 enum FilterAssignmentType { allUpcoming, thisWeek, pastDue }
 
 class CoursePage extends StatefulWidget {
@@ -275,7 +280,15 @@ class CourseList extends StatelessWidget {
             TabCourse(selectedFilterValue: selectedFilterValue),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: List.generate(10, (index) => const CourseCard()),
+              children: List.generate(
+                listCourse.length,
+                (index) => CourseCard(
+                  onTap: () => Get.to(() => const SectionGeneralPage()),
+                  name: listCourse[index].teacher,
+                  title: listCourse[index].title,
+                  color: listCourse[index].color,
+                ),
+              ),
             )
           ],
         ),
@@ -284,67 +297,118 @@ class CourseList extends StatelessWidget {
   }
 }
 
+class CourseModelDummy {
+  final String title;
+  final String teacher;
+  final Color color;
+  final bool newChanges;
+  CourseModelDummy({
+    required this.title,
+    required this.teacher,
+    required this.color,
+    required this.newChanges,
+  });
+}
+
+List<CourseModelDummy> listCourse = [
+  CourseModelDummy(
+      title: 'Business Innov RE18/CS18/SE18/PD18/BM17 ',
+      teacher: 'Permata Nur Miftahur Rizki, Yudi ...',
+      color: Colors.green,
+      newChanges: false),
+  CourseModelDummy(
+      title: 'Computer Aided Engineering_PDE_7A ',
+      teacher: 'Zaki Saptari Saldi',
+      color: Colors.pink,
+      newChanges: false),
+  CourseModelDummy(
+      title: 'Design for Manufacturing',
+      teacher: 'Nurmalia Nurmalia',
+      color: Colors.orange,
+      newChanges: false),
+  CourseModelDummy(
+      title: 'Engineering Mathematics PDE-REE-CSE-2018 ',
+      teacher: 'Faizah Sari',
+      color: Colors.blue,
+      newChanges: false),
+];
+
 class CourseCard extends StatelessWidget {
   const CourseCard({
     Key? key,
+    required this.title,
+    required this.name,
+    required this.color,
+    this.onTap,
   }) : super(key: key);
+
+  final String title;
+  final String name;
+  final Color color;
+  final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(13),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: Palette.green,
-                          borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(13),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 45,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 15),
-                      Flexible(
-                        child: Text(
-                          'Business Innove RE16/DDD88/HD654/PDH99/BM676',
-                          maxLines: 2,
-                          overflow: TextOverflow.clip,
-                          style: brytStyleJudul.copyWith(
-                              fontSize: 15, fontWeight: FontWeight.w500),
+                        const SizedBox(width: 15),
+                        Flexible(
+                          child: Text(
+                            title,
+                            maxLines: 2,
+                            overflow: TextOverflow.clip,
+                            style: brytStyleJudul.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 15),
-                    ],
+                        const SizedBox(width: 15),
+                      ],
+                    ),
                   ),
-                ),
-                InkWell(onTap: () {}, child: const Icon(Icons.more_horiz))
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(
-                height: 0,
-                thickness: 2,
-                color: Palette.secondary,
+                  InkWell(onTap: () {}, child: const Icon(Icons.more_horiz))
+                ],
               ),
-            ),
-            Row(
-              children: [
-                Text(
-                  'Zian Fahrudy Bolobolobolo',
-                  style: brytStylegrey,
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(
+                  height: 0,
+                  thickness: 2,
+                  color: Palette.secondary,
                 ),
-              ],
-            )
-          ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    name,
+                    style: brytStylegrey,
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

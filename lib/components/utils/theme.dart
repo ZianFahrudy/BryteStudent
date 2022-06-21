@@ -10,19 +10,19 @@ Color bryteError = const Color(0xffFF6B6B);
 Color bryteBlack = const Color(0xff333333);
 
 TextStyle brytStyleJudul = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: bryteGrey,
     fontSize: 18,
     fontWeight: FontWeight.w500);
 
 TextStyle brytStylelabel = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: brytepurple,
     fontSize: 14,
     fontWeight: FontWeight.w500);
 
 TextStyle brytStylegrey = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: bryteGrey,
     fontSize: 14,
     fontWeight: FontWeight.w500);
@@ -34,7 +34,7 @@ TextStyle brytStylebtn = TextStyle(
     fontWeight: FontWeight.w600);
 
 TextStyle brytStylelight = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: bryteGreyLight,
     fontSize: 12,
     fontWeight: FontWeight.w500);
@@ -46,42 +46,42 @@ TextStyle brytStyleError = TextStyle(
     fontWeight: FontWeight.w500);
 
 TextStyle brytStylebtnActive = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: brytepurple,
     fontSize: 12,
     fontWeight: FontWeight.w700);
 
 TextStyle brytStylebtnNonActive = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: bryteGreyLight,
     fontSize: 12,
     fontWeight: FontWeight.w500);
 
 TextStyle brytStylebtnBlack = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: bryteBlack,
     fontSize: 18,
     fontWeight: FontWeight.w800);
 
 TextStyle brytStyleDarkPurlple = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: bryteDarkPurple,
     fontSize: 18,
     fontWeight: FontWeight.w800);
 TextStyle brytStylePurlple = TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: brytepurple,
     fontSize: 14,
     fontWeight: FontWeight.w800);
 
 TextStyle brytStyleWhite = const TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: Colors.white,
     fontSize: 12,
     fontWeight: FontWeight.w800);
 
 TextStyle brytStyledarkGreen = const TextStyle(
-    fontFamily: 'SFPro',
+    fontFamily: 'SF Pro',
     color: Color(0xff599B59),
     fontSize: 12,
     fontWeight: FontWeight.w800);
