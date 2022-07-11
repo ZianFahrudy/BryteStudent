@@ -10,9 +10,14 @@ class DetailAssignmentPage extends StatefulWidget {
   const DetailAssignmentPage({
     Key? key,
     required this.selectedSection,
+    required this.courseAssignName,
+    required this.bgColor,
   }) : super(key: key);
 
   final ValueNotifier<int> selectedSection;
+  final String courseAssignName;
+
+  final String bgColor;
 
   @override
   State<DetailAssignmentPage> createState() => _DetailAssignmentPageState();
@@ -50,25 +55,20 @@ class _DetailAssignmentPageState extends State<DetailAssignmentPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           HeaderCourseSection(
-            onTapGeneral: () {
-              widget.selectedSection.value = 0;
-              Get.back();
-            },
+            bgColor: widget.bgColor,
+            courseAssignName: widget.courseAssignName,
+            teacherName: '',
             onTapParticipant: () {
               widget.selectedSection.value = 4;
-              Get.back();
             },
             onTapScore: () {
               widget.selectedSection.value = 3;
-              Get.back();
             },
             onTapAssignment: () {
               widget.selectedSection.value = 1;
-              Get.back();
             },
             onTapAttendance: () {
               widget.selectedSection.value = 2;
-              Get.back();
             },
             selectedSection: widget.selectedSection,
             isMain: true,

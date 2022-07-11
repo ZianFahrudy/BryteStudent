@@ -20,6 +20,13 @@ class Url {
       baseUrl + "ws_bryte/public/calendarEventDet";
   static const String attendance =
       baseUrl + "moodle/webservice/rest/server.php";
+
+  static const String generalCourse =
+      baseUrl + "moodle/webservice/rest/server.php";
+
+  static const String course = baseUrl + "ws_bryte/public/courseStudent";
+  static const String assignment =
+      baseUrl + "ws_bryte/public/courseAssignStudent";
 }
 
 // key constant

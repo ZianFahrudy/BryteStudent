@@ -17,3 +17,12 @@ enum CourseStatus {
   @JsonValue('today')
   today,
 }
+
+enum AssignStatus {
+  @JsonValue('SUBMITTED')
+  submitted,
+  @JsonValue('NOT ATTEMPTED')
+  notAttempted,
+  @JsonValue('LATED')
+  lated,
+}

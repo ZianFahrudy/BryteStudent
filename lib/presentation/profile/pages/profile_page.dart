@@ -2,6 +2,7 @@ import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/utils/theme.dart';
 import 'package:bryte/components/utils/typography.dart';
+import 'package:bryte/presentation/auth/pages/signin.dart';
 import 'package:bryte/presentation/course/pages/all_scores_page.dart';
 import 'package:bryte/presentation/course/pages/course_section_page.dart';
 import 'package:bryte/presentation/profile/pages/all_attendance_page.dart';
@@ -9,6 +10,7 @@ import 'package:custom_sliding_segmented_control/custom_sliding_segmented_contro
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -16,7 +18,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final box = GetStorage();
+    final box = GetStorage();
 
     final selectedTab = ValueNotifier(ProfileTabType.proggress);
 
@@ -26,7 +28,10 @@ class ProfilePage extends StatelessWidget {
         title: Image.asset(AssetConstant.bryteLogoWhite),
         actions: [
           InkWell(
-            onTap: () {},
+            onTap: () {
+              box.remove(KeyConstant.token);
+              Get.off(() => const Signin());
+            },
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

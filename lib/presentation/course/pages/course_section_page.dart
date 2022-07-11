@@ -1,15 +1,28 @@
+import 'package:bryte/components/utils/constant.dart';
+import 'package:bryte/core/blocs/course/course_bloc.dart';
+import 'package:bryte/core/data/model/course/response/course_model.dart';
+import 'package:bryte/core/di/injection.dart';
 import 'package:bryte/presentation/course/pages/all_scores_page.dart';
-import 'package:bryte/presentation/course/pages/detail_assignment_page.dart';
+import 'package:bryte/presentation/course/pages/contents/general_content.dart';
 import 'package:bryte/presentation/course/pages/detail_profile_participant.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
 import 'package:get/route_manager.dart';
 
-import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/utils/typography.dart';
+import 'package:get_storage/get_storage.dart';
+
+import '../../../core/data/model/student/request/general_course_body.dart';
 
 class SectionGeneralPage extends StatefulWidget {
-  const SectionGeneralPage({Key? key}) : super(key: key);
+  const SectionGeneralPage({
+    Key? key,
+    // required this.courseId,
+    required this.dataCourse,
+  }) : super(key: key);
+  final DataCourseModel dataCourse;
+  // final int courseId;
 
   @override
   State<SectionGeneralPage> createState() => _SectionGeneralPageState();
@@ -20,8 +33,14 @@ class _SectionGeneralPageState extends State<SectionGeneralPage> {
 
   final selectedAssignment = ValueNotifier<int?>(null);
 
+  final courseBloc = getIt<CourseBloc>();
+
+  final box = GetStorage();
+
   @override
   Widget build(BuildContext context) {
+    final token = box.read(KeyConstant.token);
+
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
@@ -39,31 +58,48 @@ class _SectionGeneralPageState extends State<SectionGeneralPage> {
           ),
         ),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: selectedSection,
-        builder: (context, v, c) => SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HeaderCourseSection(
-                  selectedSection: selectedSection, isMain: false),
-              (selectedSection.value == 0)
-                  ? const GeneralContent()
-                  : selectedSection.value == 1
-                      ? AssignmentContent(
-                          onTap: () => Get.to(
-                            () => DetailAssignmentPage(
-                                selectedSection: selectedSection),
-                            transition: Transition.rightToLeftWithFade,
-                          ),
-                        )
-                      : selectedSection.value == 2
-                          ? const AttendanceContent()
-                          : selectedSection.value == 3
-                              ? const ScoreContent()
-                              : const ParticipantContent()
-            ],
+      body: bloc.BlocProvider(
+        create: (context) => courseBloc
+          ..add(GetGeneralCourseEvent(
+            body: GeneralCourseBody(
+              wstoken: token,
+              wsfunction: 'core_course_get_contents',
+              moodlewsrestformat: 'json',
+              courseid: int.parse(widget.dataCourse.idCourse),
+            ),
+          )),
+        child: ValueListenableBuilder(
+          valueListenable: selectedSection,
+          builder: (context, v, c) => SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HeaderCourseSection(
+                  courseAssignName: widget.dataCourse.course,
+                  teacherName: widget.dataCourse.teacherName,
+                  bgColor: widget.dataCourse.bgColor_1,
+                  selectedSection: selectedSection,
+                  isMain: false,
+                ),
+                (selectedSection.value == 0)
+                    ? const GeneralContent()
+                    : selectedSection.value == 1
+                        ? const AssignmentContent(
+                            // onTap: () => Get.to(
+                            //   () => DetailAssignmentPage(
+                            //       bgColor: widget.da,
+                            //       selectedSection: selectedSection),
+                            //   transition: Transition.rightToLeftWithFade,
+                            // ),
+                            )
+                        : selectedSection.value == 2
+                            ? const AttendanceContent()
+                            : selectedSection.value == 3
+                                ? const ScoreContent()
+                                : const ParticipantContent()
+              ],
+            ),
           ),
         ),
       ),
@@ -246,6 +282,10 @@ class HeaderCourseSection extends StatelessWidget {
     this.onTapAssignment,
     this.onTapParticipant,
     this.onTapAttendance,
+    required this.courseAssignName,
+    required this.teacherName,
+    required this.bgColor,
+    // required this.dataCourse,
   }) : super(key: key);
 
   final ValueNotifier<int> selectedSection;
@@ -255,12 +295,19 @@ class HeaderCourseSection extends StatelessWidget {
   final Function()? onTapAssignment;
   final Function()? onTapParticipant;
   final Function()? onTapAttendance;
+  final String courseAssignName;
+  final String teacherName;
+  final String bgColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 121,
-      color: Palette.orange,
+      color: Color(
+        int.parse(
+          bgColor.replaceAll('#', '0xff'),
+        ),
+      ),
       child: Column(
         children: [
           Padding(
@@ -276,30 +323,35 @@ class HeaderCourseSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: Colors.black.withOpacity(.2),
                   ),
-                  child: const CircleAvatar(
+                  child: CircleAvatar(
                     radius: 20,
-                    backgroundImage: NetworkImage(
-                      'https://static.wikia.nocookie.net/naruto/images/b/ba/Foto_baru_Naruto.png/revision/latest?cb=20181125060554&path-prefix=id',
-                    ),
+                    backgroundColor:
+                        Color(int.parse(bgColor.replaceAll('#', '0xff'))),
                   ),
                 ),
                 const SizedBox(width: 15),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Design for Manufacturing',
-                      style: BryteTypography.headerExtraBold.copyWith(
-                        color: Colors.white,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        courseAssignName,
+                        style: BryteTypography.headerExtraBold.copyWith(
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      'Nurmalia, Ph.D',
-                      style: BryteTypography.titleMedium.copyWith(
-                        color: Colors.white,
+                      Text(
+                        teacherName,
+                        style: BryteTypography.titleMedium.copyWith(
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 )
               ],
             ),
@@ -345,9 +397,10 @@ class HeaderCourseSection extends StatelessWidget {
                               Text(
                                 'General',
                                 style: BryteTypography.titleSemiBold.copyWith(
-                                    color: selectedSection.value == 0
-                                        ? Colors.black
-                                        : Palette.grey),
+                                  color: selectedSection.value == 0
+                                      ? Colors.black
+                                      : Palette.grey,
+                                ),
                               ),
                               Container(
                                 margin:
@@ -1059,345 +1112,6 @@ List<ReportModelDummy> reportList = [
       time: ' 8AM-10:30PM',
       statusAttend: 'NOT DUE'),
 ];
-
-class GeneralContent extends StatelessWidget {
-  const GeneralContent({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          child: Text(
-            'General',
-            style: BryteTypography.headerExtraBold,
-          ),
-        ),
-        const Divider(
-          height: 0,
-          thickness: 1,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              const Text(
-                'Design for Manufacturing is a subject focusing on design concepts and methods intended to ease the manufacturing of parts or components that would constitute the final product after assembly. In this scope, ease of manufacturing is associated with e.g. reducing the complexities in manufacturing operations and reducing the overall production cost. Some aspects of Design for Assembly is also included in this course to provide students with a wider perspective of product fabrication. Most topics will cover design for different manufacturing methods commonly used, i.e. machining, injection moulding, die casting, investment casting, welding and 3D printing. How CAD is relevant in DFMA is also discussed. The prerequisite for this course is Manufacturing Methods.',
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  'After completing this course, students are expected to be able:',
-                  style: BryteTypography.titleMedium,
-                ),
-              ),
-              Column(
-                children: List.generate(
-                  listText.length,
-                  (index) => Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${(index + 1).toString()}. '),
-                      Expanded(child: Text(listText[index])),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 10),
-                child: Row(
-                  children: [
-                    const Text(
-                      'Week 1',
-                      style: BryteTypography.headerExtraBold,
-                    ),
-                    const SizedBox(width: 5),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Palette.fanta400,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'NEW CHANGES',
-                        style: BryteTypography.bodyRegular
-                            .copyWith(color: Colors.white, fontSize: 8),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              const Divider(
-                height: 0,
-                thickness: 1,
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Topic: Introduction',
-                style: BryteTypography.titleMedium,
-              ),
-              Column(
-                children: List.generate(
-                  listText2.length,
-                  (index) => Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${(index + 1).toString()}. '),
-                      Expanded(child: Text(listText2[index])),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                    color: Palette.lighterGrey,
-                    borderRadius: BorderRadius.circular(10)),
-                child: IntrinsicHeight(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        AssetConstant.iconZoom,
-                        width: 20,
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      const Text(
-                        'DFMA 2021 - Week 1',
-                        style: BryteTypography.titleMedium,
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: SizedBox(
-                          height: 40,
-                          child: VerticalDivider(
-                            width: 0,
-                            thickness: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {},
-                        child: Text(
-                          'View',
-                          style: BryteTypography.bodyExtraBold.copyWith(
-                            color: Palette.purple,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-                decoration: BoxDecoration(
-                    color: Palette.lighterGrey,
-                    borderRadius: BorderRadius.circular(10)),
-                child: IntrinsicHeight(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        AssetConstant.iconYoutube,
-                        width: 20,
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      const Expanded(
-                        child: Text(
-                          'What is Design for Manufacturing and Assembly',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: BryteTypography.titleMedium,
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: SizedBox(
-                          height: 50,
-                          child: VerticalDivider(
-                            thickness: 2,
-                            color: Colors.white,
-                            width: 0,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        'View',
-                        style: BryteTypography.bodyExtraBold.copyWith(
-                          color: Palette.purple,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 30, top: 10, bottom: 10),
-                child: Text(
-                  'A lecture video that we\'re going to watch during the class, of which I will explain some concepts more if you need me to.',
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                    color: Palette.lighterGrey,
-                    borderRadius: BorderRadius.circular(10)),
-                child: IntrinsicHeight(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        AssetConstant.iconZoom,
-                        width: 20,
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      const Text(
-                        'Recording - Week 1',
-                        style: BryteTypography.titleMedium,
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: SizedBox(
-                          height: 40,
-                          child: VerticalDivider(
-                            width: 0,
-                            thickness: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {},
-                        child: Text(
-                          'View',
-                          style: BryteTypography.bodyExtraBold.copyWith(
-                            color: Palette.purple,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(
-                  left: 30,
-                ),
-                child: Text(
-                  'Access Passcode: fCF17&w7',
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                    color: Palette.lighterGrey,
-                    borderRadius: BorderRadius.circular(10)),
-                child: IntrinsicHeight(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        AssetConstant.iconZoom,
-                        width: 20,
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      const Text(
-                        'Assignment - Week 1',
-                        style: BryteTypography.titleMedium,
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: SizedBox(
-                          height: 40,
-                          child: VerticalDivider(
-                            width: 0,
-                            thickness: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {},
-                        child: Text(
-                          'View',
-                          style: BryteTypography.bodyExtraBold.copyWith(
-                            color: Palette.purple,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 10),
-                child: Row(
-                  children: [
-                    const Text(
-                      'Week 2',
-                      style: BryteTypography.headerExtraBold,
-                    ),
-                    const SizedBox(width: 5),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Palette.fanta400,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'NEW CHANGES',
-                        style: BryteTypography.bodyRegular
-                            .copyWith(color: Colors.white, fontSize: 8),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              const Divider(
-                height: 0,
-                thickness: 1,
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class CourseTabButton extends StatelessWidget {
   const CourseTabButton({

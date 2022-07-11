@@ -4,7 +4,6 @@ import 'package:bryte/components/widgets/back_button.dart';
 import 'package:bryte/presentation/course/pages/all_scores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class AllAttendancePage extends StatelessWidget {
   const AllAttendancePage({Key? key}) : super(key: key);
@@ -17,8 +16,10 @@ class AllAttendancePage extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'All Attendace',
-          style: BryteTypography.titleSemiBold
-              .copyWith(fontWeight: FontWeight.w800, fontSize: 18),
+          style: BryteTypography.titleSemiBold.copyWith(
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+          ),
         ),
       ),
       body: Column(
