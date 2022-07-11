@@ -1,7 +1,7 @@
-import 'package:bryte/core/model/auth/auth_model.dart';
-import 'package:bryte/core/model/auth/authorization_model.dart';
-import 'package:bryte/core/model/auth/request/authorization_body.dart';
-import 'package:bryte/utils/constant.dart';
+import 'package:bryte/components/utils/constant.dart';
+import 'package:bryte/core/data/model/auth/authorization_model.dart';
+import 'package:bryte/core/data/model/auth/request/authorization_body.dart';
+import 'package:bryte/core/data/model/auth/auth_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
