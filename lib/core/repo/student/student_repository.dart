@@ -1,19 +1,22 @@
-import 'package:bryte/core/model/student/request/announcement_body.dart';
-import 'package:bryte/core/model/student/request/class_summary_student_body.dart';
-import 'package:bryte/core/model/student/request/today_classes_body.dart';
-import 'package:bryte/core/model/student/request/upcoming_assign_body.dart';
-import 'package:bryte/core/model/student/response/announcement_model.dart';
-import 'package:bryte/core/model/student/response/class_summary_student_model.dart';
-import 'package:bryte/core/model/student/response/today_classes_model.dart';
-import 'package:bryte/core/model/student/response/upcoming_assign_model.dart';
-import 'package:bryte/utils/constant.dart';
+import 'package:bryte/components/utils/constant.dart';
+import 'package:bryte/core/data/model/calendar/request/event_body.dart';
+import 'package:bryte/core/data/model/calendar/response/event_model.dart';
+import 'package:bryte/core/data/model/student/request/announcement_body.dart';
+import 'package:bryte/core/data/model/student/request/class_summary_student_body.dart';
+import 'package:bryte/core/data/model/student/request/submit_attendance_body.dart';
+import 'package:bryte/core/data/model/student/request/today_classes_body.dart';
+import 'package:bryte/core/data/model/student/request/upcoming_assign_body.dart';
+import 'package:bryte/core/data/model/student/response/announcement_model.dart';
+import 'package:bryte/core/data/model/student/response/class_summary_student_model.dart';
+import 'package:bryte/core/data/model/student/response/today_classes_model.dart';
+import 'package:bryte/core/data/model/student/response/upcoming_assign_model.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
-import '../../interceptor/dio_connectivity_request_retry.dart';
-import '../../interceptor/retry_interceptor.dart';
+import '../../../components/network/interceptor/dio_connectivity_request_retry.dart';
+import '../../../components/network/interceptor/retry_interceptor.dart';
 
 abstract class StudentRepository {
   Future<ClassSummaryStudentModel> getClassSummaryStudent(
@@ -21,6 +24,8 @@ abstract class StudentRepository {
   Future<AnnouncementModel> getAnnouncement(AnnouncementBody body);
   Future<TodayClassesModel> getTodayClasses(TodayClassesBody body);
   Future<UpcomingAssignModel> getUpcomingAssign(UpcomingAssignBody body);
+  Future<CalendarEventModel> getCalendarEvent(EventBody body);
+  Future<String> submitAttendance(SubmitAttendanceBody body);
 }
 
 @LazySingleton(as: StudentRepository)
@@ -144,6 +149,48 @@ class StudentRepositoryImpl extends StudentRepository {
       if (e is DioError) {
         if (e.type == DioErrorType.response) {
           return UpcomingAssignModel.fromJson(e.response?.data);
+        } else {
+          throw Exception(e.message);
+        }
+      } else {
+        throw Exception("Error");
+      }
+    }
+  }
+
+  @override
+  Future<CalendarEventModel> getCalendarEvent(EventBody body) async {
+    try {
+      Response response =
+          await dio.post(Url.calendarEvent, data: body.toJson());
+      return CalendarEventModel.fromJson(response.data);
+    } catch (e) {
+      if (e is DioError) {
+        if (e.type == DioErrorType.response) {
+          return CalendarEventModel.fromJson(e.response?.data);
+        } else {
+          throw Exception(e.message);
+        }
+      } else {
+        throw Exception("Error");
+      }
+    }
+  }
+
+  @override
+  Future<String> submitAttendance(SubmitAttendanceBody body) async {
+    try {
+      Response response =
+          await dio.post(Url.attendance, queryParameters: body.toJson());
+
+      if (response.data != null) {
+        return "Gagal";
+      }
+      return "Sukses";
+    } catch (e) {
+      if (e is DioError) {
+        if (e.type == DioErrorType.response) {
+          return 'Gagal';
         } else {
           throw Exception(e.message);
         }
