@@ -7,3 +7,10 @@ class GetCalendarEvent extends EventEvent {
   GetCalendarEvent(this.body);
   final EventBody body;
 }
+
+class GetCalendarEventPerWeek extends EventEvent {
+  final EventBody body;
+  GetCalendarEventPerWeek({
+    required this.body,
+  });
+}

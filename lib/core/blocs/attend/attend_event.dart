@@ -9,3 +9,10 @@ class SubmitAttendance extends AttendEvent {
     this.body,
   );
 }
+
+class GetAttendanceEvent extends AttendEvent {
+  final AttendanceBody body;
+  GetAttendanceEvent({
+    required this.body,
+  });
+}

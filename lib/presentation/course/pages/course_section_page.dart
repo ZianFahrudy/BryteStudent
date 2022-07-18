@@ -1,5 +1,9 @@
 import 'package:bryte/components/utils/constant.dart';
+import 'package:bryte/core/blocs/assignment/assignment_bloc.dart';
+import 'package:bryte/core/blocs/attend/attend_bloc.dart';
 import 'package:bryte/core/blocs/course/course_bloc.dart';
+import 'package:bryte/core/data/model/course/request/assignment_per_course_body.dart';
+import 'package:bryte/core/data/model/course/request/attendance_body.dart';
 import 'package:bryte/core/data/model/course/response/course_model.dart';
 import 'package:bryte/core/di/injection.dart';
 import 'package:bryte/presentation/course/pages/all_scores_page.dart';
@@ -7,6 +11,7 @@ import 'package:bryte/presentation/course/pages/contents/general_content.dart';
 import 'package:bryte/presentation/course/pages/detail_profile_participant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 
 import 'package:bryte/components/utils/palette.dart';
@@ -14,6 +19,8 @@ import 'package:bryte/components/utils/typography.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../../../core/data/model/student/request/general_course_body.dart';
+import 'contents/assignment_content.dart';
+import 'contents/attendance_content.dart';
 
 class SectionGeneralPage extends StatefulWidget {
   const SectionGeneralPage({
@@ -34,12 +41,15 @@ class _SectionGeneralPageState extends State<SectionGeneralPage> {
   final selectedAssignment = ValueNotifier<int?>(null);
 
   final courseBloc = getIt<CourseBloc>();
+  final assignmentBloc = getIt<AssignmentBloc>();
+  final attendBloc = getIt<AttendBloc>();
 
   final box = GetStorage();
 
   @override
   Widget build(BuildContext context) {
     final token = box.read(KeyConstant.token);
+    final userId = box.read(KeyConstant.userId);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,16 +68,44 @@ class _SectionGeneralPageState extends State<SectionGeneralPage> {
           ),
         ),
       ),
-      body: bloc.BlocProvider(
-        create: (context) => courseBloc
-          ..add(GetGeneralCourseEvent(
-            body: GeneralCourseBody(
-              wstoken: token,
-              wsfunction: 'core_course_get_contents',
-              moodlewsrestformat: 'json',
-              courseid: int.parse(widget.dataCourse.idCourse),
-            ),
-          )),
+      body: bloc.MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => courseBloc
+              ..add(GetGeneralCourseEvent(
+                body: GeneralCourseBody(
+                  wstoken: token,
+                  wsfunction: 'core_course_get_contents',
+                  moodlewsrestformat: 'json',
+                  courseid: int.parse(widget.dataCourse.idCourse),
+                ),
+              )),
+          ),
+          BlocProvider(
+            create: (context) => assignmentBloc
+              ..add(
+                GetAssignmentPerCourseEvent(
+                  body: AssignmentPerCourseBody(
+                    token: token,
+                    userid: userId,
+                    idcourse: widget.dataCourse.idCourse,
+                  ),
+                ),
+              ),
+          ),
+          BlocProvider(
+            create: (context) => attendBloc
+              ..add(
+                GetAttendanceEvent(
+                  body: AttendanceBody(
+                    token: 'fb3e9d4a7cb39d59f5bc0e149d5b7082',
+                    userid: '9457',
+                    idCourse: '8152',
+                  ),
+                ),
+              ),
+          ),
+        ],
         child: ValueListenableBuilder(
           valueListenable: selectedSection,
           builder: (context, v, c) => SingleChildScrollView(
@@ -85,14 +123,11 @@ class _SectionGeneralPageState extends State<SectionGeneralPage> {
                 (selectedSection.value == 0)
                     ? const GeneralContent()
                     : selectedSection.value == 1
-                        ? const AssignmentContent(
-                            // onTap: () => Get.to(
-                            //   () => DetailAssignmentPage(
-                            //       bgColor: widget.da,
-                            //       selectedSection: selectedSection),
-                            //   transition: Transition.rightToLeftWithFade,
-                            // ),
-                            )
+                        ? AssignmentContent(
+                            selectedSection: selectedSection,
+                            dataCourse: widget.dataCourse,
+                            bgColor: widget.dataCourse.bgColor_1,
+                          )
                         : selectedSection.value == 2
                             ? const AttendanceContent()
                             : selectedSection.value == 3
@@ -766,317 +801,6 @@ class ScoreContent extends StatelessWidget {
             ],
           ),
         ),
-      ],
-    );
-  }
-}
-
-class AssignmentContent extends StatelessWidget {
-  const AssignmentContent({
-    Key? key,
-    this.onTap,
-  }) : super(key: key);
-
-  final Function()? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          child: Text(
-            'Assignments',
-            style: BryteTypography.headerExtraBold,
-          ),
-        ),
-        const Divider(
-          height: 0,
-          thickness: 1,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Text(
-                    'Upcoming',
-                    style: BryteTypography.titleMedium,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    '1',
-                    style: BryteTypography.titleMedium
-                        .copyWith(color: Palette.purple),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(15),
-                  onTap: onTap,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: IntrinsicHeight(
-                      child: Row(
-                        children: [
-                          Column(
-                            children: [
-                              Text(
-                                '14 Sep',
-                                style: BryteTypography.bodyRegular.copyWith(
-                                    color: Palette.purple,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                '23:59',
-                                style: BryteTypography.titleSemiBold.copyWith(
-                                  color: Palette.purple,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const VerticalDivider(
-                            thickness: 2,
-                            width: 20,
-                            color: Palette.lightPurple,
-                          ),
-                          const Expanded(
-                            child: Text(
-                              'Assignment - Week week weekkwe wkkwewk',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 5),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Palette.red.withOpacity(0.05)),
-                            child: Text(
-                              'NOT ATTEMPTED',
-                              style: BryteTypography.bodyMedium
-                                  .copyWith(color: Palette.red),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(15),
-                  onTap: onTap,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: IntrinsicHeight(
-                      child: Row(
-                        children: [
-                          Column(
-                            children: [
-                              Text(
-                                '14 Sep',
-                                style: BryteTypography.bodyRegular.copyWith(
-                                    color: Palette.purple,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                '23:59',
-                                style: BryteTypography.titleSemiBold.copyWith(
-                                  color: Palette.purple,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const VerticalDivider(
-                            thickness: 2,
-                            width: 20,
-                            color: Palette.lightPurple,
-                          ),
-                          const Expanded(
-                            child: Text(
-                              'Introduction to Design wewe kk...',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 5),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Palette.squash500.withOpacity(0.05)),
-                            child: Text(
-                              'SUBMITTED',
-                              style: BryteTypography.bodyMedium
-                                  .copyWith(color: Palette.squash500),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class AttendanceContent extends StatelessWidget {
-  const AttendanceContent({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          child: Text(
-            'Attendances',
-            style: BryteTypography.headerExtraBold,
-          ),
-        ),
-        const Divider(
-          height: 0,
-          thickness: 1,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Palette.lightPurple),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Absence Left',
-                          style: BryteTypography.headerSemiBold,
-                        ),
-                        Text(
-                          '4',
-                          style: BryteTypography.headerExtraBold
-                              .copyWith(fontSize: 20, color: Palette.purple),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Palette.lightPurple),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Attendance',
-                          style: BryteTypography.headerSemiBold,
-                        ),
-                        Text(
-                          '100%',
-                          style: BryteTypography.headerExtraBold
-                              .copyWith(fontSize: 20, color: Palette.purple),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Text(
-            'Full Report',
-            style: BryteTypography.headerSemiBold,
-          ),
-        ),
-        Column(
-          children: reportList
-              .map((e) => Container(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Container(
-                            margin: const EdgeInsets.only(right: 20),
-                            child: Text(e.weekNumber)),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text(
-                                e.date,
-                              ),
-                              Text(
-                                e.time,
-                              ),
-                            ],
-                          ),
-                        ),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(15),
-                          onTap: e.statusAttend == 'WAITING' ? () {} : null,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 5),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: e.statusAttend == 'WAITING'
-                                    ? Palette.purple
-                                    : Palette.lightGrey.withOpacity(0.2)),
-                            child: Text(
-                              e.statusAttend == 'WAITING'
-                                  ? 'ATTEND'
-                                  : e.statusAttend,
-                              style: BryteTypography.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: e.statusAttend == 'PRESENT'
-                                      ? Palette.green
-                                      : e.statusAttend == 'WAITING'
-                                          ? Colors.white
-                                          : Palette.lightGrey),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ))
-              .toList(),
-        )
       ],
     );
   }

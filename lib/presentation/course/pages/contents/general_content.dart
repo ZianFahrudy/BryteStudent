@@ -68,16 +68,34 @@ class _GeneralContentState extends State<GeneralContent> {
                       runSpacing: 10,
                       children: List.generate(
                         state.response[index].modules.length,
-                        (i) => Expanded(
-                            child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                    color: Palette.lighterGrey,
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    (state.response[index].modules[i]
+                        (i) => Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                                color: Palette.lighterGrey,
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                (state.response[index].modules[i].contents !=
+                                                null &&
+                                            state.response[index].modules[i]
+                                                    .contents![0].type ==
+                                                'file') &&
+                                        (state.response[index].modules[i]
+                                                    .contents![0].mimetype !=
+                                                null &&
+                                            state.response[index].modules[i]
+                                                    .contents![0].mimetype ==
+                                                'image/png')
+                                    ? Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 10),
+                                        child: Image.network(state
+                                            .response[index]
+                                            .modules[i]
+                                            .modicon),
+                                      )
+                                    : (state.response[index].modules[i]
                                                         .contents !=
                                                     null &&
                                                 state.response[index].modules[i]
@@ -94,79 +112,45 @@ class _GeneralContentState extends State<GeneralContent> {
                                                         .modules[i]
                                                         .contents![0]
                                                         .mimetype ==
-                                                    'image/png')
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(
+                                                    'application/pdf')
+                                        ? Container(
+                                            margin: const EdgeInsets.only(
                                                 right: 10),
-                                            child: Image.network(state
-                                                .response[index]
-                                                .modules[i]
-                                                .modicon),
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                color: Palette.fanta500,
+                                                borderRadius:
+                                                    BorderRadius.circular(5)),
+                                            child: const Icon(
+                                              FluentIcons
+                                                  .document_pdf_20_regular,
+                                              color: Colors.white,
+                                            ),
                                           )
-                                        : (state.response[index].modules[i]
-                                                            .contents !=
-                                                        null &&
-                                                    state
-                                                            .response[index]
-                                                            .modules[i]
-                                                            .contents![0]
-                                                            .type ==
-                                                        'file') &&
-                                                (state
-                                                            .response[index]
-                                                            .modules[i]
-                                                            .contents![0]
-                                                            .mimetype !=
-                                                        null &&
-                                                    state
-                                                            .response[index]
-                                                            .modules[i]
-                                                            .contents![0]
-                                                            .mimetype ==
-                                                        'application/pdf')
-                                            ? Container(
-                                                margin: const EdgeInsets.only(
-                                                    right: 10),
-                                                padding:
-                                                    const EdgeInsets.all(5),
-                                                decoration: BoxDecoration(
-                                                    color: Palette.fanta500,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5)),
-                                                child: const Icon(
-                                                  FluentIcons
-                                                      .document_pdf_20_regular,
-                                                  color: Colors.white,
-                                                ),
-                                              )
-                                            : Container(
-                                                margin: const EdgeInsets.only(
-                                                    right: 10),
-                                                padding:
-                                                    const EdgeInsets.all(5),
-                                                decoration: BoxDecoration(
-                                                    color: Palette.purple,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5)),
-                                                child: const Icon(
-                                                  FluentIcons
-                                                      .document_20_filled,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                    Flexible(
-                                      child: Text(
-                                        state.response[index].modules[i].name,
-                                        style: BryteTypography.titleSemiBold
-                                            .copyWith(color: Palette.grey),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ))),
+                                        : Container(
+                                            margin: const EdgeInsets.only(
+                                                right: 10),
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                color: Palette.purple,
+                                                borderRadius:
+                                                    BorderRadius.circular(5)),
+                                            child: const Icon(
+                                              FluentIcons.document_20_filled,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                Flexible(
+                                  child: Text(
+                                    state.response[index].modules[i].name,
+                                    style: BryteTypography.titleSemiBold
+                                        .copyWith(color: Palette.grey),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            )),
                       ),
                     ),
                   )

@@ -1,5 +1,6 @@
 import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/utils/theme.dart';
+import 'package:bryte/core/blocs/assignment/assignment_bloc.dart';
 import 'package:bryte/core/blocs/course/course_bloc.dart';
 import 'package:bryte/core/data/model/course/request/course_body.dart';
 import 'package:bryte/presentation/course/pages/course_page.dart';
@@ -15,11 +16,15 @@ class SegmentedCourse extends StatelessWidget {
     required this.selectedValue,
     required this.courseBloc,
     required this.selectedFilterValue,
+    required this.assignmentBloc,
+    required this.selectedFilterAssign,
   }) : super(key: key);
 
   final ValueNotifier<TabType> selectedValue;
   final CourseBloc courseBloc;
+  final AssignmentBloc assignmentBloc;
   final ValueNotifier<FilterCourseType> selectedFilterValue;
+  final ValueNotifier<FilterAssignmentType> selectedFilterAssign;
 
   @override
   Widget build(BuildContext context) {
@@ -86,18 +91,36 @@ class SegmentedCourse extends StatelessWidget {
                 onValueChanged: (TabType value) {
                   selectedValue.value = value;
 
-                  courseBloc.add(GetCourseEvent(
-                    body: CourseBody(
-                      token: token,
-                      userid: userId,
-                      type: selectedFilterValue.value ==
-                              FilterCourseType.inProgress
-                          ? 'progress'
-                          : selectedFilterValue.value == FilterCourseType.past
-                              ? 'past'
-                              : 'future',
-                    ),
-                  ));
+                  if (selectedValue.value == TabType.course) {
+                    courseBloc.add(GetCourseEvent(
+                      body: CourseBody(
+                        token: token,
+                        userid: userId,
+                        type: selectedFilterValue.value ==
+                                FilterCourseType.inProgress
+                            ? 'progress'
+                            : selectedFilterValue.value == FilterCourseType.past
+                                ? 'past'
+                                : 'future',
+                      ),
+                    ));
+                  } else {
+                    assignmentBloc.add(
+                      GetCourseAssignment(
+                        body: CourseBody(
+                          token: token,
+                          userid: userId,
+                          type: selectedFilterAssign.value ==
+                                  FilterAssignmentType.allUpcoming
+                              ? 'upcoming'
+                              : selectedFilterAssign.value ==
+                                      FilterAssignmentType.thisWeek
+                                  ? 'weekly'
+                                  : 'past',
+                        ),
+                      ),
+                    );
+                  }
                 },
               )),
           const Divider(

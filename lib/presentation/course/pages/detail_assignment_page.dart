@@ -1,10 +1,21 @@
+import 'dart:developer';
+
 import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/utils/typography.dart';
+import 'package:bryte/core/blocs/assignment/assignment_bloc.dart';
+import 'package:bryte/core/blocs/course/course_bloc.dart';
+import 'package:bryte/core/data/model/course/request/detail_assignment_body.dart';
+import 'package:bryte/core/data/model/student/request/general_course_body.dart';
+import 'package:bryte/core/di/injection.dart';
+import 'package:bryte/presentation/course/pages/contents/general_content.dart';
 import 'package:bryte/presentation/course/pages/course_section_page.dart';
-import 'package:bryte/presentation/course/pages/edit_submission_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import '../../../core/repo/auth/auth_repository.dart';
+import 'contents/attendance_content.dart';
+import 'contents/detail_assignment_content.dart';
 
 class DetailAssignmentPage extends StatefulWidget {
   const DetailAssignmentPage({
@@ -12,11 +23,16 @@ class DetailAssignmentPage extends StatefulWidget {
     required this.selectedSection,
     required this.courseAssignName,
     required this.bgColor,
+    required this.teacherName,
+    required this.idCourse,
+    required this.idAssign,
   }) : super(key: key);
 
   final ValueNotifier<int> selectedSection;
   final String courseAssignName;
-
+  final String teacherName;
+  final String idCourse;
+  final String idAssign;
   final String bgColor;
 
   @override
@@ -30,309 +46,130 @@ class _DetailAssignmentPageState extends State<DetailAssignmentPage> {
     super.initState();
   }
 
+  // final selectedSection = ValueNotifier<int>(1);
+
+  final assignmentBloc = getIt<AssignmentBloc>();
+  final courseBloc = getIt<CourseBloc>();
+
+  final token = box.read(KeyConstant.token);
+  final userId = box.read(KeyConstant.userId);
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: GestureDetector(
-          onTap: () {
-            Get.back<void>();
-          },
-          child: Row(
-            children: const [
-              Icon(
-                Icons.chevron_left,
-                color: Colors.white,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => assignmentBloc
+            ..add(
+              GetDetailAssignmentEvent(
+                body: DetailAssignmentBody(
+                  token: token,
+                  // token: 'fb3e9d4a7cb39d59f5bc0e149d5b7082',
+                  userid: userId,
+                  // userid: '9457',
+                  idCourse: widget.idCourse,
+                  // idCourse: '8152',
+                  idAssign: widget.idAssign,
+                  // idAssign: '26526',
+                ),
               ),
-              Text('Back')
-            ],
+            ),
+        ),
+        BlocProvider(
+          create: (context) => courseBloc
+            ..add(GetGeneralCourseEvent(
+              body: GeneralCourseBody(
+                wstoken: token,
+                wsfunction: 'core_course_get_contents',
+                moodlewsrestformat: 'json',
+                courseid: int.parse(widget.idCourse),
+              ),
+            )),
+        ),
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          leading: GestureDetector(
+            onTap: () {
+              Get.back<void>();
+            },
+            child: Row(
+              children: const [
+                Icon(
+                  Icons.chevron_left,
+                  color: Colors.white,
+                ),
+                Text('Back')
+              ],
+            ),
           ),
         ),
+        body: BlocConsumer<AssignmentBloc, AssignmentState>(
+          listener: (context, state) {
+            if (state is DetailAssignmentSuccess) {
+              log('Detail Assignment Success');
+            } else if (state is AssignmentFailure) {
+              log('Detail Assignment Gagal');
+            }
+          },
+          builder: (context, state) {
+            if (state is DetailAssignmentSuccess) {
+              return ValueListenableBuilder(
+                valueListenable: widget.selectedSection,
+                builder: (context, _, __) => SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      HeaderCourseSection(
+                        bgColor: widget.bgColor,
+                        courseAssignName: widget.courseAssignName,
+                        teacherName: state.response.data[0].teacherName,
+                        onTapGeneral: () {
+                          widget.selectedSection.value = 0;
+                        },
+                        onTapParticipant: () {
+                          widget.selectedSection.value = 4;
+                        },
+                        onTapScore: () {
+                          widget.selectedSection.value = 3;
+                        },
+                        onTapAssignment: () {
+                          widget.selectedSection.value = 1;
+                        },
+                        onTapAttendance: () {
+                          widget.selectedSection.value = 2;
+                        },
+                        selectedSection: widget.selectedSection,
+                        isMain: true,
+                      ),
+                      widget.selectedSection.value == 0
+                          ? const GeneralContent()
+                          : widget.selectedSection.value == 1
+                              ? DetailAssignmentContent(
+                                  state: state,
+                                )
+                              : widget.selectedSection.value == 2
+                                  ? const AttendanceContent()
+                                  : widget.selectedSection.value == 3
+                                      ? const ScoreContent()
+                                      : const ParticipantContent()
+                    ],
+                  ),
+                ),
+              );
+            } else if (state is AssignmentLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return const Center(
+                child: Text('Something Error'),
+              );
+            }
+          },
+        ),
       ),
-      body: SingleChildScrollView(
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          HeaderCourseSection(
-            bgColor: widget.bgColor,
-            courseAssignName: widget.courseAssignName,
-            teacherName: '',
-            onTapParticipant: () {
-              widget.selectedSection.value = 4;
-            },
-            onTapScore: () {
-              widget.selectedSection.value = 3;
-            },
-            onTapAssignment: () {
-              widget.selectedSection.value = 1;
-            },
-            onTapAttendance: () {
-              widget.selectedSection.value = 2;
-            },
-            selectedSection: widget.selectedSection,
-            isMain: true,
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: Text(
-              'Assignment - Week 1',
-              style: BryteTypography.headerExtraBold,
-            ),
-          ),
-          const Divider(
-            height: 0,
-            thickness: 1,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Instructions',
-                  style: BryteTypography.titleSemiBold,
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Please watch the Lecture Video and write the summary and key points of the lecture on an A4 paper (minimum 1 page).',
-                ),
-                SizedBox(height: 10),
-                LabelAssignment(
-                  label: 'Due Date',
-                  description: '8 Sep 2021, 23:59',
-                ),
-                LabelAssignment(
-                  label: 'Time Remaining',
-                  description: '1 day 22 hours',
-                ),
-                LabelAssignment(
-                  label: 'Submission Status',
-                  description: 'Not Attempted',
-                ),
-                LabelAssignment(
-                  label: 'Grade',
-                  description: 'Not Graded',
-                ),
-              ],
-            ),
-          ),
-          const Divider(
-            height: 0,
-            thickness: 1,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Submission',
-                      style: BryteTypography.titleSemiBold,
-                    ),
-                    InkWell(
-                      onTap: () => Get.to(
-                        () => const EditSubmissionPage(),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.edit,
-                            color: Palette.purple,
-                            size: 15,
-                          ),
-                          Text(
-                            'Edit',
-                            style: BryteTypography.titleSemiBold
-                                .copyWith(color: Palette.purple),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Maximum size',
-                  style: BryteTypography.titleRegular.copyWith(fontSize: 14),
-                ),
-                Text(
-                  '20 MB',
-                  style: BryteTypography.titleRegular.copyWith(
-                      fontSize: 14,
-                      color: Palette.purple,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Allowed file formats',
-                  style: BryteTypography.titleRegular.copyWith(fontSize: 14),
-                ),
-                Text(
-                  'All document files',
-                  style: BryteTypography.titleRegular.copyWith(
-                      fontSize: 14,
-                      color: Palette.purple,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Palette.neutral200,
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Get.bottomSheet(
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Center(
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                height: 5,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                    color: Palette.lightGrey,
-                                    borderRadius: BorderRadius.circular(10)),
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              child: Text(
-                                'Select File type',
-                                style: BryteTypography.titleSemiBold,
-                              ),
-                            ),
-                            const Divider(
-                              height: 0,
-                              thickness: 3,
-                              color: Palette.lightPB,
-                            ),
-                            Column(
-                              children: const [
-                                SelectFileTypeLabel(
-                                  label: 'File',
-                                  icon: Icons.description,
-                                ),
-                                SelectFileTypeLabel(
-                                  label: 'Picture/Video',
-                                  icon: Icons.photo_library,
-                                ),
-                                SelectFileTypeLabel(
-                                  label: 'Open Camera',
-                                  icon: Icons.camera_alt,
-                                  divider: false,
-                                ),
-                                SizedBox(height: 10),
-                              ],
-                            )
-                          ],
-                        ),
-                        backgroundColor: Colors.white,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
-                          ),
-                        ),
-                      );
-                    },
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          AssetConstant.iconUpload,
-                          width: 50,
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Text(
-                          'Tap here to upload a file',
-                          style: BryteTypography.titleRegular.copyWith(
-                              fontSize: 14,
-                              color: Palette.neutral300,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                      color: Palette.lighterGrey,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.picture_as_pdf,
-                          color: Palette.darkPurple,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'DfM_Farel J. Suryadi.pdf',
-                              style: BryteTypography.titleMedium,
-                            ),
-                            Text(
-                              '1MB • 7 Sep 2021 17:23',
-                              style: BryteTypography.bodyMedium
-                                  .copyWith(color: Palette.grey),
-                            ),
-                          ],
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: SizedBox(
-                            height: 50,
-                            child: VerticalDivider(
-                              width: 0,
-                              thickness: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {},
-                          child: Text(
-                            'View',
-                            style: BryteTypography.bodyExtraBold.copyWith(
-                              color: Palette.purple,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      )),
     );
   }
 }
@@ -358,17 +195,20 @@ class SelectFileTypeLabel extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                color: Palette.darkPurple,
-              ),
-              const SizedBox(
-                width: 15,
-              ),
-              Text(label)
-            ],
+          child: InkWell(
+            onTap: onTap,
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: Palette.darkPurple,
+                ),
+                const SizedBox(
+                  width: 15,
+                ),
+                Text(label)
+              ],
+            ),
           ),
         ),
         if (divider!)

@@ -1,6 +1,10 @@
 import 'package:bloc/bloc.dart';
+import 'package:bryte/core/data/model/course/request/assignment_per_course_body.dart';
 import 'package:bryte/core/data/model/course/request/course_body.dart';
+import 'package:bryte/core/data/model/course/request/detail_assignment_body.dart';
 import 'package:bryte/core/data/model/course/response/assignment_model.dart';
+import 'package:bryte/core/data/model/course/response/assignment_per_course_model.dart';
+import 'package:bryte/core/data/model/course/response/detail_assignment_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 
@@ -30,5 +34,49 @@ class AssignmentBloc extends Bloc<AssignmentEvent, AssignmentState> {
         );
       }
     });
+
+    on<GetDetailAssignmentEvent>(
+      (event, emit) async {
+        try {
+          emit(AssignmentLoading());
+          final data = await apiRespository.getDetailAssignment(event.body);
+          if (data.status == 200) {
+            emit(DetailAssignmentSuccess(response: data));
+          } else if (data.status == 404) {
+            emit(AssignmentFailure(msg: data.message));
+          }
+        } catch (e) {
+          emit(
+            AssignmentFailure(
+              msg: e.toString(),
+            ),
+          );
+        }
+      },
+    );
+
+    on<GetAssignmentPerCourseEvent>(
+      (event, emit) async {
+        try {
+          emit(AssignmentLoading());
+          final data = await apiRespository.getAssignmentPerCourse(event.body);
+          if (data.status == 200) {
+            emit(
+              AssignmentPerCourseSuccess(
+                response: data,
+              ),
+            );
+          } else if (data.status == 404) {
+            emit(AssignmentFailure(msg: data.message));
+          }
+        } catch (e) {
+          emit(
+            AssignmentFailure(
+              msg: e.toString(),
+            ),
+          );
+        }
+      },
+    );
   }
 }

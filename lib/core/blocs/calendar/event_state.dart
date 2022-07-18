@@ -17,3 +17,9 @@ class EventFailure extends EventState {
   EventFailure(this.msg);
   final String msg;
 }
+
+class EventPerWeekSuccess extends EventState {
+  EventPerWeekSuccess(this.response);
+
+  final CalendarEventModel response;
+}

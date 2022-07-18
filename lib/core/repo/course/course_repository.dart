@@ -1,7 +1,11 @@
 import 'package:bryte/components/network/interceptor/dio_connectivity_request_retry.dart';
+import 'package:bryte/core/data/model/course/request/assignment_per_course_body.dart';
 import 'package:bryte/core/data/model/course/request/course_body.dart';
+import 'package:bryte/core/data/model/course/request/detail_assignment_body.dart';
 import 'package:bryte/core/data/model/course/response/assignment_model.dart';
+import 'package:bryte/core/data/model/course/response/assignment_per_course_model.dart';
 import 'package:bryte/core/data/model/course/response/course_model.dart';
+import 'package:bryte/core/data/model/course/response/detail_assignment_model.dart';
 import 'package:bryte/core/data/model/student/request/general_course_body.dart';
 import 'package:bryte/core/data/model/student/response/course_general_model.dart';
 import 'package:connectivity/connectivity.dart';
@@ -16,6 +20,9 @@ abstract class CourseRepository {
   Future<List<CourseGeneralModel>> getGeneralCourse(GeneralCourseBody body);
   Future<CourseModel> getCourse(CourseBody body);
   Future<AssignmentModel> getAssignment(CourseBody body);
+  Future<DetailAssignmentModel> getDetailAssignment(DetailAssignmentBody body);
+  Future<AssignmentPerCourseModel> getAssignmentPerCourse(
+      AssignmentPerCourseBody body);
 }
 
 @LazySingleton(as: CourseRepository)
@@ -112,6 +119,50 @@ class CourseRepositoryImpl extends CourseRepository {
       if (e is DioError) {
         if (e.type == DioErrorType.response) {
           return AssignmentModel.fromJson(e.response?.data);
+        } else {
+          throw Exception(e.message);
+        }
+      } else {
+        throw Exception("Error");
+      }
+    }
+  }
+
+  @override
+  Future<DetailAssignmentModel> getDetailAssignment(
+      DetailAssignmentBody body) async {
+    try {
+      Response response = await dio.post(
+        Url.detailAssignment,
+        data: body.toJson(),
+      );
+      return DetailAssignmentModel.fromJson(response.data);
+    } catch (e) {
+      if (e is DioError) {
+        if (e.type == DioErrorType.response) {
+          return DetailAssignmentModel.fromJson(e.response?.data);
+        } else {
+          throw Exception(e.message);
+        }
+      } else {
+        throw Exception("Error");
+      }
+    }
+  }
+
+  @override
+  Future<AssignmentPerCourseModel> getAssignmentPerCourse(
+      AssignmentPerCourseBody body) async {
+    try {
+      Response response = await dio.post(
+        Url.assignmentPerCourse,
+        data: body.toJson(),
+      );
+      return AssignmentPerCourseModel.fromJson(response.data);
+    } catch (e) {
+      if (e is DioError) {
+        if (e.type == DioErrorType.response) {
+          return AssignmentPerCourseModel.fromJson(e.response?.data);
         } else {
           throw Exception(e.message);
         }

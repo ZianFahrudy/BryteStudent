@@ -84,7 +84,9 @@ class _CoursePageState extends State<CoursePage> {
                 SegmentedCourse(
                   selectedValue: selectedValue,
                   courseBloc: courseBloc,
+                  assignmentBloc: assignmentBloc,
                   selectedFilterValue: selectedFilterValue,
+                  selectedFilterAssign: selectedFilterAssignment,
                 ),
                 if (value == TabType.course)
                   CourseList(
@@ -104,17 +106,4 @@ class _CoursePageState extends State<CoursePage> {
       ),
     );
   }
-}
-
-class CourseModelDummy {
-  final String title;
-  final String teacher;
-  final Color color;
-  final bool newChanges;
-  CourseModelDummy({
-    required this.title,
-    required this.teacher,
-    required this.color,
-    required this.newChanges,
-  });
 }

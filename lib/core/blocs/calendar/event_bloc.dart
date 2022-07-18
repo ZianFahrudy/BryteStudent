@@ -26,5 +26,19 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         emit(EventFailure(e.toString()));
       }
     });
+
+    on<GetCalendarEventPerWeek>((event, emit) async {
+      try {
+        emit(EventLoading());
+        final data = await apiRepository.getCalendarEvent(event.body);
+        if (data.status == 200) {
+          emit(EventPerWeekSuccess(data));
+        } else if (data.status == 404) {
+          emit(EventFailure(data.message));
+        }
+      } catch (e) {
+        emit(EventFailure(e.toString()));
+      }
+    });
   }
 }

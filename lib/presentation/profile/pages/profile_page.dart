@@ -1,17 +1,24 @@
+import 'dart:developer';
+
 import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/utils/theme.dart';
 import 'package:bryte/components/utils/typography.dart';
+import 'package:bryte/core/blocs/profile/profile_bloc.dart';
+import 'package:bryte/core/data/model/profile/request/profile_body.dart';
+import 'package:bryte/core/di/injection.dart';
 import 'package:bryte/presentation/auth/pages/signin.dart';
 import 'package:bryte/presentation/course/pages/all_scores_page.dart';
-import 'package:bryte/presentation/course/pages/course_section_page.dart';
 import 'package:bryte/presentation/profile/pages/all_attendance_page.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
+
+import '../local_widgets/profile_student.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -22,102 +29,137 @@ class ProfilePage extends StatelessWidget {
 
     final selectedTab = ValueNotifier(ProfileTabType.proggress);
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Image.asset(AssetConstant.bryteLogoWhite),
-        actions: [
-          InkWell(
-            onTap: () {
-              box.remove(KeyConstant.token);
-              Get.off(() => const Signin());
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Settings',
-                  style: BryteTypography.bodyExtraBold
-                      .copyWith(color: Colors.white),
-                ),
-                const SizedBox(width: 5),
-                const Icon(
-                  Icons.settings,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                const SizedBox(width: 10),
-              ],
-            ),
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: ValueListenableBuilder(
-          valueListenable: selectedTab,
-          builder: (context, v, c) => Column(children: [
-            const ProfileStudent(),
-            const SizedBox(height: 20),
-            Text(
-              'Farel Julian Suryadi',
-              style: BryteTypography.titleExtraBold.copyWith(
-                color: Palette.darkPurple,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text('S1 Product Design Engineering 2018'),
-            const SizedBox(height: 20),
-            SegmentedProfile(
-              selectedValue: selectedTab,
-            ),
-            if (v == ProfileTabType.academic)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  CumulativeCard(),
-                  AttendanceRateCard(),
+    final profileBloc = getIt<ProfileBloc>();
+
+    return BlocProvider(
+      create: (context) => profileBloc
+        ..add(GetUserProfileEvent(
+            body: ProfileBody(
+                wstoken: 'c66dcf796b6cf10d0971da5b7c027847',
+                wsfunction: 'core_user_get_users',
+                moodlewsrestformat: 'json',
+                criteriaid: 'id',
+                criteriauserid: 15543))),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Image.asset(AssetConstant.bryteLogoWhite),
+          actions: [
+            InkWell(
+              onTap: () {
+                box.remove(KeyConstant.token);
+                Get.off(() => const Signin());
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Settings',
+                    style: BryteTypography.bodyExtraBold
+                        .copyWith(color: Colors.white),
+                  ),
+                  const SizedBox(width: 5),
+                  const Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
                 ],
-              )
-            else if (v == ProfileTabType.personal)
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'NAME',
-                      style: BryteTypography.titleMedium
-                          .copyWith(color: Palette.lightGrey),
+              ),
+            )
+          ],
+        ),
+        body: BlocConsumer<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state is ProfileSuccess) {
+              log('Profile Success');
+            } else if (state is ProfileFailure) {
+              log('Profile Gagal');
+            }
+          },
+          builder: (context, state) {
+            if (state is ProfileSuccess) {
+              return SingleChildScrollView(
+                child: ValueListenableBuilder(
+                  valueListenable: selectedTab,
+                  builder: (context, v, c) => Column(children: [
+                    ProfileStudent(
+                      imageUrl: state.response.users[0].profileimageurl!,
                     ),
-                    const Text(
-                      'Farel Julian Suryadi',
-                      style: BryteTypography.titleSemiBold,
+                    const SizedBox(height: 20),
+                    Text(
+                      state.response.users[0].fullname!,
+                      style: BryteTypography.titleExtraBold.copyWith(
+                        color: Palette.darkPurple,
+                      ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      'STUDENT NUMBER (NUM)',
-                      style: BryteTypography.titleMedium
-                          .copyWith(color: Palette.lightGrey),
+                    Text(state.response.users[0].department!),
+                    const SizedBox(height: 20),
+                    SegmentedProfile(
+                      selectedValue: selectedTab,
                     ),
-                    const Text(
-                      '23601810009',
-                      style: BryteTypography.titleSemiBold,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'PROGRAM',
-                      style: BryteTypography.titleMedium
-                          .copyWith(color: Palette.lightGrey),
-                    ),
-                    const Text(
-                      'S1 Product Design Engineering',
-                      style: BryteTypography.titleSemiBold,
-                    ),
-                  ],
+                    if (v == ProfileTabType.academic)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          CumulativeCard(),
+                          AttendanceRateCard(),
+                        ],
+                      )
+                    else if (v == ProfileTabType.personal)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'NAME',
+                              style: BryteTypography.titleMedium
+                                  .copyWith(color: Palette.lightGrey),
+                            ),
+                            const Text(
+                              'Farel Julian Suryadi',
+                              style: BryteTypography.titleSemiBold,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'STUDENT NUMBER (NUM)',
+                              style: BryteTypography.titleMedium
+                                  .copyWith(color: Palette.lightGrey),
+                            ),
+                            const Text(
+                              '23601810009',
+                              style: BryteTypography.titleSemiBold,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'PROGRAM',
+                              style: BryteTypography.titleMedium
+                                  .copyWith(color: Palette.lightGrey),
+                            ),
+                            const Text(
+                              'S1 Product Design Engineering',
+                              style: BryteTypography.titleSemiBold,
+                            ),
+                          ],
+                        ),
+                      )
+                  ]),
                 ),
-              )
-          ]),
+              );
+            } else if (state is ProfileLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return const Center(
+                child: Text('Smoething Error'),
+              );
+            }
+          },
         ),
       ),
     );
@@ -435,92 +477,6 @@ class SegmentedProfile extends StatelessWidget {
           height: 0,
         ),
       ],
-    );
-  }
-}
-
-class ProfileStudent extends StatelessWidget {
-  const ProfileStudent({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: 1 < 3 ? Palette.grey2 : Palette.orange2,
-            ),
-            child: CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(
-                listParticipants[0].imageUrl,
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(
-                  15,
-                ),
-              ),
-              margin: const EdgeInsets.symmetric(
-                horizontal: 10,
-              ),
-              padding: const EdgeInsets.all(2),
-              height: 25,
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: 1 < 3 ? Palette.grey1 : Palette.orange1,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Spacer(),
-                    Text(
-                      'LEVEL',
-                      style: BryteTypography.bodyRegular.copyWith(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 2,
-                      ),
-                      margin: const EdgeInsets.only(right: 2),
-                      decoration: BoxDecoration(
-                        color: 1 < 3 ? Palette.grey2 : Palette.orange2,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '3',
-                        style: BryteTypography.bodyRegular.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

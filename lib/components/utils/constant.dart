@@ -27,6 +27,16 @@ class Url {
   static const String course = baseUrl + "ws_bryte/public/courseStudent";
   static const String assignment =
       baseUrl + "ws_bryte/public/courseAssignStudent";
+
+  static const String profile = baseUrl + "moodle/webservice/rest/server.php";
+  static const String detailAssignment =
+      baseUrl + "ws_bryte/public/assignDetStudent";
+
+  static const String assignmentPerCourse =
+      baseUrl + "ws_bryte/public/assignPerCourseStudent";
+
+  static const String attendanceCourse =
+      baseUrl + "ws_bryte/public/attdDetPerCourseStudent";
 }
 
 // key constant
@@ -66,4 +76,5 @@ class AssetConstant {
   static const iconZoom = 'assets/rummage/icon_zoom.png';
   static const iconYoutube = 'assets/rummage/icon_youtube.png';
   static const iconUpload = 'assets/rummage/icon_upload.png';
+  static const iconDownload = 'assets/icon_download.png';
 }

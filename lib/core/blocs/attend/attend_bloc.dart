@@ -1,4 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:bryte/core/data/model/course/request/attendance_body.dart';
+import 'package:bryte/core/data/model/course/response/attendance_model.dart';
 import 'package:bryte/core/data/model/student/request/submit_attendance_body.dart';
 import 'package:bryte/core/repo/student/student_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -21,6 +23,21 @@ class AttendBloc extends Bloc<AttendEvent, AttendState> {
           emit(AttendSuccess(response: data));
         } else if (data == 'Gagal') {
           emit(AttendFailure(msg: data));
+        }
+      } catch (e) {
+        emit(AttendFailure(msg: e.toString()));
+      }
+    });
+
+    on<GetAttendanceEvent>((event, emit) async {
+      try {
+        emit(AttendLoading());
+        final data = await apiRepository.getAttendance(event.body);
+
+        if (data.status == 200) {
+          emit(AttendanceCourseSuccess(response: data));
+        } else if (data.status != 200) {
+          emit(AttendFailure(msg: 'Attendance Failure'));
         }
       } catch (e) {
         emit(AttendFailure(msg: e.toString()));

@@ -20,3 +20,10 @@ class AttendFailure extends AttendState {
     required this.msg,
   });
 }
+
+class AttendanceCourseSuccess extends AttendState {
+  final AttendanceModel response;
+  AttendanceCourseSuccess({
+    required this.response,
+  });
+}

@@ -20,3 +20,17 @@ class AssignmentFailure extends AssignmentState {
     required this.msg,
   });
 }
+
+class DetailAssignmentSuccess extends AssignmentState {
+  final DetailAssignmentModel response;
+  DetailAssignmentSuccess({
+    required this.response,
+  });
+}
+
+class AssignmentPerCourseSuccess extends AssignmentState {
+  final AssignmentPerCourseModel response;
+  AssignmentPerCourseSuccess({
+    required this.response,
+  });
+}

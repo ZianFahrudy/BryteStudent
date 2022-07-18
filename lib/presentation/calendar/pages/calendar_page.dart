@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:collection';
+import 'dart:developer';
 
 import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/utils/theme.dart';
@@ -19,6 +20,7 @@ import 'package:recase/recase.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../components/utils/palette.dart';
+import 'package:bryte/components/extension/datetime_extension.dart';
 
 enum TabCalendarType { weekly, monthly }
 
@@ -42,33 +44,46 @@ class _CalenderPageState extends State<CalenderPage> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
 
-  // List<List<DateTime>> getWeeksForRange(DateTime start, DateTime end) {
-  //   var result = <List<DateTime>>[];
+  DateTime? lastDay;
+  DateTime? firstDay;
 
-  //   var date = start;
-  //   var week = <DateTime>[];
+  List<List<DateTime>>? week;
 
-  //   while (date.difference(end).inDays <= 0) {
-  //     // start new week on Monday
-  //     if (date.weekday == 1 && week.isNotEmpty) {
-  //       print('Date $date is a Monday');
-  //       result.add(week);
-  //       week = <DateTime>[];
-  //     }
+  // final last = DateTime(_selectedDay.year, _focusedDay.month + 1, 0);
 
-  //     week.add(date);
+  // DateTime first = DateTime(_focusedDay.year, _focusedDay.month, 1);
 
-  //     date = date.add(const Duration(days: 1));
-  //   }
+  List<List<DateTime>> getWeeksForRange(DateTime start, DateTime end) {
+    var result = <List<DateTime>>[];
 
-  //   result.add(week);
+    var date = start;
+    var week = <DateTime>[];
 
-  //   return result;
-  // }
+    while (date.difference(end).inDays <= 0) {
+      // start new week on Monday
+      if (date.weekday == 1 && week.isNotEmpty) {
+        result.add(week);
+        week = <DateTime>[];
+      }
 
+      week.add(date);
+
+      date = date.add(const Duration(days: 1));
+    }
+
+    result.add(week);
+
+    return result;
+  }
+
+  List<DateTime> dayOfWeeks = [];
   @override
   void initState() {
     super.initState();
+    lastDay = DateTime(_focusedDay.year, _focusedDay.month + 1, 0);
+    firstDay = DateTime(_focusedDay.year, _focusedDay.month, 1);
+
+    week = getWeeksForRange(firstDay!, lastDay!);
 
     _selectedDay = _focusedDay;
     setState(() {
@@ -84,7 +99,6 @@ class _CalenderPageState extends State<CalenderPage> {
   }
 
   List<Event> _getEventsForDay(DateTime day) {
-    // Implementation example
     return kEvents[day] ?? [];
   }
 
@@ -97,8 +111,6 @@ class _CalenderPageState extends State<CalenderPage> {
 
       _selectedEvents.value = _getEventsForDay(selectedDay);
     }
-    // log('HARI INI ${_selectedDay}}');
-    // log('EVENT INI ${_selectedEvents.value.isEmpty ? 'kosong bang' : 'ada bang'}}');
   }
 
   final kEvents = LinkedHashMap<DateTime, List<Event>>(
@@ -128,6 +140,8 @@ class _CalenderPageState extends State<CalenderPage> {
   DateTime firstDayOfMonth =
       DateTime(DateTime.now().year, DateTime.now().month, 1);
 
+  List<DataCalendarEvent> eventPerweek = [];
+
   @override
   Widget build(BuildContext context) {
     String token = box.read(KeyConstant.token);
@@ -135,23 +149,46 @@ class _CalenderPageState extends State<CalenderPage> {
 
     return BlocProvider(
       create: (context) => eventBloc
-        ..add(GetCalendarEvent(EventBody(
-            token: token,
-            userid: userId,
-            startDate: DateFormat('yyyy-MM-dd').format(firstDayOfMonth),
-            endDate: DateFormat('yyyy-MM-dd').format(lastDayOfMonth)))),
+        ..add(
+          GetCalendarEvent(
+            EventBody(
+              token: token,
+              userid: userId,
+              startDate: DateFormat('yyyy-MM-dd').format(firstDayOfMonth),
+              endDate: DateFormat('yyyy-MM-dd').format(lastDayOfMonth),
+            ),
+          ),
+        )
+        ..add(GetCalendarEventPerWeek(
+            body: EventBody(
+          token: token,
+          userid: userId,
+          startDate:
+              DateFormat('yyyy-MM-dd').format(_focusedDay.weekOfMonth == 1
+                  ? week![0].first
+                  : _focusedDay.weekOfMonth == 2
+                      ? week![1].first
+                      : _focusedDay.weekOfMonth == 3
+                          ? week![2].first
+                          : _focusedDay.weekOfMonth == 4
+                              ? week![3].first
+                              : week![4].first),
+          endDate: DateFormat('yyyy-MM-dd').format(_focusedDay.weekOfMonth == 1
+              ? week![0].last
+              : _focusedDay.weekOfMonth == 2
+                  ? week![1].last
+                  : _focusedDay.weekOfMonth == 3
+                      ? week![2].last
+                      : _focusedDay.weekOfMonth == 4
+                          ? week![3].last
+                          : week![4].last),
+        ))),
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
           actions: [
             IconButton(
-                onPressed: () {
-                  // eventBloc.add(GetCalendarEvent(EventBody(
-                  //     token: token,
-                  //     userid: userId,
-                  //     startDate: '2022-04-20',
-                  //     endDate: '2022-04-21')));
-                },
+                onPressed: () {},
                 icon: const Icon(
                   Icons.refresh,
                   color: Colors.white,
@@ -162,9 +199,14 @@ class _CalenderPageState extends State<CalenderPage> {
         body: BlocConsumer<EventBloc, EventState>(
           listener: (context, state) {
             if (state is EventSuccess) {
+              log('KALENDARLIST :${state.response.data.last.date}');
               for (var i = 0; i < state.response.data.length; i++) {
                 setCalendarSchedule(state.response.data[i]);
               }
+            } else if (state is EventPerWeekSuccess) {
+              log('EVENT PER WEEK SUCCESS');
+              eventPerweek = state.response.data;
+              log('WEEKKU ${eventPerweek[0].date}');
             }
           },
           builder: (context, state) {
@@ -172,313 +214,454 @@ class _CalenderPageState extends State<CalenderPage> {
 
             return ValueListenableBuilder(
               valueListenable: selectedValue,
-              builder: (context, _, __) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SegmentedCalendar(selectedValue: selectedValue),
-                  TableCalendar<Event>(
-                    calendarBuilders: CalendarBuilders(
-                      markerBuilder: (BuildContext context, date, events) {
-                        if (events.isEmpty) return const SizedBox();
-                        return ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: events.length > 1 ? 2 : 1,
-                            itemBuilder: (context, index) {
-                              return events[index].type == 'class'
-                                  ? const Padding(
-                                      padding: EdgeInsets.only(top: 30),
-                                      child: Icon(
-                                        Icons.school,
-                                        color: Palette.purple,
-                                        size: 15,
-                                      ),
-                                    )
-                                  : const Padding(
-                                      padding: EdgeInsets.only(top: 30),
-                                      child: Icon(
-                                        Icons.assignment,
-                                        size: 15,
-                                        color: Palette.darkPurple,
-                                      ),
-                                    );
-                            });
+              builder: (context, _, __) => SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SegmentedCalendar(selectedValue: selectedValue),
+                    TableCalendar<Event>(
+                      calendarBuilders: CalendarBuilders(
+                        markerBuilder: (BuildContext context, date, events) {
+                          if (events.isEmpty) return const SizedBox();
+                          return ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: events.length > 1 ? 2 : 1,
+                              itemBuilder: (context, index) {
+                                return events[index].type == 'class'
+                                    ? const Padding(
+                                        padding: EdgeInsets.only(top: 30),
+                                        child: Icon(
+                                          Icons.school,
+                                          color: Palette.purple,
+                                          size: 15,
+                                        ),
+                                      )
+                                    : const Padding(
+                                        padding: EdgeInsets.only(top: 30),
+                                        child: Icon(
+                                          Icons.assignment,
+                                          size: 15,
+                                          color: Palette.darkPurple,
+                                        ),
+                                      );
+                              });
+                        },
+                      ),
+                      firstDay: kFirstDay,
+                      lastDay: kLastDay,
+                      focusedDay: _focusedDay,
+                      selectedDayPredicate: (day) =>
+                          isSameDay(_selectedDay, day),
+                      rangeStartDay: _rangeStart,
+                      rangeEndDay: _rangeEnd,
+                      calendarFormat:
+                          selectedValue.value == TabCalendarType.weekly
+                              ? _calendarFormatWeek
+                              : _calendarFormatMonth,
+                      rangeSelectionMode: _rangeSelectionMode,
+                      eventLoader: _getEventsForDay,
+                      startingDayOfWeek: StartingDayOfWeek.monday,
+                      enabledDayPredicate: (s) {
+                        return true;
                       },
-                    ),
-                    firstDay: kFirstDay,
-                    lastDay: kLastDay,
-                    focusedDay: _focusedDay,
-                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                    rangeStartDay: _rangeStart,
-                    rangeEndDay: _rangeEnd,
-                    calendarFormat:
-                        selectedValue.value == TabCalendarType.weekly
-                            ? _calendarFormatWeek
-                            : _calendarFormatMonth,
-                    rangeSelectionMode: _rangeSelectionMode,
-                    eventLoader: _getEventsForDay,
-                    startingDayOfWeek: StartingDayOfWeek.monday,
-                    enabledDayPredicate: (s) {
-                      return true;
-                    },
-                    onRangeSelected: (start, end, focusday) {
-                      _focusedDay = focusday;
-                      print(start);
-                      print(end);
-                      print(focusday);
-                    },
-                    onDaySelected: _onDaySelected,
-                    onFormatChanged: (format) {
-                      if (_calendarFormatMonth != format) {
-                        setState(() {
-                          _calendarFormatMonth = format;
+                      onRangeSelected: (start, end, focusday) {
+                        _focusedDay = focusday;
+                        _rangeStart = start;
+                        _rangeEnd = end;
+                        log('$start');
+                        log('$end');
+                        log('$focusday');
+                      },
+                      onDaySelected: _onDaySelected,
+                      onFormatChanged: (format) {
+                        if (_calendarFormatMonth != format) {
+                          setState(() {
+                            _calendarFormatMonth = format;
+                          });
+                        }
+                      },
+                      onPageChanged: (focusedDay) {
+                        log('${focusedDay.weekOfMonth}');
+                        _focusedDay = focusedDay;
 
-                          // _calendarFormat = CalendarFormat.month;
+                        final last = DateTime(
+                            _focusedDay.year, _focusedDay.month + 1, 0);
 
-                          print(format);
-                        });
-                      }
-                    },
-                    onPageChanged: (focusedDay) {
-                      _focusedDay = focusedDay;
+                        DateTime first =
+                            DateTime(_focusedDay.year, _focusedDay.month, 1);
 
-                      final last =
-                          DateTime(_focusedDay.year, _focusedDay.month + 1, 0);
+                        eventBloc.add(GetCalendarEvent(EventBody(
+                            token: token,
+                            userid: userId,
+                            startDate: DateFormat('yyyy-MM-dd').format(first),
+                            endDate: DateFormat('yyyy-MM-dd').format(last))));
 
-                      DateTime first =
-                          DateTime(_focusedDay.year, _focusedDay.month, 1);
+                        week = getWeeksForRange(first, last);
 
-                      eventBloc.add(GetCalendarEvent(EventBody(
+                        eventBloc.add(GetCalendarEventPerWeek(
+                            body: EventBody(
                           token: token,
                           userid: userId,
-                          startDate: DateFormat('yyyy-MM-dd').format(first),
-                          endDate: DateFormat('yyyy-MM-dd').format(last))));
+                          startDate: DateFormat('yyyy-MM-dd')
+                              .format(_focusedDay.weekOfMonth == 1
+                                  ? week![0].first
+                                  : _focusedDay.weekOfMonth == 2
+                                      ? week![1].first
+                                      : _focusedDay.weekOfMonth == 3
+                                          ? week![2].first
+                                          : _focusedDay.weekOfMonth == 4
+                                              ? week![3].first
+                                              : week![4].first),
+                          endDate: DateFormat('yyyy-MM-dd')
+                              .format(_focusedDay.weekOfMonth == 1
+                                  ? week![0].last
+                                  : _focusedDay.weekOfMonth == 2
+                                      ? week![1].last
+                                      : _focusedDay.weekOfMonth == 3
+                                          ? week![2].last
+                                          : _focusedDay.weekOfMonth == 4
+                                              ? week![3].last
+                                              : week![4].last),
+                        )));
 
-                      // var weeks = getWeeksForRange(first, last);
-
-                      // print(weeks);
-                      // print(_focusedDay.day);
-                    },
-                    headerStyle: HeaderStyle(
-                        formatButtonVisible: false,
-                        leftChevronPadding: const EdgeInsets.only(left: 0),
-                        rightChevronPadding: const EdgeInsets.only(right: 0),
-                        headerPadding: const EdgeInsets.symmetric(vertical: 10),
-                        titleCentered: true,
-                        decoration:
-                            const BoxDecoration(color: Palette.primary100),
-                        titleTextStyle: BryteTypography.headerExtraBold
-                            .copyWith(color: Palette.headerSpecial)),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      DateFormat('EEEE, dd MMMM yyyy').format(_selectedDay!),
-                      style: BryteTypography.headerExtraBold,
-                    ),
-                  ),
-                  if (_selectedEvents.value.isEmpty)
-                    Container(
-                      height: 50,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                          color: Palette.primary100,
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 8),
-                          Image.asset(AssetConstant.emptyZzz),
-                          const SizedBox(width: 16),
-                          Text(
-                            'No classes, no assignments, nothing!',
-                            style: BryteTypography.bodyMedium.copyWith(
-                                color: Palette.headerSpecial,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14),
-                          )
-                        ],
-                      ),
-                    ),
-                  Expanded(
-                    child: ValueListenableBuilder<List<Event>>(
-                      valueListenable: _selectedEvents,
-                      builder: (context, value, _) {
-                        return ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          itemCount: value.length,
-                          itemBuilder: (context, i) {
-                            if ((value[i].type == 'class')) {
-                              final date = DateFormat('dd MMM')
-                                  .format(DateTime.parse(value[i].date!));
-
-                              final startTime = DateFormat('HH:mm')
-                                  .format(DateTime.parse(value[i].startTime!));
-
-                              final endTime = DateFormat('HH:mm')
-                                  .format(DateTime.parse(value[i].endTime!));
-
-                              return CourseClassCard(
-                                  attdStatus: value[i].attdStatus ?? '',
-                                  event: value[i],
-                                  date: date,
-                                  startTime: startTime,
-                                  endTime: endTime);
-                            } else {
-                              return Card(
-                                shadowColor: Palette.secondary,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15)),
-                                elevation: 3,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 10),
-                                  child: Row(
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Text(
-                                            DateFormat('dd MMM').format(
-                                                DateTime.parse(
-                                                    value[i].assignDeadline!)),
-                                            style: brytStyleJudul.copyWith(
-                                              fontSize: 14,
-                                              color: Palette.purple,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            DateFormat('HH:mm').format(
-                                                DateTime.parse(
-                                                    value[i].assignDeadline!)),
-                                            style: brytStyleJudul.copyWith(
-                                              fontSize: 16,
-                                              color: Palette.purple,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      // SizedBox(width: 20),
-                                      Container(
-                                        width: 2,
-                                        height: 50,
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 15),
-                                        color: Palette.secondary,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.assignment,
-                                                size: 15,
-                                                color: Palette.neutral300,
-                                              ),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                  ReCase(value[i].type)
-                                                      .constantCase,
-                                                  style: BryteTypography
-                                                      .bodyRegular
-                                                      .copyWith(
-                                                    color: Palette.neutral300,
-                                                  )),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            height: 4,
-                                          ),
-                                          SizedBox(
-                                            width: Get.width - 260,
-                                            child: Text(
-                                              value[i].assignName!,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: BryteTypography
-                                                  .headerExtraBold
-                                                  .copyWith(
-                                                      fontSize: 16,
-                                                      color: Colors.black
-                                                          .withOpacity(.6)),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              Container(
-                                                height: 11,
-                                                width: 11,
-                                                margin: const EdgeInsets.only(
-                                                    right: 5),
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            2),
-                                                    color: Palette.sunkist400),
-                                              ),
-                                              SizedBox(
-                                                width: Get.width - 300,
-                                                child: Text(
-                                                  value[i].assignDescp!,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style:
-                                                      brytStyleJudul.copyWith(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color: Palette
-                                                              .lightGrey),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                      const Spacer(),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 5),
-                                        child: Text(
-                                          value[i].assignAttempt!
-                                              ? 'SUBMITTED'
-                                              : 'NOT ATTEMPTED',
-                                          style: BryteTypography.bodyMedium
-                                              .copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: value[i].assignAttempt!
-                                                      ? Palette.sprite500
-                                                      : Palette.red),
-                                        ),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: value[i].assignAttempt!
-                                                ? Palette.sprite200
-                                                : Palette.coke200),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        );
+                        log('rangeWeek $week');
+                        // log('${_focusedDay.day}');
                       },
+                      headerStyle: HeaderStyle(
+                          formatButtonVisible: false,
+                          leftChevronPadding: const EdgeInsets.only(left: 0),
+                          rightChevronPadding: const EdgeInsets.only(right: 0),
+                          headerPadding:
+                              const EdgeInsets.symmetric(vertical: 10),
+                          titleCentered: true,
+                          decoration:
+                              const BoxDecoration(color: Palette.primary100),
+                          titleTextStyle: BryteTypography.headerExtraBold
+                              .copyWith(color: Palette.headerSpecial)),
                     ),
-                  ),
-                  const SizedBox(height: 100)
-                ],
+                    const SizedBox(height: 8.0),
+                    if (_selectedEvents.value.isEmpty &&
+                        selectedValue.value == TabCalendarType.monthly)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          DateFormat('EEEE, dd MMMM yyyy')
+                              .format(_selectedDay!),
+                          style: BryteTypography.headerSemiBold,
+                        ),
+                      ),
+                    if (_selectedEvents.value.isEmpty &&
+                        selectedValue.value == TabCalendarType.monthly)
+                      Container(
+                        height: 50,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                            color: Palette.primary100,
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 8),
+                            Image.asset(AssetConstant.emptyZzz),
+                            const SizedBox(width: 16),
+                            Text(
+                              'No classes, no assignments, nothing!',
+                              style: BryteTypography.bodyMedium.copyWith(
+                                  color: Palette.headerSpecial,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 14),
+                            )
+                          ],
+                        ),
+                      ),
+                    if (selectedValue.value == TabCalendarType.weekly)
+                      (eventPerweek.every((element) => element.events.isEmpty))
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(AssetConstant.emptyCalendar),
+                                  const SizedBox(
+                                    height: 17,
+                                  ),
+                                  Text(
+                                    'Apparently you are free..',
+                                    style: BryteTypography.headerExtraBold
+                                        .copyWith(color: Palette.darkPurple),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'Enjoy your free time, while it lasts ;)',
+                                    style: BryteTypography.titleMedium,
+                                  )
+                                ],
+                              ),
+                            )
+                          : Column(
+                              children: eventPerweek
+                                  .map((e) => Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 10),
+                                            child: Text(
+                                              DateFormat('EEEE, dd MMMM yyyy')
+                                                  .format(
+                                                      DateTime.parse(e.date)),
+                                              style: BryteTypography
+                                                  .headerSemiBold,
+                                            ),
+                                          ),
+                                          if (e.events.isEmpty)
+                                            const EmptyEventCard(),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10),
+                                            child: Column(
+                                              children: List.generate(
+                                                e.events.length,
+                                                (index) {
+                                                  if (e.events[index].type ==
+                                                      'class') {
+                                                    final date = DateFormat(
+                                                            'dd MMM')
+                                                        .format(DateTime.parse(e
+                                                            .events[index]
+                                                            .date!));
+
+                                                    final startTime = DateFormat(
+                                                            'HH:mm')
+                                                        .format(DateTime.parse(e
+                                                            .events[index]
+                                                            .startTime!));
+
+                                                    final endTime = DateFormat(
+                                                            'HH:mm')
+                                                        .format(DateTime.parse(e
+                                                            .events[index]
+                                                            .endTime!));
+                                                    return CourseClassCard(
+                                                        attdStatus: e
+                                                                .events[index]
+                                                                .attdStatus ??
+                                                            '',
+                                                        event: e.events[index],
+                                                        date: date,
+                                                        startTime: startTime,
+                                                        endTime: endTime);
+                                                  } else {
+                                                    return AssignClassCard(
+                                                      value: e.events[index],
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ))
+                                  .toList(),
+                            ),
+                    if (selectedValue.value == TabCalendarType.monthly)
+                      ValueListenableBuilder<List<Event>>(
+                        valueListenable: _selectedEvents,
+                        builder: (context, value, _) {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            itemCount: value.length,
+                            itemBuilder: (context, i) {
+                              if ((value[i].type == 'class')) {
+                                final date = DateFormat('dd MMM')
+                                    .format(DateTime.parse(value[i].date!));
+
+                                final startTime = DateFormat('HH:mm').format(
+                                    DateTime.parse(value[i].startTime!));
+
+                                final endTime = DateFormat('HH:mm')
+                                    .format(DateTime.parse(value[i].endTime!));
+
+                                return CourseClassCard(
+                                    attdStatus: value[i].attdStatus ?? '',
+                                    event: value[i],
+                                    date: date,
+                                    startTime: startTime,
+                                    endTime: endTime);
+                              } else {
+                                return AssignClassCard(
+                                  value: value[i],
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 100)
+                  ],
+                ),
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class EmptyEventCard extends StatelessWidget {
+  const EmptyEventCard({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      decoration: BoxDecoration(
+          color: Palette.primary100, borderRadius: BorderRadius.circular(10)),
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          Image.asset(AssetConstant.emptyZzz),
+          const SizedBox(width: 16),
+          Text(
+            'No classes, no assignments, nothing!',
+            style: BryteTypography.bodyMedium.copyWith(
+                color: Palette.headerSpecial,
+                fontWeight: FontWeight.w400,
+                fontSize: 14),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class AssignClassCard extends StatelessWidget {
+  const AssignClassCard({
+    Key? key,
+    required this.value,
+  }) : super(key: key);
+
+  final Event value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shadowColor: Palette.secondary,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: Row(
+          children: [
+            Column(
+              children: [
+                Text(
+                  DateFormat('dd MMM')
+                      .format(DateTime.parse(value.assignDeadline!)),
+                  style: brytStyleJudul.copyWith(
+                    fontSize: 14,
+                    color: Palette.purple,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  DateFormat('HH:mm')
+                      .format(DateTime.parse(value.assignDeadline!)),
+                  style: brytStyleJudul.copyWith(
+                    fontSize: 16,
+                    color: Palette.purple,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              ],
+            ),
+            Container(
+              width: 2,
+              height: 50,
+              margin: const EdgeInsets.symmetric(horizontal: 15),
+              color: Palette.secondary,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.assignment,
+                      size: 15,
+                      color: Palette.neutral300,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(ReCase(value.type).constantCase,
+                        style: BryteTypography.bodyRegular.copyWith(
+                          color: Palette.neutral300,
+                        )),
+                  ],
+                ),
+                const SizedBox(
+                  height: 4,
+                ),
+                SizedBox(
+                  width: Get.width - 260,
+                  child: Text(
+                    value.assignName!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: BryteTypography.headerExtraBold.copyWith(
+                        fontSize: 16, color: Colors.black.withOpacity(.6)),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Container(
+                      height: 11,
+                      width: 11,
+                      margin: const EdgeInsets.only(right: 5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(2),
+                          color: Palette.sunkist400),
+                    ),
+                    SizedBox(
+                      width: Get.width - 300,
+                      child: Text(
+                        value.assignDescp!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: brytStyleJudul.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Palette.lightGrey),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              child: Text(
+                value.assignAttempt! ? 'SUBMITTED' : 'NOT ATTEMPTED',
+                style: BryteTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color:
+                        value.assignAttempt! ? Palette.sprite500 : Palette.red),
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color:
+                    value.assignAttempt! ? Palette.sprite200 : Palette.coke200,
+              ),
+            )
+          ],
         ),
       ),
     );

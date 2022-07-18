@@ -39,6 +39,9 @@ class CardCourseAssignment extends StatelessWidget {
         elevation: 3,
         child: InkWell(
           onTap: () => Get.to(() => DetailAssignmentPage(
+                idAssign: data.idAssign,
+                idCourse: data.idCourse,
+                teacherName: 'dummy',
                 selectedSection: selecteAssignSection,
                 bgColor: data.bgColor_1,
                 courseAssignName: data.assignName,
