@@ -1,4 +1,5 @@
 import 'package:bryte/core/blocs/auth/auth_bloc.dart';
+import 'package:bryte/core/di/injection.dart';
 import 'package:bryte/presentation/navigation/navigation.dart';
 import 'package:bryte/presentation/auth/pages/forgot_password.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +26,14 @@ class _SigninState extends State<Signin> {
   int index = 0;
   late FToast fToast;
 
+  final authBloc = getIt<AuthBloc>();
+
   @override
   void initState() {
     super.initState();
     fToast = FToast();
     fToast.init(context);
+    
 
     // if (widget.isresetPass!) {
     //   Timer(const Duration(seconds: 3), () => showCustomToastInfo(''));
@@ -102,9 +106,11 @@ class _SigninState extends State<Signin> {
           bloc.add(Login(email: ctrlUsername.text, password: ctrlPass.text));
         }
       },
-      child: Text('Login',
-          style: brytStylebtn.copyWith(
-              color: index == 0 ? bryteDarkPurple : Colors.white)),
+      child: Text(
+        'Login',
+        style: brytStylebtn.copyWith(
+            color: index == 0 ? bryteDarkPurple : Colors.white),
+      ),
     );
   }
 
@@ -194,12 +200,6 @@ class _SigninState extends State<Signin> {
                           const SizedBox(height: 20),
                           GestureDetector(
                             onTap: () {
-                              // Navigator.pushAndRemoveUntil(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => const NewPassword()),
-                              //     ModalRoute.withName('NewPassword'));
-
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(

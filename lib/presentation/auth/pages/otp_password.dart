@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bryte/core/blocs/auth/auth_bloc.dart';
 import 'package:bryte/presentation/auth/pages/forgot_password.dart';
@@ -7,9 +8,11 @@ import 'package:bryte/components/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/route_manager.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../components/widgets/custom_toast.dart';
+import '../../../core/di/injection.dart';
 
 class OtpPassword extends StatefulWidget {
   const OtpPassword({required this.email, required this.username, Key? key})
@@ -33,7 +36,7 @@ class _OtpPasswordState extends State<OtpPassword> {
   late FToast fToast;
 
   Timer? _timer;
-  int _start = 120;
+  int _start = 10;
 
   void startTimer() {
     const oneSec = Duration(seconds: 1);
@@ -55,6 +58,8 @@ class _OtpPasswordState extends State<OtpPassword> {
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
+
+  final authBloc = getIt<AuthBloc>();
 
   @override
   void initState() {
@@ -110,9 +115,11 @@ class _OtpPasswordState extends State<OtpPassword> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12))),
             onPressed: () {
-              AuthBloc bloc = BlocProvider.of<AuthBloc>(context, listen: false);
-              bloc.add(ResenOtp(username: widget.username));
+              // AuthBloc bloc = BlocProvider.of<AuthBloc>(context, listen: false);
+              // bloc.add(ResenOtp(username: widget.username));
               // showCustomToastInfo('');
+              authBloc.add(ResenOtp(username: widget.username));
+              log('tess');
             },
             child: Text(
               'Resend OTP ',
@@ -130,7 +137,9 @@ class _OtpPasswordState extends State<OtpPassword> {
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12))),
-          onPressed: () {},
+          onPressed: () {
+            log('message');
+          },
           child: Text(
               'Resend OTP (' + _printDuration(Duration(seconds: _start)) + ')',
               style: brytStylebtn.copyWith(
@@ -160,11 +169,12 @@ class _OtpPasswordState extends State<OtpPassword> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12))),
               onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ForgotPassword()),
-                    ModalRoute.withName('ForgotPassword'));
+                Get.off(() => const ForgotPassword());
+                // Navigator.pushAndRemoveUntil(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => const ForgotPassword()),
+                //     ModalRoute.withName('ForgotPassword'));
               },
               child: Text('Back',
                   style: brytStylebtn.copyWith(color: bryteDarkPurple)),
@@ -228,8 +238,8 @@ class _OtpPasswordState extends State<OtpPassword> {
           //   )
           // ],
           onCompleted: (v) {
-            AuthBloc bloc = BlocProvider.of<AuthBloc>(context, listen: false);
-            bloc.add(VerifyOtp(username: widget.username, otp: v));
+            // AuthBloc bloc = BlocProvider.of<AuthBloc>(context, listen: false);
+            // bloc.add(VerifyOtp(username: widget.username, otp: v));
             // if (currentText != '123') {
             //   setState(() {
             //     textEditingController.clear();
@@ -256,91 +266,90 @@ class _OtpPasswordState extends State<OtpPassword> {
       );
     }
 
-    return Scaffold(
+    return BlocProvider(
+      create: (context) => authBloc,
+      child: Scaffold(
         resizeToAvoidBottomInset: false,
-        bottomSheet: footer(),
+        // bottomSheet: footer(),
+        bottomNavigationBar: footer(),
         backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          child: SafeArea(
-            child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    const SizedBox(height: 130),
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: const BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage('assets/email_rec.png'))),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Check your email for OTP!',
-                      style: brytStylebtnBlack.copyWith(
-                          fontSize: 20, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Please enter a 4-digit code that we’ve sent to:',
-                      style: brytStylegrey,
-                    ),
-                    Text(
-                      widget.email,
-                      style: brytStylePurlple.copyWith(
-                          fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      child: BlocListener<AuthBloc, AuthState>(
-                        listener: (context, state) {
-                          if (state is AuthFverifyOtpError) {
-                            showCustomToast(state.msg!);
-                            textEditingController.clear();
-                          }
-                          if (state is AuthFverifyOtpSubmited) {
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        NewPassword(username: widget.username)),
-                                ModalRoute.withName('OtpPassword'));
-                          }
-                        },
-                        child: BlocBuilder<AuthBloc, AuthState>(
-                          builder: (context, state) {
-                            return form();
-                          },
-                        ),
-                      ),
-                    ),
-                    // form(),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      child: BlocListener<AuthBloc, AuthState>(
-                        listener: (context, state) {
-                          if (state is AuthResenOtpError) {
-                            showCustomToast(state.msg!);
-                          }
-                          if (state is AuthResenOtpSubmited) {
-                            showCustomToastInfo('');
-                            setState(() {
-                              _start = 120;
-                            });
-                          }
-                        },
-                        child: BlocBuilder<AuthBloc, AuthState>(
-                          builder: (context, state) {
-                            return Container();
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                )),
-          ),
-        ));
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            const SizedBox(height: 130),
+            Container(
+              width: 60,
+              height: 60,
+              decoration: const BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/email_rec.png'))),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Check your email for OTP!',
+              style: brytStylebtnBlack.copyWith(
+                  fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Please enter a 4-digit code that we’ve sent to:',
+              style: brytStylegrey,
+            ),
+            Text(
+              widget.email,
+              style: brytStylePurlple.copyWith(
+                  fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              child: BlocListener<AuthBloc, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthFverifyOtpError) {
+                    showCustomToast(state.msg!);
+                    textEditingController.clear();
+                  }
+                  if (state is AuthFverifyOtpSubmited) {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                NewPassword(username: widget.username)),
+                        ModalRoute.withName('OtpPassword'));
+                  }
+                },
+                child: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    return form();
+                  },
+                ),
+              ),
+            ),
+            form(),
+            const SizedBox(height: 32),
+            SizedBox(
+              child: BlocListener<AuthBloc, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthResenOtpError) {
+                    showCustomToast(state.msg!);
+                  }
+                  if (state is AuthResenOtpSubmited) {
+                    showCustomToastInfo('');
+                    setState(() {
+                      _start = 120;
+                    });
+                  }
+                },
+                child: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    return Container();
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
