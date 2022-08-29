@@ -30,127 +30,14 @@ class AssignmentContent extends StatelessWidget {
     return BlocConsumer<AssignmentBloc, AssignmentState>(
       listener: (context, state) {
         if (state is AssignmentPerCourseSuccess) {
-          log('Assignment Per Course Success');
+          log('Get Assignment Per Course Success');
         } else if (state is AssignmentFailure) {
-          log('Assignment Per Course Gagal');
+          log('Get Assignment Per Course Gagal');
         }
       },
       builder: (context, state) {
         if (state is AssignmentPerCourseSuccess) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: Text(
-                  'Assignments',
-                  style: BryteTypography.headerExtraBold,
-                ),
-              ),
-              const Divider(
-                height: 0,
-                thickness: 1,
-              ),
-              if (state
-                  .response.data[0].assignments[0].assignUpcomming.isNotEmpty)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            'Past Due',
-                            style: BryteTypography.titleSemiBold,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            '1',
-                            style: BryteTypography.titleMedium
-                                .copyWith(color: Palette.purple),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: state
-                            .response.data[0].assignments[0].assignUpcomming
-                            .map(
-                              (data) => AssignmentPerCourseCard(
-                                onTap: () => Get.to(
-                                  () => DetailAssignmentPage(
-                                    idAssign: data.idAssign,
-                                    idCourse: dataCourse.idCourse,
-                                    teacherName:
-                                        state.response.data[0].teacherName,
-                                    selectedSection: selectedSection,
-                                    courseAssignName: data.assignName,
-                                    bgColor: bgColor,
-                                  ),
-                                ),
-                                assignDeadline: data.assignDeadline,
-                                assignName: data.assignName,
-                                assignStatus: data.assignStatus,
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                ),
-              if (state
-                  .response.data[0].assignments[0].assignPastDue.isNotEmpty)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            'Past Due',
-                            style: BryteTypography.titleSemiBold,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            '1',
-                            style: BryteTypography.titleMedium
-                                .copyWith(color: Palette.purple),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children:
-                            state.response.data[0].assignments[0].assignPastDue
-                                .map(
-                                  (data) => AssignmentPerCourseCard(
-                                    onTap: () => Get.to(
-                                      () => DetailAssignmentPage(
-                                        idAssign: data.idAssign,
-                                        idCourse: dataCourse.idCourse,
-                                        teacherName:
-                                            state.response.data[0].teacherName,
-                                        selectedSection: selectedSection,
-                                        courseAssignName: data.assignName,
-                                        bgColor: bgColor,
-                                      ),
-                                    ),
-                                    assignDeadline: data.assignDeadline,
-                                    assignName: data.assignName,
-                                    assignStatus: data.assignStatus,
-                                  ),
-                                )
-                                .toList(),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          );
+          return _buildAssignmentPerCourse(state);
         } else if (state is AssignmentLoading) {
           return const Center(
             child: CircularProgressIndicator(),
@@ -161,6 +48,116 @@ class AssignmentContent extends StatelessWidget {
           );
         }
       },
+    );
+  }
+
+  Column _buildAssignmentPerCourse(AssignmentPerCourseSuccess state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          child: Text(
+            'Assignments',
+            style: BryteTypography.headerExtraBold,
+          ),
+        ),
+        const Divider(
+          height: 0,
+          thickness: 1,
+        ),
+        if (state.response.data[0].assignments[0].assignUpcomming.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      'Past Due',
+                      style: BryteTypography.titleSemiBold,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      '1',
+                      style: BryteTypography.titleMedium
+                          .copyWith(color: Palette.purple),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: state
+                      .response.data[0].assignments[0].assignUpcomming
+                      .map(
+                        (data) => AssignmentPerCourseCard(
+                          onTap: () => Get.to(
+                            () => DetailAssignmentPage(
+                              idAssign: data.idAssign,
+                              idCourse: dataCourse.idCourse,
+                              teacherName: state.response.data[0].teacherName,
+                              selectedSection: selectedSection,
+                              courseAssignName: data.assignName,
+                              bgColor: bgColor,
+                            ),
+                          ),
+                          assignDeadline: data.assignDeadline,
+                          assignName: data.assignName,
+                          assignStatus: data.assignStatus,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+        if (state.response.data[0].assignments[0].assignPastDue.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      'Past Due',
+                      style: BryteTypography.titleSemiBold,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      '1',
+                      style: BryteTypography.titleMedium
+                          .copyWith(color: Palette.purple),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: state.response.data[0].assignments[0].assignPastDue
+                      .map(
+                        (data) => AssignmentPerCourseCard(
+                          onTap: () => Get.to(
+                            () => DetailAssignmentPage(
+                              idAssign: data.idAssign,
+                              idCourse: dataCourse.idCourse,
+                              teacherName: state.response.data[0].teacherName,
+                              selectedSection: selectedSection,
+                              courseAssignName: data.assignName,
+                              bgColor: bgColor,
+                            ),
+                          ),
+                          assignDeadline: data.assignDeadline,
+                          assignName: data.assignName,
+                          assignStatus: data.assignStatus,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

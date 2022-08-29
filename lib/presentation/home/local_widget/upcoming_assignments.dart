@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/widgets/card_class2.dart';
@@ -35,8 +34,6 @@ class _UpcomingAssignmentsState extends State<UpcomingAssignments> {
 
             if (state.response.data[i].assignAttempt == false) {
               listNotAssign.addAll([state.response.data[i]]);
-
-              log('PANJANG ${listNotAssign.length}');
             }
           }
         }

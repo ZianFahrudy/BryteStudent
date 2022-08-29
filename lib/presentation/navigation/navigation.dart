@@ -1,9 +1,10 @@
-import 'package:bryte/presentation/calendar/pages/calendar_page.dart';
-import 'package:bryte/presentation/course/pages/course_page.dart';
 import 'package:bryte/presentation/home/pages/home_page.dart';
 import 'package:bryte/presentation/profile/pages/profile_page.dart';
 import 'package:bryte/components/utils/theme.dart';
 import 'package:flutter/material.dart';
+
+import '../calendar/pages/calendar_page.dart';
+import '../course/pages/course_page.dart';
 
 class Navigation extends StatefulWidget {
   const Navigation({Key? key}) : super(key: key);
@@ -55,7 +56,6 @@ class BottomNavigation extends StatelessWidget {
   final Function(int)? onTap;
   @override
   Widget build(BuildContext context) {
-    // var brytStylebtnNonActive;
     return Container(
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(
@@ -141,11 +141,7 @@ class BottomNavigation extends StatelessWidget {
                     children: [
                       Container(
                           margin: const EdgeInsets.only(top: 6),
-                          child: const Image(
-                            image: AssetImage('assets/profile_user.png'),
-                            width: 24,
-                            height: 24,
-                          )),
+                          child: const Icon(Icons.person)),
                       Text(
                         'Profile',
                         style: selectedIndex.value == 3

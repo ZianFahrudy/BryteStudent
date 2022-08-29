@@ -4,17 +4,19 @@ import 'package:bryte/core/data/model/auth/request/authorization_body.dart';
 import 'package:bryte/core/data/model/auth/auth_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:injectable/injectable.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 final box = GetStorage();
 
+@lazySingleton
 class AuthRepository {
   String? token = box.read(KeyConstant.token) ?? '';
 
   Dio get dio => Dio(
         BaseOptions(
             receiveDataWhenStatusError: true,
-            baseUrl: Url.baseUrl,
+            baseUrl: Url.baseUrlProdProd,
             sendTimeout: 60000,
             followRedirects: false,
             headers: {
@@ -31,20 +33,27 @@ class AuthRepository {
               compact: true,
               maxWidth: 300),
         );
-  // ..interceptors.add(RetryOnConnectionChangeInterceptor(
-  //     requestRetrier: DioConnectivityRequestRetrier(
-  //         dio: dio, connectivity: Connectivity())));
-  // ..interceptors.add(
-  //   RetryInterceptor(
-  //     dio: dio, logPrint: print, // specify log function
-  //     retries: 3, // retry count
-  //     retryDelays: const [
-  //       Duration(seconds: 1), // wait 1 sec before first retry
-  //       Duration(seconds: 2), // wait 2 sec before second retry
-  //       Duration(seconds: 3), // wait 3 sec before third retry
-  //     ],
-  //   ),
-  // );
+  Dio get dioMoodle => Dio(
+        BaseOptions(
+            receiveDataWhenStatusError: true,
+            baseUrl: Url.baseUrl,
+            sendTimeout: 60000,
+            followRedirects: false,
+            headers: {
+              "Accept": "application/json",
+              'Authorization': "Bearer ${token ?? ''}",
+            }),
+      )..interceptors.add(
+          PrettyDioLogger(
+            requestHeader: true,
+            requestBody: true,
+            responseBody: true,
+            responseHeader: false,
+            error: true,
+            compact: true,
+            maxWidth: 300,
+          ),
+        );
 
   Future<AuthModel?> login(String? email, String? password) async {
     try {
@@ -53,7 +62,7 @@ class AuthRepository {
         'password': password,
         'service': 'bryte',
       });
-      Response response = await dio.post(Url.login, data: formData);
+      Response response = await dioMoodle.post(Url.login, data: formData);
       return AuthModel.fromJson(response.data);
     } catch (e) {
       if (e is DioError) {

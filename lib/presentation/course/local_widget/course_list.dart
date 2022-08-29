@@ -1,14 +1,13 @@
 import 'dart:developer';
-import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/core/blocs/course/course_bloc.dart';
 import 'package:bryte/core/data/model/course/response/course_model.dart';
-import 'package:bryte/presentation/course/local_widget/course_card.dart';
 import 'package:bryte/presentation/course/local_widget/tab_course.dart';
 import 'package:bryte/presentation/course/pages/course_page.dart';
-import 'package:bryte/presentation/course/pages/course_section_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
+
+import 'course_bryte_list.dart';
+import 'empty_course_bryte.dart';
 
 class CourseList extends StatefulWidget {
   const CourseList({
@@ -33,7 +32,6 @@ class _CourseListState extends State<CourseList> {
       listener: (context, state) {
         if (state is CourseStudentSuccess) {
           log('Course Student Success');
-
           data = state.response.data;
         } else if (state is CourseFailed) {
           log('Course Student Gagal');
@@ -55,39 +53,8 @@ class _CourseListState extends State<CourseList> {
                   courseBloc: widget.courseBloc,
                 ),
                 data.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 100),
-                        child: Center(
-                          child: Image.asset(
-                              AssetConstant.emptyCourseAssignmentMan),
-                        ),
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(
-                          data.length,
-                          (index) => CourseCard(
-                            onTap: () => Get.to(
-                              () => SectionGeneralPage(
-                                dataCourse: data[index],
-                              ),
-                            ),
-                            shadowColor: Color(
-                              int.parse(
-                                data[index].dropShadow.replaceAll('#', '0xff'),
-                              ),
-                            ),
-                            name: data[index].teacherName,
-                            title: data[index].course,
-                            color: Color(
-                              int.parse(
-                                data[index].bgColor_1.replaceAll('#', '0xff'),
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
+                    ? const EmptyCourseBryte()
+                    : CourseBryteList(data: data)
               ],
             ),
           ),

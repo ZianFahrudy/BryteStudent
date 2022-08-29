@@ -1,5 +1,9 @@
 class Url {
   static const String baseUrl = "https://ws-dev.prasetiyamulya.ac.id/";
+  static const String baseUrlProdProd =
+      "https://endpoint.prasetiyamulya.ac.id/";
+  static const String baseUrlMoodleProd = "https://lms.prasetiyamulya.ac.id/";
+
   static const String login = baseUrl + "moodle/login/token.php";
   static const String forgotPassword =
       baseUrl + "ws_bryte/public/forgotPassword";
@@ -36,7 +40,11 @@ class Url {
       baseUrl + "ws_bryte/public/assignPerCourseStudent";
 
   static const String attendanceCourse =
-      baseUrl + "ws_bryte/public/attdDetPerCourseStudent";
+      baseUrl + "ws_bryte/attdDetPerCourseStudent";
+
+  static const String uploadFile = baseUrl + "moodle/webservice/upload.php";
+  static const String assignSaveFile =
+      baseUrl + "moodle/webservice/rest/server.php";
 }
 
 // key constant
@@ -76,5 +84,5 @@ class AssetConstant {
   static const iconZoom = 'assets/rummage/icon_zoom.png';
   static const iconYoutube = 'assets/rummage/icon_youtube.png';
   static const iconUpload = 'assets/rummage/icon_upload.png';
-  static const iconDownload = 'assets/icon_download.png';
+  static const iconDownload = 'assets/rummage/icon_download.png';
 }

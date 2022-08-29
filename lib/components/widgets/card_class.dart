@@ -5,6 +5,7 @@ import 'package:bryte/components/utils/theme.dart';
 import 'package:bryte/core/blocs/attend/attend_bloc.dart';
 import 'package:bryte/core/data/model/student/request/submit_attendance_body.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:recase/recase.dart';
 
 import '../utils/palette.dart';
@@ -59,6 +60,10 @@ class CardClasses extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final box = GetStorage();
+
+    final token = box.read(KeyConstant.token);
+
     var listAttdStatusset = attdStatusset.split(',');
 
     String presentId = listAttdStatusset.last;
@@ -251,7 +256,7 @@ class CardClasses extends StatelessWidget {
                               attendBloc.add(
                                 SubmitAttendance(
                                   SubmitAttendanceBody(
-                                    wstoken: SharedConstant.wstoken,
+                                    wstoken: token,
                                     wsfunction: SharedConstant.wsfunction,
                                     moodlewsrestformat:
                                         SharedConstant.moodlewsrestformat,

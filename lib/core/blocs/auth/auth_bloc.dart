@@ -38,7 +38,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             emit(AuthSubmited(authModel: data));
           } else {
             box.remove(KeyConstant.token);
-            emit(AuthRoleFailure(msg: 'Invalid login, please try again'));
+            emit(
+              AuthRoleFailure(msg: 'Invalid login, please try again'),
+            );
           }
         } else {
           emit(AuthError(data.error!, data.errorcode!));
@@ -47,19 +49,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthError(e.toString(), ''));
       }
     });
-    on<SubmitedForgotPassword>((event, emit) async {
-      try {
-        emit(AuthWaiting());
-        final data = await apiRepository.forgotPassword(event.email);
-        if (data!.status == 200) {
-          emit(AuthForgotPasswordSubmited(forgotPasswordModel: data));
-        } else if (data.status == 404) {
-          emit(AuthForgotPasswordError('Username not found!', ''));
+    on<SubmitedForgotPassword>(
+      (event, emit) async {
+        try {
+          emit(AuthWaiting());
+          final data = await apiRepository.forgotPassword(event.email);
+          if (data!.status == 200) {
+            emit(AuthForgotPasswordSubmited(forgotPasswordModel: data));
+          } else if (data.status == 404) {
+            emit(AuthForgotPasswordError('Username not found!', ''));
+          }
+        } catch (e) {
+          emit(AuthForgotPasswordError(e.toString(), ''));
         }
-      } catch (e) {
-        emit(AuthForgotPasswordError(e.toString(), ''));
-      }
-    });
+      },
+    );
     on<VerifyOtp>((event, emit) async {
       try {
         emit(AuthWaiting());

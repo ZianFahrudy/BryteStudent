@@ -162,7 +162,7 @@ Widget customtoastOtp(BuildContext context, String msg) {
 Widget customtoastToWeak(BuildContext context, String msg) {
   return Container(
     height: 78,
-    width: 300,
+    // width: 300,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10.0),
       color: const Color(0xffFFF0F0),
@@ -214,7 +214,6 @@ Widget customtoastToWeak(BuildContext context, String msg) {
 Widget customtoastNewPass(BuildContext context, String msg) {
   return Container(
     height: 78,
-    width: 300,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10.0),
       color: const Color(0xffF5EFFF),

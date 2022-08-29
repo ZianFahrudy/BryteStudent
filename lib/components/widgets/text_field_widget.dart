@@ -7,13 +7,15 @@ class TextFieldWidget extends StatefulWidget {
   final TextInputType? inputType;
   final String? hint;
   final TextEditingController? textEditingController;
+  final Function(String)? onChanged;
   const TextFieldWidget(
       {this.labelText,
       this.iconData,
       this.inputType,
       this.hint,
       this.textEditingController,
-      Key? key})
+      Key? key,
+      this.onChanged})
       : super(key: key);
 
   @override
@@ -71,6 +73,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
             keyboardType: widget.inputType,
             controller: widget.textEditingController,
             obscureText: obscurity,
+            onChanged: widget.onChanged,
             // onChanged: (value) {
             //   if (widget.labelText == 'Password' ||
             //       widget.labelText == 'Retype Password' ||

@@ -32,7 +32,7 @@ class CourseRepositoryImpl extends CourseRepository {
   Dio _getDio() {
     final options = BaseOptions(
         receiveDataWhenStatusError: true,
-        baseUrl: Url.baseUrl,
+        baseUrl: Url.baseUrlProdProd,
         sendTimeout: 60000,
         followRedirects: false,
         headers: {

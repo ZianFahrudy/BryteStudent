@@ -5,6 +5,8 @@ import 'package:bryte/presentation/course/pages/all_scores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../course/local_widget/dropdown_semester.dart';
+
 class AllAttendancePage extends StatelessWidget {
   const AllAttendancePage({Key? key}) : super(key: key);
 

@@ -1,4 +1,4 @@
-package com.example.bryte
+package com.prasmul.bryte
 
 import io.flutter.embedding.android.FlutterActivity
 

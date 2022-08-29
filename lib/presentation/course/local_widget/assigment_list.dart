@@ -1,13 +1,14 @@
 import 'dart:developer';
 
-import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/core/blocs/assignment/assignment_bloc.dart';
 import 'package:bryte/core/data/model/course/response/assignment_model.dart';
-import 'package:bryte/presentation/course/local_widget/course_assignment_card.dart';
 import 'package:bryte/presentation/course/local_widget/tab_assignment.dart';
 import 'package:bryte/presentation/course/pages/course_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'assignment_bryte_list.dart';
+import 'empty_assignment_bryte.dart';
 
 class AssignmentList extends StatefulWidget {
   const AssignmentList({
@@ -34,10 +35,10 @@ class _AssignmentListState extends State<AssignmentList> {
     return BlocConsumer<AssignmentBloc, AssignmentState>(
       listener: (context, state) {
         if (state is AssignmentSuccess) {
-          log('ASSIGNMENT SUCCESS');
+          log('Get Assignment Success');
           data = state.response.data;
         } else if (state is AssignmentFailure) {
-          log('ASSIGNMENT GAGAL');
+          log('Get Assignment Failed');
         }
       },
       builder: (context, state) {
@@ -57,23 +58,8 @@ class _AssignmentListState extends State<AssignmentList> {
                 ),
                 const SizedBox(height: 15),
                 data.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 100),
-                        child: Center(
-                          child: Image.asset(
-                              AssetConstant.emptyCourseAssignmentWomen),
-                        ),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(
-                          data.length,
-                          (index) => CardCourseAssignment(
-                            selecteAssignSection: widget.selectedSection,
-                            data: data[index],
-                          ),
-                        ),
-                      )
+                    ? const EmptyAssignmentBryte()
+                    : AssignmentBryteList(data: data, widget: widget)
               ],
             ),
           ),

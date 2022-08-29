@@ -27,19 +27,17 @@ class CoursePage extends StatefulWidget {
 class _CoursePageState extends State<CoursePage> {
   final box = GetStorage();
 
+  final selectedValue = ValueNotifier<TabType>(TabType.course);
+  final selectedFilterValue =
+      ValueNotifier<FilterCourseType>(FilterCourseType.inProgress);
+  final selectedFilterAssignment =
+      ValueNotifier<FilterAssignmentType>(FilterAssignmentType.allUpcoming);
+  final courseBloc = getIt<CourseBloc>();
+  final assignmentBloc = getIt<AssignmentBloc>();
+  final selectedSection = ValueNotifier<int>(1);
+
   @override
   Widget build(BuildContext context) {
-    final selectedValue = ValueNotifier<TabType>(TabType.course);
-    final selectedFilterValue =
-        ValueNotifier<FilterCourseType>(FilterCourseType.inProgress);
-    final selectedFilterAssignment =
-        ValueNotifier<FilterAssignmentType>(FilterAssignmentType.allUpcoming);
-
-    final courseBloc = getIt<CourseBloc>();
-    final assignmentBloc = getIt<AssignmentBloc>();
-
-    final selectedSection = ValueNotifier<int>(1);
-
     final token = box.read(KeyConstant.token);
     final userId = box.read(KeyConstant.userId);
 

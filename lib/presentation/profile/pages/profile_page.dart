@@ -7,9 +7,9 @@ import 'package:bryte/components/utils/typography.dart';
 import 'package:bryte/core/blocs/profile/profile_bloc.dart';
 import 'package:bryte/core/data/model/profile/request/profile_body.dart';
 import 'package:bryte/core/di/injection.dart';
-import 'package:bryte/presentation/auth/pages/signin.dart';
 import 'package:bryte/presentation/course/pages/all_scores_page.dart';
 import 'package:bryte/presentation/profile/pages/all_attendance_page.dart';
+import 'package:bryte/presentation/profile/pages/setting_page.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 
 import 'package:flutter/material.dart';
@@ -31,15 +31,20 @@ class ProfilePage extends StatelessWidget {
 
     final profileBloc = getIt<ProfileBloc>();
 
+    final token = box.read(KeyConstant.token);
+    final userId = box.read(KeyConstant.userId);
+
     return BlocProvider(
       create: (context) => profileBloc
         ..add(GetUserProfileEvent(
-            body: ProfileBody(
-                wstoken: 'c66dcf796b6cf10d0971da5b7c027847',
-                wsfunction: 'core_user_get_users',
-                moodlewsrestformat: 'json',
-                criteriaid: 'id',
-                criteriauserid: 15543))),
+          body: ProfileBody(
+            wstoken: token,
+            wsfunction: 'core_user_get_users',
+            moodlewsrestformat: 'json',
+            criteriaid: 'id',
+            criteriauserid: int.parse(userId),
+          ),
+        )),
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -47,8 +52,9 @@ class ProfilePage extends StatelessWidget {
           actions: [
             InkWell(
               onTap: () {
-                box.remove(KeyConstant.token);
-                Get.off(() => const Signin());
+                // box.remove(KeyConstant.token);
+                // Get.off(() => const Signin());
+                Get.to<void>(() => const SettingPage());
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -84,12 +90,13 @@ class ProfilePage extends StatelessWidget {
                 child: ValueListenableBuilder(
                   valueListenable: selectedTab,
                   builder: (context, v, c) => Column(children: [
+                    const SizedBox(height: 20),
                     ProfileStudent(
                       imageUrl: state.response.users[0].profileimageurl!,
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      state.response.users[0].fullname!,
+                      state.response.users[0].username!,
                       style: BryteTypography.titleExtraBold.copyWith(
                         color: Palette.darkPurple,
                       ),
@@ -120,8 +127,18 @@ class ProfilePage extends StatelessWidget {
                               style: BryteTypography.titleMedium
                                   .copyWith(color: Palette.lightGrey),
                             ),
-                            const Text(
-                              'Farel Julian Suryadi',
+                            Text(
+                              state.response.users[0].fullname!,
+                              style: BryteTypography.titleSemiBold,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'EMAIL',
+                              style: BryteTypography.titleMedium
+                                  .copyWith(color: Palette.lightGrey),
+                            ),
+                            Text(
+                              state.response.users[0].email!,
                               style: BryteTypography.titleSemiBold,
                             ),
                             const SizedBox(height: 10),
@@ -130,8 +147,8 @@ class ProfilePage extends StatelessWidget {
                               style: BryteTypography.titleMedium
                                   .copyWith(color: Palette.lightGrey),
                             ),
-                            const Text(
-                              '23601810009',
+                            Text(
+                              state.response.users[0].firstaccess!.toString(),
                               style: BryteTypography.titleSemiBold,
                             ),
                             const SizedBox(height: 10),
@@ -140,8 +157,8 @@ class ProfilePage extends StatelessWidget {
                               style: BryteTypography.titleMedium
                                   .copyWith(color: Palette.lightGrey),
                             ),
-                            const Text(
-                              'S1 Product Design Engineering',
+                            Text(
+                              state.response.users[0].department!,
                               style: BryteTypography.titleSemiBold,
                             ),
                           ],
@@ -163,16 +180,6 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
     );
-
-    // return Center(
-    //   child: ElevatedButton(
-    //       onPressed: () {
-    //         box.remove(KeyConstant.token);
-    //         box.remove(KeyConstant.role);
-    //         Get.offAllNamed(Signin.route);
-    //       },
-    //       child: const Text('Logout')),
-    // );
   }
 }
 

@@ -73,7 +73,7 @@ class ProfileStudent extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        '3',
+                        '0',
                         style: BryteTypography.bodyRegular.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

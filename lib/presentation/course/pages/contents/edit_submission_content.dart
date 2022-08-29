@@ -1,17 +1,18 @@
+import 'dart:async';
+
 import 'package:bryte/components/utils/typography.dart';
 import 'package:bryte/core/data/model/course/response/detail_assignment_model.dart';
 import 'package:bryte/presentation/course/pages/pdf_view_page.dart';
+import 'package:fl_downloader/fl_downloader.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../../../components/utils/constant.dart';
 import '../../../../components/utils/palette.dart';
-import '../detail_assignment_page.dart';
+import '../../local_widget/select_file_type_label.dart';
 
-class EditSubmissionContent extends StatelessWidget {
+class EditSubmissionContent extends StatefulWidget {
   const EditSubmissionContent({
     Key? key,
     required this.assignMaxSize,
@@ -23,6 +24,39 @@ class EditSubmissionContent extends StatelessWidget {
   final String assignDeadline;
 
   final List<AssignFileModel> assignFileModel;
+
+  @override
+  State<EditSubmissionContent> createState() => _EditSubmissionContentState();
+}
+
+class _EditSubmissionContentState extends State<EditSubmissionContent> {
+  int progress = 0;
+  late StreamSubscription progressStream;
+
+  @override
+  void initState() {
+    progressStream = FlDownloader.progressStream.listen((event) {
+      if (event.status == DownloadStatus.successful) {
+        setState(() {
+          progress = event.progress;
+        });
+        FlDownloader.openFile(
+          filePath: event.filePath,
+        );
+      } else if (event.status == DownloadStatus.running) {
+        setState(() {
+          progress = event.progress;
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    progressStream.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +79,7 @@ class EditSubmissionContent extends StatelessWidget {
             ),
           ),
           Text(
-            assignMaxSize,
+            widget.assignMaxSize,
             style: BryteTypography.titleRegular.copyWith(
                 fontSize: 14,
                 color: Palette.purple,
@@ -69,7 +103,7 @@ class EditSubmissionContent extends StatelessWidget {
             height: 20,
           ),
           Column(
-            children: assignFileModel
+            children: widget.assignFileModel
                 .map(
                   (data) => Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -100,8 +134,8 @@ class EditSubmissionContent extends StatelessWidget {
                                     style: BryteTypography.titleMedium,
                                   ),
                                   Text(
-                                    DateFormat('dd MMM yyyy, HH:mm')
-                                        .format(DateTime.parse(assignDeadline)),
+                                    DateFormat('dd MMM yyyy, HH:mm').format(
+                                        DateTime.parse(widget.assignDeadline)),
                                     style: BryteTypography.bodyMedium
                                         .copyWith(color: Palette.grey),
                                   ),
@@ -164,19 +198,10 @@ class EditSubmissionContent extends StatelessWidget {
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {
-                                    var directory =
-                                        await getTemporaryDirectory();
-                                    // var path =
-                                    //     join(directory.path, "assign_file");
-
-                                    await FlutterDownloader.enqueue(
-                                      url: data.fileUrl,
-                                      savedDir: directory.path,
-                                      showNotification:
-                                          true, // show download progress in status bar (for Android)
-                                      openFileFromNotification:
-                                          true, // click on notification to open downloaded file (for Android)
-                                    );
+                                    await FlDownloader.download(
+                                        widget.assignFileModel[0].fileUrl,
+                                        fileName:
+                                            widget.assignFileModel[0].fileName);
                                   },
                                   child: Row(
                                     children: const [
@@ -282,6 +307,15 @@ class EditSubmissionContent extends StatelessWidget {
               ),
             ),
           ),
+          Column(
+            children: [
+              if (progress > 0 && progress < 100)
+                LinearProgressIndicator(
+                  value: progress / 100,
+                  color: Colors.orange,
+                ),
+            ],
+          )
         ],
       ),
     );
