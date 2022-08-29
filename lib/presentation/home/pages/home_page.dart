@@ -15,10 +15,8 @@ import '../../../components/utils/enum.dart';
 import '../../../components/widgets/app_bar.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/repo/auth/auth_repository.dart';
-import '../local_widget/announcement.dart';
 import '../local_widget/header_home.dart';
 import '../local_widget/today_classes.dart';
-import '../local_widget/upcoming_assignments.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -136,8 +134,8 @@ class _HomePageState extends State<HomePage> {
                   TodayClasses(
                     attendBloc: attendBloc,
                   ),
-                  const UpcomingAssignments(),
-                  const Announcements(),
+                  // const UpcomingAssignments(),
+                  // const Announcements(),
                   const SizedBox(height: 100)
                 ],
               ),

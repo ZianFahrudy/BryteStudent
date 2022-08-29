@@ -1,50 +1,57 @@
 class Url {
-  static const String baseUrl = "https://ws-dev.prasetiyamulya.ac.id/";
-  static const String baseUrlProdProd =
+  static const String baseUrlProdProd = "https://ws-dev.prasetiyamulya.ac.id/";
+  static const String baseUrlProdProdProdProd =
       "https://endpoint.prasetiyamulya.ac.id/";
-  static const String baseUrlMoodleProd = "https://lms.prasetiyamulya.ac.id/";
+  static const String baseUrlProdProdMoodleProd =
+      "https://lms.prasetiyamulya.ac.id/";
 
-  static const String login = baseUrl + "moodle/login/token.php";
+  static const String login = baseUrlProdProdMoodleProd + "login/token.php";
   static const String forgotPassword =
-      baseUrl + "ws_bryte/public/forgotPassword";
-  static const String verifyOtp = baseUrl + "ws_bryte/public/verifyOtp";
-  static const String resetPass = baseUrl + "ws_bryte/public/resetPassword";
-  static const String resenOTP = baseUrl + "ws_bryte/public/resendOtp";
+      baseUrlProdProd + "ws_bryte/public/forgotPassword";
+  static const String verifyOtp = baseUrlProdProd + "ws_bryte/public/verifyOtp";
+  static const String resetPass =
+      baseUrlProdProd + "ws_bryte/public/resetPassword";
+  static const String resenOTP = baseUrlProdProd + "ws_bryte/public/resendOtp";
 
   static const String classSummaryStudent =
-      baseUrl + "ws_bryte/public/classesSummaryStudent";
+      baseUrlProdProdProdProd + "ws_bryte/public/classesSummaryStudent";
 
-  static const String announcement = baseUrl + "ws_bryte/public/announcement";
+  static const String announcement =
+      baseUrlProdProd + "ws_bryte/public/announcement";
   static const String classesDetStudent =
-      baseUrl + "ws_bryte/public/classesDetStudent";
+      baseUrlProdProdProdProd + "ws_bryte/public/classesDetStudent";
   static const String upcomingAssignStudent =
-      baseUrl + "ws_bryte/public/upcomingAssignStudent";
-  static const String authorization = baseUrl + "ws_bryte/public/authorization";
+      baseUrlProdProdProdProd + "ws_bryte/public/upcomingAssignStudent";
+  static const String authorization =
+      baseUrlProdProdProdProd + "ws_bryte/public/authorization";
   static const String calendarEvent =
-      baseUrl + "ws_bryte/public/calendarEventDet";
+      baseUrlProdProd + "ws_bryte/public/calendarEventDet";
   static const String attendance =
-      baseUrl + "moodle/webservice/rest/server.php";
+      baseUrlProdProdMoodleProd + "webservice/rest/server.php";
 
   static const String generalCourse =
-      baseUrl + "moodle/webservice/rest/server.php";
+      baseUrlProdProdMoodleProd + "webservice/rest/server.php";
 
-  static const String course = baseUrl + "ws_bryte/public/courseStudent";
+  static const String course =
+      baseUrlProdProd + "ws_bryte/public/courseStudent";
   static const String assignment =
-      baseUrl + "ws_bryte/public/courseAssignStudent";
+      baseUrlProdProd + "ws_bryte/public/courseAssignStudent";
 
-  static const String profile = baseUrl + "moodle/webservice/rest/server.php";
+  static const String profile =
+      baseUrlProdProdMoodleProd + "webservice/rest/server.php";
   static const String detailAssignment =
-      baseUrl + "ws_bryte/public/assignDetStudent";
+      baseUrlProdProdProdProd + "ws_bryte/public/assignDetStudent";
 
   static const String assignmentPerCourse =
-      baseUrl + "ws_bryte/public/assignPerCourseStudent";
+      baseUrlProdProd + "ws_bryte/public/assignPerCourseStudent";
 
   static const String attendanceCourse =
-      baseUrl + "ws_bryte/attdDetPerCourseStudent";
+      baseUrlProdProd + "ws_bryte/attdDetPerCourseStudent";
 
-  static const String uploadFile = baseUrl + "moodle/webservice/upload.php";
+  static const String uploadFile =
+      baseUrlProdProd + "moodle/webservice/upload.php";
   static const String assignSaveFile =
-      baseUrl + "moodle/webservice/rest/server.php";
+      baseUrlProdProd + "moodle/webservice/rest/server.php";
 }
 
 // key constant

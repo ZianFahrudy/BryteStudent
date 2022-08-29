@@ -3,9 +3,6 @@ import 'package:bryte/presentation/profile/pages/profile_page.dart';
 import 'package:bryte/components/utils/theme.dart';
 import 'package:flutter/material.dart';
 
-import '../calendar/pages/calendar_page.dart';
-import '../course/pages/course_page.dart';
-
 class Navigation extends StatefulWidget {
   const Navigation({Key? key}) : super(key: key);
   static const route = '/navigation';
@@ -18,8 +15,8 @@ class _NavigationState extends State<Navigation> {
 
   final _pages = <Widget>[
     const HomePage(),
-    const CoursePage(),
-    const CalenderPage(),
+    // const CoursePage(),
+    // const CalenderPage(),
     const ProfilePage(),
   ];
 
@@ -98,44 +95,44 @@ class BottomNavigation extends StatelessWidget {
                     ],
                   ),
                   label: ''),
-              BottomNavigationBarItem(
-                  icon: Column(
-                    children: [
-                      Container(
-                          margin: const EdgeInsets.only(top: 6),
-                          child: Icon(Icons.school,
-                              size: 24,
-                              color: selectedIndex.value == 1
-                                  ? brytepurple
-                                  : bryteGreyLight)),
-                      Text(
-                        'Courses',
-                        style: selectedIndex.value == 1
-                            ? brytStylebtnActive
-                            : brytStylebtnNonActive,
-                      )
-                    ],
-                  ),
-                  label: ''),
-              BottomNavigationBarItem(
-                  icon: Column(
-                    children: [
-                      Container(
-                          margin: const EdgeInsets.only(top: 6),
-                          child: Icon(Icons.calendar_today_rounded,
-                              size: 24,
-                              color: selectedIndex.value == 2
-                                  ? brytepurple
-                                  : bryteGreyLight)),
-                      Text(
-                        'Calendar',
-                        style: selectedIndex.value == 2
-                            ? brytStylebtnActive
-                            : brytStylebtnNonActive,
-                      )
-                    ],
-                  ),
-                  label: ''),
+              // BottomNavigationBarItem(
+              //     icon: Column(
+              //       children: [
+              //         Container(
+              //             margin: const EdgeInsets.only(top: 6),
+              //             child: Icon(Icons.school,
+              //                 size: 24,
+              //                 color: selectedIndex.value == 1
+              //                     ? brytepurple
+              //                     : bryteGreyLight)),
+              //         Text(
+              //           'Courses',
+              //           style: selectedIndex.value == 1
+              //               ? brytStylebtnActive
+              //               : brytStylebtnNonActive,
+              //         )
+              //       ],
+              //     ),
+              //     label: ''),
+              // BottomNavigationBarItem(
+              //     icon: Column(
+              //       children: [
+              //         Container(
+              //             margin: const EdgeInsets.only(top: 6),
+              //             child: Icon(Icons.calendar_today_rounded,
+              //                 size: 24,
+              //                 color: selectedIndex.value == 2
+              //                     ? brytepurple
+              //                     : bryteGreyLight)),
+              //         Text(
+              //           'Calendar',
+              //           style: selectedIndex.value == 2
+              //               ? brytStylebtnActive
+              //               : brytStylebtnNonActive,
+              //         )
+              //       ],
+              //     ),
+              //     label: ''),
               BottomNavigationBarItem(
                   icon: Column(
                     children: [

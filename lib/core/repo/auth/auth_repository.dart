@@ -16,7 +16,7 @@ class AuthRepository {
   Dio get dio => Dio(
         BaseOptions(
             receiveDataWhenStatusError: true,
-            baseUrl: Url.baseUrlProdProd,
+            baseUrl: Url.baseUrlProdProdProdProd,
             sendTimeout: 60000,
             followRedirects: false,
             headers: {
@@ -36,7 +36,7 @@ class AuthRepository {
   Dio get dioMoodle => Dio(
         BaseOptions(
             receiveDataWhenStatusError: true,
-            baseUrl: Url.baseUrl,
+            baseUrl: Url.baseUrlProdProdMoodleProd,
             sendTimeout: 60000,
             followRedirects: false,
             headers: {

@@ -9,7 +9,6 @@ import 'package:bryte/core/data/model/profile/request/profile_body.dart';
 import 'package:bryte/core/di/injection.dart';
 import 'package:bryte/presentation/course/pages/all_scores_page.dart';
 import 'package:bryte/presentation/profile/pages/all_attendance_page.dart';
-import 'package:bryte/presentation/profile/pages/setting_page.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 
 import 'package:flutter/material.dart';
@@ -18,6 +17,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
+import '../../auth/pages/signin.dart';
 import '../local_widgets/profile_student.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -52,21 +52,21 @@ class ProfilePage extends StatelessWidget {
           actions: [
             InkWell(
               onTap: () {
-                // box.remove(KeyConstant.token);
-                // Get.off(() => const Signin());
-                Get.to<void>(() => const SettingPage());
+                box.remove(KeyConstant.token);
+                Get.off(() => const Signin());
+                // Get.to<void>(() => const SettingPage());
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Settings',
+                    'Logout',
                     style: BryteTypography.bodyExtraBold
                         .copyWith(color: Colors.white),
                   ),
                   const SizedBox(width: 5),
                   const Icon(
-                    Icons.settings,
+                    Icons.logout,
                     color: Colors.white,
                     size: 20,
                   ),
@@ -104,66 +104,66 @@ class ProfilePage extends StatelessWidget {
                     const SizedBox(height: 10),
                     Text(state.response.users[0].department!),
                     const SizedBox(height: 20),
-                    SegmentedProfile(
-                      selectedValue: selectedTab,
-                    ),
-                    if (v == ProfileTabType.academic)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          CumulativeCard(),
-                          AttendanceRateCard(),
+                    // SegmentedProfile(
+                    //   selectedValue: selectedTab,
+                    // ),
+                    // if (v == ProfileTabType.academic)
+                    //   Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: const [
+                    //       CumulativeCard(),
+                    //       AttendanceRateCard(),
+                    //     ],
+                    //   )
+                    // else if (v == ProfileTabType.personal)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'NAME',
+                            style: BryteTypography.titleMedium
+                                .copyWith(color: Palette.lightGrey),
+                          ),
+                          Text(
+                            state.response.users[0].fullname!,
+                            style: BryteTypography.titleSemiBold,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'EMAIL',
+                            style: BryteTypography.titleMedium
+                                .copyWith(color: Palette.lightGrey),
+                          ),
+                          Text(
+                            state.response.users[0].email!,
+                            style: BryteTypography.titleSemiBold,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'STUDENT NUMBER (NUM)',
+                            style: BryteTypography.titleMedium
+                                .copyWith(color: Palette.lightGrey),
+                          ),
+                          Text(
+                            state.response.users[0].firstaccess!.toString(),
+                            style: BryteTypography.titleSemiBold,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'PROGRAM',
+                            style: BryteTypography.titleMedium
+                                .copyWith(color: Palette.lightGrey),
+                          ),
+                          Text(
+                            state.response.users[0].department!,
+                            style: BryteTypography.titleSemiBold,
+                          ),
                         ],
-                      )
-                    else if (v == ProfileTabType.personal)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'NAME',
-                              style: BryteTypography.titleMedium
-                                  .copyWith(color: Palette.lightGrey),
-                            ),
-                            Text(
-                              state.response.users[0].fullname!,
-                              style: BryteTypography.titleSemiBold,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'EMAIL',
-                              style: BryteTypography.titleMedium
-                                  .copyWith(color: Palette.lightGrey),
-                            ),
-                            Text(
-                              state.response.users[0].email!,
-                              style: BryteTypography.titleSemiBold,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'STUDENT NUMBER (NUM)',
-                              style: BryteTypography.titleMedium
-                                  .copyWith(color: Palette.lightGrey),
-                            ),
-                            Text(
-                              state.response.users[0].firstaccess!.toString(),
-                              style: BryteTypography.titleSemiBold,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'PROGRAM',
-                              style: BryteTypography.titleMedium
-                                  .copyWith(color: Palette.lightGrey),
-                            ),
-                            Text(
-                              state.response.users[0].department!,
-                              style: BryteTypography.titleSemiBold,
-                            ),
-                          ],
-                        ),
-                      )
+                      ),
+                    )
                   ]),
                 ),
               );
