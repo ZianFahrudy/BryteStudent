@@ -1,12 +1,12 @@
 import 'package:bryte/components/routes/routes.dart';
 import 'package:bryte/components/utils/palette.dart';
+import 'package:bryte/presentation/auth/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../components/utils/constant.dart';
-import 'auth/pages/signin.dart';
 import 'navigation/navigation.dart';
 
 class App extends StatefulWidget {
@@ -20,11 +20,6 @@ class _AppState extends State<App> {
   final box = GetStorage();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     bool isLogin = box.hasData(KeyConstant.token);
     final routeObserver = Get.put<RouteObserver>(RouteObserver<PageRoute>());
@@ -33,7 +28,7 @@ class _AppState extends State<App> {
       if (isLogin) {
         return Navigation.route;
       } else {
-        return Signin.route;
+        return LoginPage.route;
       }
     }
 
@@ -41,14 +36,27 @@ class _AppState extends State<App> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.white, // status bar color
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light, // status bar icon color
+        systemNavigationBarIconBrightness:
+            Brightness.dark, // color of navigation controls
+      ),
+    );
 
     return GetMaterialApp(
       title: 'Bryte',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          appBarTheme: const AppBarTheme(
-              color: Palette.headerSpecial,
-              iconTheme: IconThemeData(color: Palette.darkPurple)),
+          appBarTheme: AppBarTheme(
+              color: const Color(0xff58329C).withOpacity(0.8),
+              systemOverlayStyle: const SystemUiOverlayStyle(
+                  statusBarColor: Colors.white,
+                  statusBarIconBrightness: Brightness.dark,
+                  statusBarBrightness: Brightness.light),
+              iconTheme: const IconThemeData(color: Palette.darkPurple)),
           scaffoldBackgroundColor: Colors.white,
           primarySwatch: Colors.purple,
           primaryColor: Palette.darkPurple,

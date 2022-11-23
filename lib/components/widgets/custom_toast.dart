@@ -1,5 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:bryte/components/utils/theme.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+void bryteToast(String msg, BuildContext context, String text, FToast toast) {
+  toast.showToast(
+    child: BryteToast(msg: msg, textMessage: text),
+    positionedToastBuilder: (context, child) {
+      return Positioned(
+        child: child,
+        top: 55.0,
+        left: 26.0,
+        right: 26,
+      );
+    },
+  );
+}
+
+class BryteToast extends StatelessWidget {
+  const BryteToast({
+    Key? key,
+    required this.msg,
+    required this.textMessage,
+  }) : super(key: key);
+
+  final String msg;
+  final String textMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 78,
+      width: 319,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: const Color(0xffFFF0F0),
+      ),
+      child: Row(
+        // mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+              width: 55,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    bottomLeft: Radius.circular(10)),
+                color: Color(0xffFFCECE),
+              ),
+              // color: const Color(0xffFFCECE),
+              child: Center(
+                child: Image.asset(
+                  'assets/error_icon.png',
+                  width: 20,
+                  height: 20,
+                ),
+              )),
+          Container(
+            width: MediaQuery.of(context).size.width - 55 - 16 - 52 - 16,
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    msg,
+                    maxLines: 2,
+                    // "You've entered a wrong username or\n password!",
+                    style: brytStyleError.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                Text(
+                  textMessage,
+                  style: brytStyleError,
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
 
 Widget customtoast(BuildContext context, String msg) {
   return Container(
@@ -83,7 +165,7 @@ Widget customtoastForgot(BuildContext context, String msg) {
               ),
             )),
         Container(
-          width: MediaQuery.of(context).size.width - 115,
+          width: MediaQuery.of(context).size.width - 55 - 16 - 52 - 16,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -110,13 +192,12 @@ Widget customtoastForgot(BuildContext context, String msg) {
 Widget customtoastOtp(BuildContext context, String msg) {
   return Container(
     height: 78,
-    width: 300,
+    width: 319,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10.0),
       color: const Color(0xffFFF0F0),
     ),
     child: Row(
-      // mainAxisSize: MainAxisSize.min,
       children: [
         Container(
             width: 55,
@@ -135,7 +216,7 @@ Widget customtoastOtp(BuildContext context, String msg) {
               ),
             )),
         Container(
-          width: MediaQuery.of(context).size.width - 115,
+          width: MediaQuery.of(context).size.width - 55 - 16 - 52 - 16,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -200,7 +281,7 @@ Widget customtoastToWeak(BuildContext context, String msg) {
                 ),
               ),
               Text(
-                "Please follow the password strength\n guide.",
+                "Please follow the password strength\nguide.",
                 style: brytStyleError,
               ),
             ],
@@ -211,7 +292,7 @@ Widget customtoastToWeak(BuildContext context, String msg) {
   );
 }
 
-Widget customtoastNewPass(BuildContext context, String msg) {
+Widget customtoastNewPass(BuildContext context) {
   return Container(
     height: 78,
     decoration: BoxDecoration(

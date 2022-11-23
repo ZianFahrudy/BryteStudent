@@ -15,7 +15,7 @@ class EventDateLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Text(
         DateFormat('EEEE, dd MMMM yyyy').format(_selectedDay!),
         style: BryteTypography.headerSemiBold,

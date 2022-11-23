@@ -18,6 +18,20 @@ class AssignClassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dateTimeNow = DateFormat('dd MMMM').format(DateTime.now());
+    final compareDueDate =
+        DateFormat('dd MMMM').format(DateTime.parse(value.assignDeadline!));
+    final dueDate =
+        DateFormat('dd MMM').format(DateTime.parse(value.assignDeadline!));
+
+    final now = DateTime.now();
+
+    final tomorrow =
+        DateFormat('dd MMMM').format(now.subtract(const Duration(days: 1)));
+
+    final timeDeadline =
+        DateFormat('HH:mm').format(DateTime.parse(value.assignDeadline!));
+
     return Card(
       shadowColor: Palette.secondary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -29,23 +43,29 @@ class AssignClassCard extends StatelessWidget {
             Column(
               children: [
                 Text(
-                  DateFormat('dd MMM')
-                      .format(DateTime.parse(value.assignDeadline!)),
+                  dateTimeNow == compareDueDate
+                      ? 'Today'
+                      : tomorrow == compareDueDate
+                          ? 'Tomorrow'
+                          : dueDate,
                   style: brytStyleJudul.copyWith(
-                    fontSize: 14,
-                    color: Palette.purple,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: dateTimeNow == compareDueDate
+                          ? const Color(0xffFF5858)
+                          : tomorrow == compareDueDate
+                              ? Palette.purple
+                              : Palette.purple),
                 ),
-                Text(
-                  DateFormat('HH:mm')
-                      .format(DateTime.parse(value.assignDeadline!)),
-                  style: brytStyleJudul.copyWith(
-                    fontSize: 16,
-                    color: Palette.purple,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
+                Text(timeDeadline,
+                    style: brytStyleJudul.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: dateTimeNow == compareDueDate
+                            ? const Color(0xffFF5858)
+                            : tomorrow == compareDueDate
+                                ? Palette.purple
+                                : Palette.purple)),
               ],
             ),
             Container(
@@ -62,13 +82,16 @@ class AssignClassCard extends StatelessWidget {
                     const Icon(
                       Icons.assignment,
                       size: 15,
-                      color: Palette.neutral300,
+                      color: Palette.darkPurple,
                     ),
                     const SizedBox(width: 5),
-                    Text(ReCase(value.type).constantCase,
-                        style: BryteTypography.bodyRegular.copyWith(
-                          color: Palette.neutral300,
-                        )),
+                    Text(
+                      ReCase(value.type).constantCase,
+                      style: BryteTypography.bodyRegular.copyWith(
+                          color: Palette.darkPurple,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400),
+                    ),
                   ],
                 ),
                 const SizedBox(
@@ -81,7 +104,10 @@ class AssignClassCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: BryteTypography.headerExtraBold.copyWith(
-                        fontSize: 16, color: Colors.black.withOpacity(.6)),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: const Color(0xff000000).withOpacity(.6),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -96,15 +122,15 @@ class AssignClassCard extends StatelessWidget {
                           color: Palette.sunkist400),
                     ),
                     SizedBox(
-                      width: Get.width - 300,
+                      width: Get.width - 275,
                       child: Text(
                         value.assignDescp!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: brytStyleJudul.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Palette.lightGrey),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xff969696)),
                       ),
                     ),
                   ],
@@ -113,18 +139,29 @@ class AssignClassCard extends StatelessWidget {
             ),
             const Spacer(),
             Container(
+              width: 99,
+              alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               child: Text(
                 value.assignAttempt! ? 'SUBMITTED' : 'NOT ATTEMPTED',
                 style: BryteTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color:
-                        value.assignAttempt! ? Palette.sprite500 : Palette.red),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 9,
+                    color: value.assignAttempt!
+                        ? Palette.sprite500
+                        : value.assignAttempt == false &&
+                                dateTimeNow == compareDueDate
+                            ? Palette.red
+                            : const Color(0xffA2A2A2)),
               ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color:
-                    value.assignAttempt! ? Palette.sprite200 : Palette.coke200,
+                color: value.assignAttempt!
+                    ? Palette.sprite200
+                    : value.assignAttempt == false &&
+                            dateTimeNow == compareDueDate
+                        ? Palette.coke200
+                        : const Color(0xffE7E7E7),
               ),
             )
           ],

@@ -1,3 +1,4 @@
+import 'package:bryte/components/utils/hex_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recase/recase.dart';
@@ -41,7 +42,7 @@ class CourseClassCard extends StatelessWidget {
                       width: 45,
                       height: 45,
                       decoration: BoxDecoration(
-                        color: Palette.green,
+                        color: HexColor(event.bgColor1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
@@ -91,7 +92,7 @@ class CourseClassCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                     decoration: BoxDecoration(
-                        color: Palette.sprite200,
+                        color: HexColor(event.bgColor1).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20)),
                     child: Text(
                       attdStatus == 'P'
@@ -100,9 +101,11 @@ class CourseClassCard extends StatelessWidget {
                               ? 'LATE'
                               : attdStatus == 'A'
                                   ? 'ABSENT'
-                                  : 'EXCUSED',
+                                  : attdStatus == 'W'
+                                      ? 'WAITING'
+                                      : 'EXCUSED',
                       style: BryteTypography.button
-                          .copyWith(color: Palette.sprite500),
+                          .copyWith(color: HexColor(event.bgColor1)),
                     ),
                   )
               ],

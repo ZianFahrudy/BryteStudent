@@ -62,55 +62,48 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(
-          color: brytepurpleligth,
-          borderRadius: const BorderRadius.all(
-            Radius.circular(10),
-          ),
+      height: 48,
+      decoration: BoxDecoration(
+        color: brytepurpleligth,
+        borderRadius: const BorderRadius.all(
+          Radius.circular(10),
         ),
-        child: TextField(
-            focusNode: focusNode,
-            keyboardType: widget.inputType,
-            controller: widget.textEditingController,
-            obscureText: obscurity,
-            onChanged: widget.onChanged,
-            // onChanged: (value) {
-            //   if (widget.labelText == 'Password' ||
-            //       widget.labelText == 'Retype Password' ||
-            //       widget.labelText == 'New Password' ||
-            //       widget.labelText == 'Re-type new password' ||
-            //       widget.labelText == 'Confirm Password') {
-            //     setState(() {
-            //       obscurity = true;
-            //     });
-            //   }
-            // },
-            cursorColor: brytepurple,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: widget.hint,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              suffixIcon: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    obscurity = !obscurity;
-                  });
-                },
-                child: widget.iconData == Icons.visibility
-                    ? (obscurity
-                        ? Icon(Icons.visibility_off, color: brytepurple)
-                        : Icon(
-                            Icons.visibility,
-                            color: brytepurple,
-                          ))
+      ),
+      child: TextField(
+        focusNode: focusNode,
+        keyboardType: widget.inputType,
+        controller: widget.textEditingController,
+        obscureText: obscurity,
+        onChanged: widget.onChanged,
+        cursorColor: brytepurple,
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          hintText: widget.hint,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              setState(() {
+                obscurity = !obscurity;
+              });
+            },
+            child: widget.iconData == Icons.visibility
+                ? (obscurity
+                    ? Icon(Icons.visibility_off, color: brytepurple)
                     : Icon(
-                        widget.iconData,
+                        Icons.visibility,
                         color: brytepurple,
-                      ),
-              ),
-              labelText: widget.labelText,
-              labelStyle: brytStylelabel,
-            )));
+                      ))
+                : Icon(
+                    widget.iconData,
+                    color: brytepurple,
+                  ),
+          ),
+          labelText: widget.labelText,
+          labelStyle: brytStylelabel,
+        ),
+      ),
+    );
   }
 }

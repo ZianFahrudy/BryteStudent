@@ -54,7 +54,10 @@ class _CourseListState extends State<CourseList> {
                 ),
                 data.isEmpty
                     ? const EmptyCourseBryte()
-                    : CourseBryteList(data: data)
+                    : CourseBryteList(
+                        data: data,
+                        selectedFilterValue: widget.selectedFilterValue,
+                      )
               ],
             ),
           ),

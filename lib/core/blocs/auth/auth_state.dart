@@ -18,6 +18,8 @@ class AuthSubmited extends AuthState {
   AuthSubmited({this.authModel});
 }
 
+class AuthUserPasswordEmpty extends AuthState {}
+
 class AuthForgotPasswordError extends AuthState {
   final String? msg;
   final String? kode;

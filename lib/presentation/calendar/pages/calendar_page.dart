@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'dart:collection';
 import 'dart:developer';
 
@@ -13,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../components/utils/palette.dart';
@@ -109,6 +108,18 @@ class _CalenderPageState extends State<CalenderPage> {
       });
 
       _selectedEvents.value = _getEventsForDay(selectedDay);
+
+      if (selectedValue.value == TabCalendarType.weekly) {
+        for (var i = 0; i < eventPerweek.length; i++) {
+          log(eventPerweek[3].date);
+
+          if (DateFormat('yyyy-MM-dd').format(_selectedDay!) ==
+              eventPerweek[i].date) {
+            itemScrollController.scrollTo(
+                index: i, duration: const Duration(milliseconds: 250));
+          }
+        }
+      }
     }
   }
 
@@ -139,6 +150,10 @@ class _CalenderPageState extends State<CalenderPage> {
       DateTime(DateTime.now().year, DateTime.now().month, 1);
 
   List<DataCalendarEvent> eventPerweek = [];
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
 
   @override
   Widget build(BuildContext context) {
@@ -184,15 +199,10 @@ class _CalenderPageState extends State<CalenderPage> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          actions: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.refresh,
-                  color: Colors.white,
-                ))
-          ],
-          title: Image.asset(AssetConstant.bryteLogoWhite),
+          title: Image.asset(
+            AssetConstant.bryteLogoWhite,
+            width: 59,
+          ),
         ),
         body: BlocConsumer<EventBloc, EventState>(
           listener: (context, state) {
@@ -208,78 +218,114 @@ class _CalenderPageState extends State<CalenderPage> {
           },
           builder: (context, state) {
             _selectedEvents.value = _getEventsForDay(_selectedDay!);
-
             return ValueListenableBuilder(
               valueListenable: selectedValue,
-              builder: (context, _, __) => SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SegmentedCalendar(selectedValue: selectedValue),
-                    TableCalendar<Event>(
-                      calendarBuilders: _calendarBuilders(),
-                      firstDay: kFirstDay,
-                      lastDay: kLastDay,
-                      focusedDay: _focusedDay,
-                      selectedDayPredicate: (day) =>
-                          isSameDay(_selectedDay, day),
-                      rangeStartDay: _rangeStart,
-                      rangeEndDay: _rangeEnd,
-                      calendarFormat:
-                          selectedValue.value == TabCalendarType.weekly
-                              ? _calendarFormatWeek
-                              : _calendarFormatMonth,
-                      rangeSelectionMode: _rangeSelectionMode,
-                      eventLoader: _getEventsForDay,
-                      startingDayOfWeek: StartingDayOfWeek.monday,
-                      enabledDayPredicate: (s) {
-                        return true;
-                      },
-                      onRangeSelected: (start, end, focusday) {
-                        _focusedDay = focusday;
-                        _rangeStart = start;
-                        _rangeEnd = end;
-                      },
-                      onDaySelected: _onDaySelected,
-                      onFormatChanged: (format) {
-                        if (_calendarFormatMonth != format) {
-                          setState(() {
-                            _calendarFormatMonth = format;
-                          });
-                        }
-                      },
-                      onPageChanged: (focusedDay) =>
-                          _onPageChanged(focusedDay, token, userId),
-                      headerStyle: HeaderStyle(
-                        formatButtonVisible: false,
-                        leftChevronPadding: const EdgeInsets.only(left: 0),
-                        rightChevronPadding: const EdgeInsets.only(right: 0),
-                        headerPadding: const EdgeInsets.symmetric(vertical: 10),
-                        titleCentered: true,
-                        decoration:
-                            const BoxDecoration(color: Palette.primary100),
-                        titleTextStyle:
-                            BryteTypography.headerExtraBold.copyWith(
-                          color: Palette.headerSpecial,
-                        ),
+              builder: (context, _, __) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SegmentedCalendar(selectedValue: selectedValue),
+                  TableCalendar<Event>(
+                    calendarBuilders: _calendarBuilders(),
+                    firstDay: kFirstDay,
+                    lastDay: kLastDay,
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                    rangeStartDay: _rangeStart,
+                    rangeEndDay: _rangeEnd,
+                    calendarFormat:
+                        selectedValue.value == TabCalendarType.weekly
+                            ? _calendarFormatWeek
+                            : _calendarFormatMonth,
+                    rangeSelectionMode: _rangeSelectionMode,
+                    eventLoader: _getEventsForDay,
+                    startingDayOfWeek: StartingDayOfWeek.monday,
+                    enabledDayPredicate: (s) {
+                      return true;
+                    },
+                    onRangeSelected: (start, end, focusday) {
+                      _focusedDay = focusday;
+                      _rangeStart = start;
+                      _rangeEnd = end;
+                    },
+                    onDaySelected: _onDaySelected,
+                    onFormatChanged: (format) {
+                      if (_calendarFormatMonth != format) {
+                        setState(() {
+                          _calendarFormatMonth = format;
+                        });
+                      }
+                    },
+                    onPageChanged: (focusedDay) =>
+                        _onPageChanged(focusedDay, token, userId),
+                    headerStyle: HeaderStyle(
+                      formatButtonVisible: false,
+                      leftChevronIcon: const Icon(
+                        Icons.chevron_left,
+                        color: Palette.purple,
+                      ),
+                      rightChevronIcon: const Icon(
+                        Icons.chevron_right,
+                        color: Palette.purple,
+                      ),
+                      leftChevronPadding: const EdgeInsets.only(left: 0),
+                      rightChevronPadding: const EdgeInsets.only(right: 0),
+                      headerPadding: const EdgeInsets.symmetric(vertical: 10),
+                      titleCentered: true,
+                      decoration:
+                          const BoxDecoration(color: Palette.primary100),
+                      titleTextStyle: BryteTypography.headerExtraBold.copyWith(
+                        color: Palette.headerSpecial,
                       ),
                     ),
-                    const SizedBox(height: 8.0),
-                    if (_selectedEvents.value.isEmpty &&
-                        selectedValue.value == TabCalendarType.monthly)
-                      EventDateLabel(selectedDay: _selectedDay),
-                    if (_selectedEvents.value.isEmpty &&
-                        selectedValue.value == TabCalendarType.monthly)
-                      const NoEventCardCalendar(),
-                    if (selectedValue.value == TabCalendarType.weekly)
-                      (eventPerweek.every((element) => element.events.isEmpty))
-                          ? const EveryEmptyEvent()
-                          : WeeklyEventList(eventPerweek: eventPerweek),
-                    if (selectedValue.value == TabCalendarType.monthly)
-                      MonthlyEventList(selectedEvents: _selectedEvents),
-                    const SizedBox(height: 100)
-                  ],
-                ),
+                    calendarStyle: CalendarStyle(
+                      isTodayHighlighted: true,
+                      cellPadding: const EdgeInsets.symmetric(),
+                      todayTextStyle: BryteTypography.bodyRegular.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                      todayDecoration: const BoxDecoration(
+                        color: Palette.purple,
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: const BoxDecoration(
+                        color: Color(0xffF2F2F2),
+                        shape: BoxShape.circle,
+                      ),
+                      selectedTextStyle: BryteTypography.bodyRegular.copyWith(
+                        color: Palette.purple,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                      defaultTextStyle: BryteTypography.bodyRegular.copyWith(
+                        color: const Color(
+                          0xff9679C4,
+                        ),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  if (_selectedEvents.value.isNotEmpty &&
+                      selectedValue.value == TabCalendarType.monthly)
+                    EventDateLabel(selectedDay: _selectedDay),
+                  if (_selectedEvents.value.isEmpty &&
+                      selectedValue.value == TabCalendarType.monthly)
+                    const NoEventCardCalendar(),
+                  if (selectedValue.value == TabCalendarType.weekly)
+                    (eventPerweek.every((element) => element.events.isEmpty))
+                        ? const EveryEmptyEvent()
+                        : WeeklyEventList(
+                            eventPerweek: eventPerweek,
+                            itemPositionsListener: itemPositionsListener,
+                            itemScrollController: itemScrollController,
+                          ),
+                  if (selectedValue.value == TabCalendarType.monthly)
+                    MonthlyEventList(selectedEvents: _selectedEvents),
+                  const SizedBox(height: 100)
+                ],
               ),
             );
           },
@@ -342,11 +388,19 @@ class _CalenderPageState extends State<CalenderPage> {
   CalendarBuilders<Event> _calendarBuilders() {
     return CalendarBuilders(
       markerBuilder: (BuildContext context, date, events) {
+        bool eventAssignment =
+            events.every((element) => element.type == 'assignment');
+        bool eventClass = events.every((element) => element.type == 'class');
+
         if (events.isEmpty) return const SizedBox();
         return ListView.builder(
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
-          itemCount: events.length > 1 ? 2 : 1,
+          itemCount: eventAssignment
+              ? 1
+              : eventClass
+                  ? 1
+                  : 2,
           itemBuilder: (context, index) {
             return events[index].type == 'class'
                 ? const Padding(

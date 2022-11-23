@@ -20,9 +20,17 @@ class AssignmentBryteList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
         data.length,
-        (index) => CardCourseAssignment(
-          selecteAssignSection: widget.selectedSection,
-          data: data[index],
+        (index) => Column(
+          children: [
+            CardCourseAssignment(
+              selecteAssignSection: widget.selectedSection,
+              data: data[index],
+            ),
+            if (index == data.length - 1)
+              const SizedBox(
+                height: 100,
+              )
+          ],
         ),
       ),
     );

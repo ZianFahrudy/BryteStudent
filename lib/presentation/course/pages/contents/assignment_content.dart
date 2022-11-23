@@ -43,9 +43,7 @@ class AssignmentContent extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else {
-          return const Center(
-            child: Text('Something Error'),
-          );
+          return const SizedBox();
         }
       },
     );

@@ -27,11 +27,11 @@ class MasterCourseSectionModel {
 class DataMasterCourseSectionModel {
   final int id;
   final int sectionNo;
-  final String sectionName;
+  final String? sectionName;
   DataMasterCourseSectionModel({
     required this.id,
     required this.sectionNo,
-    required this.sectionName,
+    this.sectionName,
   });
   factory DataMasterCourseSectionModel.fromJson(Map<String, dynamic> json) =>
       _$DataMasterCourseSectionModelFromJson(json);

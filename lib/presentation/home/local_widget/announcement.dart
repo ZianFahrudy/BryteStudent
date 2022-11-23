@@ -3,9 +3,13 @@ import 'package:bryte/components/widgets/announcement_card.dart';
 import 'package:bryte/components/widgets/empty_state.dart';
 import 'package:bryte/core/blocs/student/student_bloc.dart';
 import 'package:bryte/components/utils/theme.dart';
+import 'package:bryte/presentation/home/pages/announcement_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/route_manager.dart';
 import 'package:jiffy/jiffy.dart';
+
+import '../../../components/utils/palette.dart';
 
 class Announcements extends StatelessWidget {
   const Announcements({
@@ -63,14 +67,27 @@ class Announcements extends StatelessWidget {
                 children: [
                   Text(
                     'Announcements',
-                    style: brytStyleDarkPurlple.copyWith(fontSize: 16),
+                    style: brytStyleDarkPurlple.copyWith(
+                        fontSize: 16,
+                        fontFamily: 'SF Pro Bold',
+                        fontWeight: FontWeight.w800),
                   ),
                   const Spacer(),
-                  Text(
-                    'See more >',
-                    style: brytStylePurlple.copyWith(
-                        fontWeight: FontWeight.normal),
+                  InkWell(
+                    onTap: () {
+                      Get.to(() => const AnnouncementPage());
+                    },
+                    child: Text(
+                      'See more',
+                      style: brytStylePurlple.copyWith(
+                          fontWeight: FontWeight.w500, fontSize: 11),
+                    ),
                   ),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Palette.purple,
+                    size: 10,
+                  )
                 ],
               ),
             ],

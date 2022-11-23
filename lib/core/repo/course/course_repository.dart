@@ -2,10 +2,14 @@ import 'package:bryte/components/network/interceptor/dio_connectivity_request_re
 import 'package:bryte/core/data/model/course/request/assignment_per_course_body.dart';
 import 'package:bryte/core/data/model/course/request/course_body.dart';
 import 'package:bryte/core/data/model/course/request/detail_assignment_body.dart';
+import 'package:bryte/core/data/model/course/request/edit_submission_body.dart';
+import 'package:bryte/core/data/model/course/request/master_section_body.dart';
 import 'package:bryte/core/data/model/course/response/assignment_model.dart';
 import 'package:bryte/core/data/model/course/response/assignment_per_course_model.dart';
 import 'package:bryte/core/data/model/course/response/course_model.dart';
 import 'package:bryte/core/data/model/course/response/detail_assignment_model.dart';
+import 'package:bryte/core/data/model/course/response/edit_submission_model.dart';
+import 'package:bryte/core/data/model/course/response/master_course_section_model.dart';
 import 'package:bryte/core/data/model/student/request/general_course_body.dart';
 import 'package:bryte/core/data/model/student/response/course_general_model.dart';
 import 'package:connectivity/connectivity.dart';
@@ -23,6 +27,9 @@ abstract class CourseRepository {
   Future<DetailAssignmentModel> getDetailAssignment(DetailAssignmentBody body);
   Future<AssignmentPerCourseModel> getAssignmentPerCourse(
       AssignmentPerCourseBody body);
+  Future<MasterCourseSectionModel> getMasterCourseSection(
+      MasterSectionBody body);
+  Future<EditSubmissionModel> getEditSubmission(EditSubmissionBody body);
 }
 
 @LazySingleton(as: CourseRepository)
@@ -32,12 +39,11 @@ class CourseRepositoryImpl extends CourseRepository {
   Dio _getDio() {
     final options = BaseOptions(
         receiveDataWhenStatusError: true,
-        baseUrl: Url.baseUrlProdProd,
+        baseUrl: Url.baseUrlDev,
         sendTimeout: 60000,
         followRedirects: false,
         headers: {
           "Accept": "application/json",
-          // 'Authorization': "Bearer dbc5828b35478576423d83c274e9845b",
         });
 
     final dio = Dio(options);
@@ -54,9 +60,14 @@ class CourseRepositoryImpl extends CourseRepository {
       ),
     );
 
-    dio.interceptors.add(RetryOnConnectionChangeInterceptor(
+    dio.interceptors.add(
+      RetryOnConnectionChangeInterceptor(
         requestRetrier: DioConnectivityRequestRetrier(
-            dio: dio, connectivity: Connectivity())));
+          dio: dio,
+          connectivity: Connectivity(),
+        ),
+      ),
+    );
 
     return dio;
   }
@@ -77,15 +88,6 @@ class CourseRepositoryImpl extends CourseRepository {
       return courseGeneral;
     } catch (e) {
       throw Exception("Err");
-      // if (e is DioError) {
-      //   if (e.type == DioErrorType.response) {
-      //     return CourseGeneralModel.fromJson(e.response?.data);
-      //   } else {
-      //     throw Exception(e.message);
-      //   }
-      // } else {
-      //   throw Exception("Error");
-      // }
     }
   }
 
@@ -163,6 +165,49 @@ class CourseRepositoryImpl extends CourseRepository {
       if (e is DioError) {
         if (e.type == DioErrorType.response) {
           return AssignmentPerCourseModel.fromJson(e.response?.data);
+        } else {
+          throw Exception(e.message);
+        }
+      } else {
+        throw Exception("Error");
+      }
+    }
+  }
+
+  @override
+  Future<MasterCourseSectionModel> getMasterCourseSection(
+      MasterSectionBody body) async {
+    try {
+      Response response = await dio.post(
+        Url.masterCourseSection,
+        data: body.toJson(),
+      );
+      return MasterCourseSectionModel.fromJson(response.data);
+    } catch (e) {
+      if (e is DioError) {
+        if (e.type == DioErrorType.response) {
+          return MasterCourseSectionModel.fromJson(e.response?.data);
+        } else {
+          throw Exception(e.message);
+        }
+      } else {
+        throw Exception("Error");
+      }
+    }
+  }
+
+  @override
+  Future<EditSubmissionModel> getEditSubmission(EditSubmissionBody body) async {
+    try {
+      Response response = await dio.post(
+        Url.editSubmission,
+        queryParameters: body.toJson(),
+      );
+      return EditSubmissionModel.fromJson(response.data);
+    } catch (e) {
+      if (e is DioError) {
+        if (e.type == DioErrorType.response) {
+          return EditSubmissionModel.fromJson(e.response?.data);
         } else {
           throw Exception(e.message);
         }

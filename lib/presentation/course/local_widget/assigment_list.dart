@@ -46,8 +46,8 @@ class _AssignmentListState extends State<AssignmentList> {
           valueListenable: widget.selectedFilterAssignment,
           builder: (context, value, _) => Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
+              horizontal: 0,
+              vertical: 0,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

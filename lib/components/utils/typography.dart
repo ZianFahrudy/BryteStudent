@@ -5,6 +5,7 @@ class BryteTypography {
     fontFamily: 'SF Pro',
     fontSize: 18,
     fontWeight: FontWeight.w800,
+    
   );
 
   static const headerSemiBold = TextStyle(

@@ -16,7 +16,7 @@ class AuthRepository {
   Dio get dio => Dio(
         BaseOptions(
             receiveDataWhenStatusError: true,
-            baseUrl: Url.baseUrlProdProdProdProd,
+            baseUrl: Url.baseUrlDev,
             sendTimeout: 60000,
             followRedirects: false,
             headers: {
@@ -33,27 +33,6 @@ class AuthRepository {
               compact: true,
               maxWidth: 300),
         );
-  Dio get dioMoodle => Dio(
-        BaseOptions(
-            receiveDataWhenStatusError: true,
-            baseUrl: Url.baseUrlProdProdMoodleProd,
-            sendTimeout: 60000,
-            followRedirects: false,
-            headers: {
-              "Accept": "application/json",
-              'Authorization': "Bearer ${token ?? ''}",
-            }),
-      )..interceptors.add(
-          PrettyDioLogger(
-            requestHeader: true,
-            requestBody: true,
-            responseBody: true,
-            responseHeader: false,
-            error: true,
-            compact: true,
-            maxWidth: 300,
-          ),
-        );
 
   Future<AuthModel?> login(String? email, String? password) async {
     try {
@@ -62,7 +41,7 @@ class AuthRepository {
         'password': password,
         'service': 'bryte',
       });
-      Response response = await dioMoodle.post(Url.login, data: formData);
+      Response response = await dio.post(Url.login, data: formData);
       return AuthModel.fromJson(response.data);
     } catch (e) {
       if (e is DioError) {

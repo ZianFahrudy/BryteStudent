@@ -2,7 +2,10 @@ import 'dart:developer';
 
 import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/core/blocs/assignment/assignment_bloc.dart';
+import 'package:bryte/core/blocs/attend/bloc/attend_list_bloc.dart';
 import 'package:bryte/core/blocs/course/course_bloc.dart';
+import 'package:bryte/core/blocs/gpa_grade/gpa_grade_bloc.dart';
+import 'package:bryte/core/blocs/participant/participant_bloc.dart';
 import 'package:bryte/core/data/model/course/request/detail_assignment_body.dart';
 import 'package:bryte/core/data/model/student/request/general_course_body.dart';
 import 'package:bryte/core/di/injection.dart';
@@ -10,7 +13,14 @@ import 'package:bryte/presentation/course/pages/contents/general_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import '../../../core/blocs/attend/attend_bloc.dart';
 import '../../../core/blocs/moodle/moodle_bloc.dart';
+import '../../../core/blocs/score/score_bloc.dart';
+import '../../../core/data/model/course/request/attendance_body.dart';
+import '../../../core/data/model/course/request/participant_body.dart';
+import '../../../core/data/model/course/request/score_body.dart';
+import '../../../core/data/model/student/response/course_general_model.dart';
 import '../../../core/repo/auth/auth_repository.dart';
 import '../local_widget/header_course_section.dart';
 import 'contents/attendance_content.dart';
@@ -50,8 +60,21 @@ class _DetailAssignmentPageState extends State<DetailAssignmentPage> {
   final assignmentBloc = getIt<AssignmentBloc>();
   final courseBloc = getIt<CourseBloc>();
   final moodleBloc = getIt<MoodleBloc>();
+  final gpaGradeBloc = getIt<GpaGradeBloc>();
+  final participantBloc = getIt<ParticipantBloc>();
   final token = box.read(KeyConstant.token);
   final userId = box.read(KeyConstant.userId);
+  final attendBloc = getIt<AttendBloc>();
+  final scoreBloc = getIt<ScoreBloc>();
+  final attendListBloc = getIt<AttendListBloc>();
+
+  List<CourseGeneralModel> courseGeneralData = [];
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
+
+  final selectedValue = ValueNotifier<String>('');
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +86,9 @@ class _DetailAssignmentPageState extends State<DetailAssignmentPage> {
               GetDetailAssignmentEvent(
                 body: DetailAssignmentBody(
                   token: token,
-                  // token: 'fb3e9d4a7cb39d59f5bc0e149d5b7082',
                   userid: userId,
-                  // userid: '9457',
                   idCourse: widget.idCourse,
-                  // idCourse: '8152',
                   idAssign: widget.idAssign,
-                  // idAssign: '26526',
                 ),
               ),
             ),
@@ -87,6 +106,46 @@ class _DetailAssignmentPageState extends State<DetailAssignmentPage> {
         ),
         BlocProvider(
           create: (context) => moodleBloc,
+        ),
+        BlocProvider(
+          create: (context) => attendBloc,
+        ),
+        BlocProvider(
+          create: (context) => attendListBloc
+            ..add(
+              GetAttendListEvent(
+                body: AttendanceBody(
+                  token: token,
+                  userid: userId,
+                  idCourse: widget.idCourse,
+                ),
+              ),
+            ),
+        ),
+        BlocProvider(
+          create: (context) => participantBloc
+            ..add(
+              GetParticipantEvent(
+                body: ParticipantBody(
+                  token: token,
+                  userid: userId,
+                  idCourse: widget.idCourse,
+                  page: 1,
+                ),
+              ),
+            ),
+        ),
+        BlocProvider(
+          create: (context) => scoreBloc
+            ..add(
+              GetScoreEvent(
+                body: ScoreBody(
+                  token: token,
+                  userid: userId,
+                  idCourse: widget.idCourse,
+                ),
+              ),
+            ),
         ),
       ],
       child: Scaffold(
@@ -142,6 +201,8 @@ class _DetailAssignmentPageState extends State<DetailAssignmentPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             HeaderCourseSection(
+              selectedValue: selectedValue,
+              idCourse: widget.idCourse,
               bgColor: widget.bgColor,
               courseAssignName: widget.courseAssignName,
               teacherName: state.response.data[0].teacherName,
@@ -162,9 +223,22 @@ class _DetailAssignmentPageState extends State<DetailAssignmentPage> {
               },
               selectedSection: widget.selectedSection,
               isMain: true,
+              onChanged: (v) {
+                selectedValue.value = v!;
+                for (var i = 0; i < courseGeneralData.length; i++) {
+                  if (selectedValue.value ==
+                      courseGeneralData[i].id.toString()) {
+                    itemScrollController.scrollTo(
+                        index: i, duration: const Duration(milliseconds: 250));
+                  }
+                }
+              },
             ),
             widget.selectedSection.value == 0
                 ? GeneralContent(
+                    itemPositionsListener: itemPositionsListener,
+                    itemScrollController: itemScrollController,
+                    courseGeneralData: courseGeneralData,
                     idCourse: widget.idCourse,
                     teacherName: widget.teacherName,
                     bgColor: widget.bgColor,
@@ -177,10 +251,22 @@ class _DetailAssignmentPageState extends State<DetailAssignmentPage> {
                         moodleBloc: moodleBloc,
                       )
                     : widget.selectedSection.value == 2
-                        ? const AttendanceContent()
+                        ? AttendanceContent(
+                            idCourse: widget.idCourse,
+                            token: token,
+                            userId: userId,
+                            attendListBloc: attendListBloc,
+                            attendBloc: attendBloc,
+                          )
                         : widget.selectedSection.value == 3
-                            ? const ScoreContent()
-                            : const ParticipantContent()
+                            ? ScoreContent(
+                                idCourse: widget.idCourse,
+                                gpaGradeBloc: gpaGradeBloc,
+                              )
+                            : ParticipantContent(
+                                idCourse: widget.idCourse,
+                                participantBloc: participantBloc,
+                              )
           ],
         ),
       ),

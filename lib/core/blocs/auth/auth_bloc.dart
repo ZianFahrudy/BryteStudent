@@ -26,7 +26,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           if (box.hasData(KeyConstant.token)) {
             String token = box.read(KeyConstant.token);
             final role = await apiRepository.authorization(
-                AuthorizationBody(token: token, username: event.email!));
+              AuthorizationBody(token: token, username: event.email!),
+            );
             if (role.status == 200) {
               box.write(KeyConstant.role, role.roleCode);
               box.write(KeyConstant.username, event.email);
@@ -42,6 +43,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               AuthRoleFailure(msg: 'Invalid login, please try again'),
             );
           }
+        } else if (event.email!.isEmpty && event.password!.isEmpty) {
+          emit(AuthUserPasswordEmpty());
         } else {
           emit(AuthError(data.error!, data.errorcode!));
         }
@@ -71,7 +74,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         if (data.status == 200) {
           emit(AuthFverifyOtpSubmited(otpdModel: data));
-        } else if (data.status == 404) {
+        } else {
           emit(AuthFverifyOtpError('Wrong OTP entered!', ''));
         }
       } catch (e) {
@@ -85,8 +88,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             await apiRepository.resetPass(event.username, event.password);
         if (data.status == 200) {
           emit(AuthResetPassSubmited(otpdModel: data));
-        } else if (data.status == 404) {
-          emit(AuthResetPasspError('Wrong OTP entered!', ''));
+        } else {
+          emit(AuthResetPasspError('Reset Password Error', ''));
         }
       } catch (e) {
         emit(AuthResetPasspError(e.toString(), ''));
@@ -98,8 +101,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final data = await apiRepository.resentOTP(event.username);
         if (data.status == 200) {
           emit(AuthResenOtpSubmited(otpdModel: data));
-        } else if (data.status == 404) {
-          emit(AuthResenOtpError('Wrong OTP entered!', ''));
+        } else {
+          emit(AuthResenOtpError('Resend OTP Error', ''));
         }
       } catch (e) {
         emit(AuthResenOtpError(e.toString(), ''));

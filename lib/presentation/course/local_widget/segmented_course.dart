@@ -1,14 +1,13 @@
+import 'dart:developer';
 import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/utils/theme.dart';
 import 'package:bryte/core/blocs/assignment/assignment_bloc.dart';
 import 'package:bryte/core/blocs/course/course_bloc.dart';
-import 'package:bryte/core/data/model/course/request/course_body.dart';
 import 'package:bryte/presentation/course/pages/course_page.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 
-import '../../../components/utils/constant.dart';
+import '../../navigation/cubits/nav_course/nav_course_cubit.dart';
 
 class SegmentedCourse extends StatelessWidget {
   const SegmentedCourse({
@@ -18,36 +17,41 @@ class SegmentedCourse extends StatelessWidget {
     required this.selectedFilterValue,
     required this.assignmentBloc,
     required this.selectedFilterAssign,
+    required this.navCourseCubit,
   }) : super(key: key);
 
-  final ValueNotifier<TabType> selectedValue;
+  final ValueNotifier<TabType?> selectedValue;
   final CourseBloc courseBloc;
   final AssignmentBloc assignmentBloc;
   final ValueNotifier<FilterCourseType> selectedFilterValue;
   final ValueNotifier<FilterAssignmentType> selectedFilterAssign;
+  final NavCourseCubit navCourseCubit;
 
   @override
   Widget build(BuildContext context) {
-    final box = GetStorage();
+    // final box = GetStorage();
 
-    final token = box.read(KeyConstant.token);
-    final userId = box.read(KeyConstant.userId);
+    // final token = box.read(KeyConstant.token);
+    // final userId = box.read(KeyConstant.userId);
+
+    final controller = CustomSegmentedController<bool>();
+
     return ValueListenableBuilder(
       valueListenable: selectedFilterValue,
       builder: (context, _, __) => Column(
         children: [
           Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: CustomSlidingSegmentedControl<TabType>(
+              child: CustomSlidingSegmentedControl<bool>(
                 height: 30,
                 innerPadding: const EdgeInsets.all(0),
                 children: {
-                  TabType.course: Padding(
+                  navCourseCubit.isCourse: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       'Courses',
                       style: brytStylebtn.copyWith(
-                          color: selectedValue.value == TabType.assignments
+                          color: !navCourseCubit.isCourse
                               ? Palette.headerSpecial
                               : Colors.white,
                           fontWeight: FontWeight.w500,
@@ -55,12 +59,12 @@ class SegmentedCourse extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  TabType.assignments: Padding(
+                  !navCourseCubit.isCourse: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       'Assigments',
                       style: brytStylebtn.copyWith(
-                          color: selectedValue.value == TabType.course
+                          color: navCourseCubit.isCourse
                               ? Palette.darkPurple
                               : Colors.white,
                           fontWeight: FontWeight.w500,
@@ -73,8 +77,12 @@ class SegmentedCourse extends StatelessWidget {
                   color: Palette.secondary,
                   borderRadius: BorderRadius.circular(27),
                 ),
+                initialValue: navCourseCubit.isCourse,
                 thumbDecoration: BoxDecoration(
-                  color: Palette.headerSpecial,
+                  color: navCourseCubit.isCourse &&
+                          selectedValue.value == TabType.course
+                      ? Palette.headerSpecial
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(27),
                   boxShadow: [
                     BoxShadow(
@@ -88,39 +96,53 @@ class SegmentedCourse extends StatelessWidget {
                     ),
                   ],
                 ),
-                onValueChanged: (TabType value) {
-                  selectedValue.value = value;
+                controller: controller,
+                onValueChanged: (bool value) {
+                  // value = false;
 
-                  if (selectedValue.value == TabType.course) {
-                    courseBloc.add(GetCourseEvent(
-                      body: CourseBody(
-                        token: token,
-                        userid: userId,
-                        type: selectedFilterValue.value ==
-                                FilterCourseType.inProgress
-                            ? 'progress'
-                            : selectedFilterValue.value == FilterCourseType.past
-                                ? 'past'
-                                : 'future',
-                      ),
-                    ));
-                  } else {
-                    assignmentBloc.add(
-                      GetCourseAssignment(
-                        body: CourseBody(
-                          token: token,
-                          userid: userId,
-                          type: selectedFilterAssign.value ==
-                                  FilterAssignmentType.allUpcoming
-                              ? 'upcoming'
-                              : selectedFilterAssign.value ==
-                                      FilterAssignmentType.thisWeek
-                                  ? 'weekly'
-                                  : 'past',
-                        ),
-                      ),
-                    );
-                  }
+                  // selectedValue.value = value;
+                  // if (navCourseCubit.isCourse) {
+                  //   selectedValue.value = TabType.course;
+                  // } else {
+                  //   selectedValue.value = TabType.assignments;
+                  // }
+
+                  log(value.toString(), name: 'VALUE');
+
+                  // selectedValue.value = value;
+
+                  // if (selectedValue.value == TabType.course) {
+                  //   navCourseCubit.toCourseTab();
+                  //   courseBloc.add(GetCourseEvent(
+                  //     body: CourseBody(
+                  //       token: token,
+                  //       userid: userId,
+                  //       type: selectedFilterValue.value ==
+                  //               FilterCourseType.inProgress
+                  //           ? 'progress'
+                  //           : selectedFilterValue.value == FilterCourseType.past
+                  //               ? 'past'
+                  //               : 'future',
+                  //     ),
+                  //   ));
+                  // } else {
+                  //   navCourseCubit.toAssignmentTab();
+                  //   assignmentBloc.add(
+                  //     GetCourseAssignment(
+                  //       body: CourseBody(
+                  //         token: token,
+                  //         userid: userId,
+                  //         type: selectedFilterAssign.value ==
+                  //                 FilterAssignmentType.allUpcoming
+                  //             ? 'upcoming'
+                  //             : selectedFilterAssign.value ==
+                  //                     FilterAssignmentType.thisWeek
+                  //                 ? 'weekly'
+                  //                 : 'past',
+                  //       ),
+                  //     ),
+                  //   );
+                  // }
                 },
               )),
           const Divider(

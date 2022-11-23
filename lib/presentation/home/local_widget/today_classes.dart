@@ -1,4 +1,5 @@
 import 'package:bryte/components/utils/constant.dart';
+import 'package:bryte/components/utils/hex_color.dart';
 import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/widgets/card_class.dart';
 import 'package:bryte/components/widgets/empty_state.dart';
@@ -9,14 +10,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../../components/utils/enum.dart';
+import '../../../core/data/model/student/request/today_classes_body.dart';
+import '../../../core/repo/auth/auth_repository.dart';
 
 class TodayClasses extends StatefulWidget {
   const TodayClasses({
     Key? key,
     required this.attendBloc,
+    required this.classBloc,
+    required this.selectedIndex,
   }) : super(key: key);
 
   final AttendBloc attendBloc;
+  final ClassBloc classBloc;
+  final ValueNotifier<int> selectedIndex;
 
   @override
   State<TodayClasses> createState() => _TodayClassesState();
@@ -29,6 +37,8 @@ class _TodayClassesState extends State<TodayClasses> {
 
   @override
   Widget build(BuildContext context) {
+    String? token = box.read(KeyConstant.token) ?? '';
+    String? userId = box.read(KeyConstant.userId) ?? '';
     return MultiBlocListener(
       listeners: [
         BlocListener<AttendBloc, AttendState>(
@@ -36,6 +46,16 @@ class _TodayClassesState extends State<TodayClasses> {
             if (state is AttendSuccess) {
               Get.snackbar('Sukses', 'Berhasil Presensi',
                   colorText: Colors.white, backgroundColor: Palette.sprite500);
+              widget.classBloc.add(
+                GetClassesDetStudent(
+                  body: TodayClassesBody(
+                    date: '',
+                    token: token,
+                    type: CourseType.daily,
+                    userid: userId,
+                  ),
+                ),
+              );
             } else if (state is AttendFailure) {
               Get.snackbar('Gagal', 'Gagal Presensi',
                   backgroundColor: Palette.coke400);
@@ -108,7 +128,10 @@ class _TodayClassesState extends State<TodayClasses> {
                 children: [
                   Text(
                     'Today\'s Classes',
-                    style: brytStyleDarkPurlple.copyWith(fontSize: 16),
+                    style: brytStyleDarkPurlple.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'SF Pro Bold'),
                   ),
                   const SizedBox(
                     width: 4,
@@ -124,22 +147,39 @@ class _TodayClassesState extends State<TodayClasses> {
                         Text(
                           totalToday.value.toString(),
                           style: brytStylePurlple.copyWith(
-                              fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                              fontFamily: 'SF Pro Bold'),
                           textAlign: TextAlign.center,
                         ),
                         Text(
                           ' left',
                           style: brytStylePurlple.copyWith(
-                              fontWeight: FontWeight.normal),
+                              fontWeight: FontWeight.w500, fontSize: 12),
                         ),
                       ],
                     ),
                   ),
                   const Spacer(),
-                  Text(
-                    'See Weekly >',
-                    style: brytStylePurlple.copyWith(
-                      fontWeight: FontWeight.normal,
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        widget.selectedIndex.value = 2;
+                      });
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          'See Weekly',
+                          style: brytStylePurlple.copyWith(
+                              fontWeight: FontWeight.w500, fontSize: 11),
+                        ),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: Palette.purple,
+                          size: 10,
+                        )
+                      ],
                     ),
                   ),
                 ],
@@ -167,15 +207,10 @@ class _TodayClassesState extends State<TodayClasses> {
                       startTimeNoFormat: DateFormat('yyyy-MM-dd HH:mm').format(
                           DateTime.parse(state.response.data[i].startTime)),
                       status: state.response.data[i].status,
-                      boxShadowColor: Color(int.parse(state
-                          .response.data[i].dropShadow
-                          .replaceAll('#', '0xff'))),
-                      textColor1: Color(int.parse(state
-                          .response.data[i].textColor1
-                          .replaceAll('#', '0xff'))),
-                      textColor2: Color(int.parse(state
-                          .response.data[i].textColor1
-                          .replaceAll('#', '0xff'))),
+                      boxShadowColor:
+                          HexColor(state.response.data[i].dropShadow),
+                      textColor1: HexColor(state.response.data[i].textColor1),
+                      textColor2: HexColor(state.response.data[i].textColor2),
                       absentTotal: state.response.data[i].statusset.length,
                       className: state.response.data[i].classes,
                       credits: state.response.data[i].sks,
@@ -186,10 +221,8 @@ class _TodayClassesState extends State<TodayClasses> {
                       endTime: DateFormat('HH:mm').format(
                           DateTime.parse(state.response.data[i].endTime)),
                       selected: true,
-                      color1: Color(int.parse(state.response.data[i].bgColor1
-                          .replaceAll('#', '0xff'))),
-                      color2: Color(int.parse(state.response.data[i].bgColor2
-                          .replaceAll('#', '0xff'))),
+                      color1: HexColor(state.response.data[i].bgColor1),
+                      color2: HexColor(state.response.data[i].bgColor2),
                     )
                   : (state.response.message == 'all_past')
                       ? const Empty(assetName: AssetConstant.noClassesLeft)

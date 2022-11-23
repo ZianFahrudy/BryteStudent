@@ -52,3 +52,9 @@ class AssignSubmitFailure extends MoodleState {
     required this.msg,
   });
 }
+
+class EditSubmissionSuccess extends MoodleState {}
+
+class EditSubmissionFailure extends MoodleState {}
+
+class EditSubmissionLoading extends MoodleState {}

@@ -1,10 +1,12 @@
+import 'package:bryte/components/utils/hex_color.dart';
+import 'package:bryte/presentation/course/local_widget/dropdown_general_section.dart';
 import 'package:flutter/material.dart';
 
 import '../../../components/utils/palette.dart';
 import '../../../components/utils/typography.dart';
 import 'course_tab_button.dart';
 
-class HeaderCourseSection extends StatelessWidget {
+class HeaderCourseSection extends StatefulWidget {
   const HeaderCourseSection({
     Key? key,
     required this.selectedSection,
@@ -17,7 +19,9 @@ class HeaderCourseSection extends StatelessWidget {
     required this.courseAssignName,
     required this.teacherName,
     required this.bgColor,
-    // required this.dataCourse,
+    required this.idCourse,
+    this.onChanged,
+    required this.selectedValue,
   }) : super(key: key);
 
   final ValueNotifier<int> selectedSection;
@@ -30,16 +34,20 @@ class HeaderCourseSection extends StatelessWidget {
   final String courseAssignName;
   final String teacherName;
   final String bgColor;
+  final String idCourse;
+  final Function(String?)? onChanged;
+  final ValueNotifier<String> selectedValue;
 
+  @override
+  State<HeaderCourseSection> createState() => _HeaderCourseSectionState();
+}
+
+class _HeaderCourseSectionState extends State<HeaderCourseSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 121,
-      color: Color(
-        int.parse(
-          bgColor.replaceAll('#', '0xff'),
-        ),
-      ),
+      color: HexColor(widget.bgColor),
       child: Column(
         children: [
           Padding(
@@ -56,10 +64,7 @@ class HeaderCourseSection extends StatelessWidget {
                     color: Colors.black.withOpacity(.2),
                   ),
                   child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor:
-                        Color(int.parse(bgColor.replaceAll('#', '0xff'))),
-                  ),
+                      radius: 20, backgroundColor: HexColor(widget.bgColor)),
                 ),
                 const SizedBox(width: 15),
                 Expanded(
@@ -67,18 +72,21 @@ class HeaderCourseSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        courseAssignName,
+                        widget.courseAssignName,
                         style: BryteTypography.headerExtraBold.copyWith(
-                          color: Colors.white,
-                        ),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 18),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 3),
                       Text(
-                        teacherName,
+                        widget.teacherName,
                         style: BryteTypography.titleMedium.copyWith(
-                          color: Colors.white,
-                        ),
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -107,15 +115,17 @@ class HeaderCourseSection extends StatelessWidget {
                     children: [
                       Text(
                         'Section',
-                        style: BryteTypography.titleMedium
-                            .copyWith(color: Colors.white),
+                        style: BryteTypography.titleMedium.copyWith(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(width: 10),
                       InkWell(
-                        onTap: isMain!
-                            ? onTapGeneral
+                        onTap: widget.isMain!
+                            ? widget.onTapGeneral
                             : () {
-                                selectedSection.value = 0;
+                                widget.selectedSection.value = 0;
                               },
                         child: Container(
                           height: 25,
@@ -123,27 +133,27 @@ class HeaderCourseSection extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          padding: const EdgeInsets.only(left: 10),
                           child: Row(
                             children: [
                               Text(
                                 'General',
                                 style: BryteTypography.titleSemiBold.copyWith(
-                                  color: selectedSection.value == 0
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: widget.selectedSection.value == 0
                                       ? Colors.black
                                       : Palette.grey,
                                 ),
                               ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                height: 25,
-                                width: 2,
-                                color: Palette.orange,
+                              const VerticalDivider(
+                                thickness: 1,
+                                color: Color(0xffFFBC58),
                               ),
-                              const Icon(
-                                Icons.keyboard_arrow_down,
-                              )
+                              DropdownGeneralSection(
+                                  onChanged: widget.onChanged,
+                                  selectedValue: widget.selectedValue,
+                                  idCourse: widget.idCourse),
                             ],
                           ),
                         ),
@@ -158,46 +168,46 @@ class HeaderCourseSection extends StatelessWidget {
                         children: [
                           CourseTabButton(
                             label: 'Assignments',
-                            color: selectedSection.value == 1
+                            color: widget.selectedSection.value == 1
                                 ? Colors.black
                                 : Palette.grey,
-                            onTap: isMain!
-                                ? onTapAssignment
+                            onTap: widget.isMain!
+                                ? widget.onTapAssignment
                                 : () {
-                                    selectedSection.value = 1;
+                                    widget.selectedSection.value = 1;
                                   },
                           ),
                           CourseTabButton(
                             label: 'Attendances',
-                            color: selectedSection.value == 2
+                            color: widget.selectedSection.value == 2
                                 ? Colors.black
                                 : Palette.grey,
-                            onTap: isMain!
-                                ? onTapAttendance
+                            onTap: widget.isMain!
+                                ? widget.onTapAttendance
                                 : () {
-                                    selectedSection.value = 2;
+                                    widget.selectedSection.value = 2;
                                   },
                           ),
                           CourseTabButton(
                             label: 'Scores',
-                            color: selectedSection.value == 3
+                            color: widget.selectedSection.value == 3
                                 ? Colors.black
                                 : Palette.grey,
-                            onTap: isMain!
-                                ? onTapScore
+                            onTap: widget.isMain!
+                                ? widget.onTapScore
                                 : () {
-                                    selectedSection.value = 3;
+                                    widget.selectedSection.value = 3;
                                   },
                           ),
                           CourseTabButton(
                             label: 'Participants',
-                            color: selectedSection.value == 4
+                            color: widget.selectedSection.value == 4
                                 ? Colors.black
                                 : Palette.grey,
-                            onTap: isMain!
-                                ? onTapParticipant
+                            onTap: widget.isMain!
+                                ? widget.onTapParticipant
                                 : () {
-                                    selectedSection.value = 4;
+                                    widget.selectedSection.value = 4;
                                   },
                           ),
                         ],

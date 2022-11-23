@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:bryte/components/utils/palette.dart';
+import 'package:bryte/components/utils/typography.dart';
 import 'package:bryte/core/blocs/auth/auth_bloc.dart';
 import 'package:bryte/core/di/injection.dart';
-import 'package:bryte/presentation/auth/pages/signin.dart';
+import 'package:bryte/presentation/auth/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bryte/components/utils/theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/route_manager.dart';
 
 import '../../../components/utils/function.dart';
 import '../../../components/widgets/custom_toast.dart';
@@ -154,14 +157,19 @@ class _NewPasswordState extends State<NewPassword> {
     super.initState();
     fToast = FToast();
     fToast.init(context);
+    // WidgetsBinding.instance
+    //     .addPostFrameCallback((_) => showCustomToastNewPass());
   }
 
   final authBloc = getIt<AuthBloc>();
+
+  bool firstNotif = true;
 
   @override
   void dispose() {
     ctrlConfirmPass.dispose();
     ctrlPass.dispose();
+
     super.dispose();
   }
 
@@ -179,9 +187,10 @@ class _NewPasswordState extends State<NewPassword> {
     );
   }
 
-  showCustomToastNewPass(msg) {
+  showCustomToastNewPass() {
     fToast.showToast(
-      child: customtoastNewPass(context, msg),
+      // toastDuration: const Duration(minutes: 15),
+      child: customtoastNewPass(context),
       positionedToastBuilder: (context, child) {
         return Positioned(
           child: child,
@@ -189,20 +198,6 @@ class _NewPasswordState extends State<NewPassword> {
           left: 26.0,
         );
       },
-    );
-  }
-
-  Widget btnDisable() {
-    return TextButton(
-      style: TextButton.styleFrom(
-          backgroundColor: bryteDarkPurple,
-          padding: const EdgeInsets.symmetric(vertical: 17),
-          side: BorderSide(
-              color: bryteDarkPurple, width: 1, style: BorderStyle.solid),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-      onPressed: () {},
-      child: Text('Save', style: brytStylebtn.copyWith(color: Colors.white)),
     );
   }
 
@@ -222,12 +217,12 @@ class _NewPasswordState extends State<NewPassword> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12))),
           onPressed: () {
+            setState(() {
+              firstNotif = false;
+            });
             if (!isvalidate) {
               showCustomToast('Please Match the requested format');
             } else {
-              // AuthBloc bloc = BlocProvider.of<AuthBloc>(context, listen: false);
-              // bloc.add(ResetPassword(
-              //     username: widget.username, password: ctrlPass.text));
               authBloc.add(ResetPassword(
                   username: widget.username, password: ctrlPass.text));
             }
@@ -255,147 +250,224 @@ class _NewPasswordState extends State<NewPassword> {
           body: BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is AuthResetPassSubmited) {
-                showCustomToastNewPass('');
+                showCustomToastNewPass();
                 Timer(
                   const Duration(seconds: 3),
-                  () => Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Signin()),
-                    ModalRoute.withName('Signin'),
-                  ),
+                  () => Get.offNamed(LoginPage.route),
                 );
               } else if (state is AuthResetPasspError) {
                 showCustomToast(state.msg);
               }
             },
             child: SafeArea(
-              child: Column(
+              child: Stack(
                 children: [
-                  Expanded(
-                    child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 28),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            const SizedBox(height: 140),
-                            Text(
-                              'Create your new password!',
-                              style: brytStylebtnBlack.copyWith(
-                                  fontSize: 20, fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 32),
-                            TextFieldWidget(
-                              iconData: Icons.visibility,
-                              labelText: 'New Password',
-                              onChanged: (text) {
-                                if (text.isNotEmpty) {
-                                  setState(() {
-                                    isNewPasswdNotempty = true;
-                                    isRetypePasswdNotempty = true;
-                                  });
-                                } else {
-                                  setState(() {
-                                    isNewPasswdNotempty = false;
-                                    isRetypePasswdNotempty = false;
-                                  });
-                                }
-                              },
-                              textEditingController: ctrlPass,
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 33),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'Your password must contain:',
-                                    style: brytStylelight.copyWith(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(
-                                    height: 12,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      validatePassword(
-                                          '8 characters minimum', islenghtMin),
-                                      validatePassword(
-                                          'Number', isContainNumber)
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 8,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      validatePassword(
-                                          'Lowercase', islowerCase),
-                                      validatePassword(
-                                          'Symbol', isContainSimbol)
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 8,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      validatePassword(
-                                          'Uppercase', isUpperCase),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                ],
+                  if (firstNotif)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 27, vertical: 20),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          height: 78,
+                          child: Row(
+                            children: [
+                              Container(
+                                alignment: Alignment.center,
+                                width: 55,
+                                color: const Color(0xffEADEFF),
+                                child: const Icon(
+                                  Icons.info,
+                                  color: Palette.darkPurple,
+                                  size: 25,
+                                ),
                               ),
-                            ),
-                            const Divider(),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            TextFieldWidget(
-                              iconData: Icons.visibility,
-                              labelText: 'Re-type new password',
-                              onChanged: (text) {
-                                if (text.isNotEmpty) {
-                                  setState(() {
-                                    isNewPasswdNotempty = true;
-                                    isRetypePasswdNotempty = true;
-                                  });
-                                } else {
-                                  setState(() {
-                                    isNewPasswdNotempty = false;
-                                    isRetypePasswdNotempty = false;
-                                  });
-                                }
-                              },
-                              textEditingController: ctrlConfirmPass,
-                            ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            ismatchConfirm
-                                ? const Center(
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 13),
+                                  alignment: Alignment.center,
+                                  color: const Color(0xffF5EFFF),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Your new password will also apply to your Moodle LMS account!',
+                                        style: BryteTypography.bodyRegular
+                                            .copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 12,
+                                                color: Palette.darkPurple),
+                                      ),
+                                      const SizedBox(
+                                        height: 4,
+                                      ),
+                                      Text(
+                                        'Thanks to integration, right?',
+                                        style: BryteTypography.bodyRegular
+                                            .copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12,
+                                                color: Palette.darkPurple
+                                                    .withOpacity(0.8)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  Column(
+                    children: [
+                      Expanded(
+                        child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 28),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                const SizedBox(height: 140),
+                                Text(
+                                  'Create your new password!',
+                                  style: brytStylebtnBlack.copyWith(
+                                      color: const Color(0xff333333),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 32),
+                                TextFieldWidget(
+                                  iconData: Icons.visibility,
+                                  labelText: 'New Password',
+                                  onChanged: (text) {
+                                    if (text.isNotEmpty) {
+                                      setState(() {
+                                        isNewPasswdNotempty = true;
+                                        isRetypePasswdNotempty = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isNewPasswdNotempty = false;
+                                        isRetypePasswdNotempty = false;
+                                      });
+                                    }
+                                  },
+                                  textEditingController: ctrlPass,
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 33),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        'Your password must contain:',
+                                        style: brytStylelight.copyWith(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      const SizedBox(
+                                        height: 12,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          validatePassword(
+                                              '8 characters minimum',
+                                              islenghtMin),
+                                          validatePassword(
+                                              'Number', isContainNumber)
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 8,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          validatePassword(
+                                              'Lowercase', islowerCase),
+                                          validatePassword(
+                                              'Symbol', isContainSimbol)
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 8,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          validatePassword(
+                                              'Uppercase', isUpperCase),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                TextFieldWidget(
+                                  iconData: Icons.visibility,
+                                  labelText: 'Re-type new password',
+                                  onChanged: (text) {
+                                    if (text.isNotEmpty) {
+                                      setState(() {
+                                        isNewPasswdNotempty = true;
+                                        isRetypePasswdNotempty = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isNewPasswdNotempty = false;
+                                        isRetypePasswdNotempty = false;
+                                      });
+                                    }
+                                  },
+                                  textEditingController: ctrlConfirmPass,
+                                ),
+                                const SizedBox(
+                                  height: 16,
+                                ),
+                                if ((ctrlPass.text.isNotEmpty &&
+                                        ctrlConfirmPass.text.isNotEmpty) &&
+                                    ctrlPass.text == ctrlConfirmPass.text)
+                                  const Center(
                                     child: Text(
                                       'Yep. It’s a match!',
-                                      style:
-                                          TextStyle(color: Color(0xff81CA80)),
+                                      style: TextStyle(
+                                          color: Color(0xff81CA80),
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12),
+                                    ),
+                                  ),
+                                if ((ctrlPass.text.isNotEmpty &&
+                                        ctrlConfirmPass.text.isNotEmpty) &&
+                                    ctrlPass.text != ctrlConfirmPass.text)
+                                  const Center(
+                                    child: Text(
+                                      'Password & retype password not match!',
+                                      style: TextStyle(
+                                          color: Palette.red,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12),
                                     ),
                                   )
-                                : const SizedBox()
-                          ],
-                        )),
+                              ],
+                            )),
+                      ),
+                      btn()
+                    ],
                   ),
-                  btn()
                 ],
               ),
             ),

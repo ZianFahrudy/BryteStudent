@@ -1,7 +1,15 @@
+import 'package:bryte/components/utils/constant.dart';
+import 'package:bryte/components/utils/palette.dart';
+import 'package:bryte/core/di/injection.dart';
+import 'package:bryte/core/repo/auth/auth_repository.dart';
 import 'package:bryte/presentation/home/pages/home_page.dart';
 import 'package:bryte/presentation/profile/pages/profile_page.dart';
 import 'package:bryte/components/utils/theme.dart';
 import 'package:flutter/material.dart';
+
+import '../calendar/pages/calendar_page.dart';
+import '../course/pages/course_page.dart';
+import 'cubits/nav_course/nav_course_cubit.dart';
 
 class Navigation extends StatefulWidget {
   const Navigation({Key? key}) : super(key: key);
@@ -12,16 +20,28 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   final _selectedIndex = ValueNotifier<int>(0);
+  final navCourseCubit = getIt<NavCourseCubit>();
 
-  final _pages = <Widget>[
-    const HomePage(),
-    // const CoursePage(),
-    // const CalenderPage(),
-    const ProfilePage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final _pages = <Widget>[
+      HomePage(
+        navCourseCubit: navCourseCubit,
+        selectedIndex: _selectedIndex,
+      ),
+      CoursePage(
+        navCourseCubit: navCourseCubit,
+        selectedIndex: _selectedIndex,
+      ),
+      const CalenderPage(),
+      const ProfilePage(),
+    ];
+
     return SafeArea(
       child: Scaffold(
         extendBody: true,
@@ -53,6 +73,7 @@ class BottomNavigation extends StatelessWidget {
   final Function(int)? onTap;
   @override
   Widget build(BuildContext context) {
+    final profileUrl = box.read(KeyConstant.profileImage);
     return Container(
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(
@@ -80,7 +101,10 @@ class BottomNavigation extends StatelessWidget {
                     children: [
                       Container(
                         margin: const EdgeInsets.only(top: 6),
-                        child: Icon(Icons.home_outlined,
+                        child: Icon(
+                            selectedIndex.value == 0
+                                ? Icons.home
+                                : Icons.home_outlined,
                             size: 24,
                             color: selectedIndex.value == 0
                                 ? brytepurple
@@ -95,50 +119,71 @@ class BottomNavigation extends StatelessWidget {
                     ],
                   ),
                   label: ''),
-              // BottomNavigationBarItem(
-              //     icon: Column(
-              //       children: [
-              //         Container(
-              //             margin: const EdgeInsets.only(top: 6),
-              //             child: Icon(Icons.school,
-              //                 size: 24,
-              //                 color: selectedIndex.value == 1
-              //                     ? brytepurple
-              //                     : bryteGreyLight)),
-              //         Text(
-              //           'Courses',
-              //           style: selectedIndex.value == 1
-              //               ? brytStylebtnActive
-              //               : brytStylebtnNonActive,
-              //         )
-              //       ],
-              //     ),
-              //     label: ''),
-              // BottomNavigationBarItem(
-              //     icon: Column(
-              //       children: [
-              //         Container(
-              //             margin: const EdgeInsets.only(top: 6),
-              //             child: Icon(Icons.calendar_today_rounded,
-              //                 size: 24,
-              //                 color: selectedIndex.value == 2
-              //                     ? brytepurple
-              //                     : bryteGreyLight)),
-              //         Text(
-              //           'Calendar',
-              //           style: selectedIndex.value == 2
-              //               ? brytStylebtnActive
-              //               : brytStylebtnNonActive,
-              //         )
-              //       ],
-              //     ),
-              //     label: ''),
               BottomNavigationBarItem(
                   icon: Column(
                     children: [
                       Container(
                           margin: const EdgeInsets.only(top: 6),
-                          child: const Icon(Icons.person)),
+                          child: Icon(
+                              selectedIndex.value == 1
+                                  ? Icons.school
+                                  : Icons.school_outlined,
+                              size: 24,
+                              color: selectedIndex.value == 1
+                                  ? brytepurple
+                                  : bryteGreyLight)),
+                      Text(
+                        'Courses',
+                        style: selectedIndex.value == 1
+                            ? brytStylebtnActive
+                            : brytStylebtnNonActive,
+                      )
+                    ],
+                  ),
+                  label: ''),
+              BottomNavigationBarItem(
+                  icon: Column(
+                    children: [
+                      Container(
+                          margin: const EdgeInsets.only(top: 6),
+                          child: Icon(
+                              selectedIndex.value == 2
+                                  ? Icons.date_range
+                                  : Icons.event,
+                              size: 24,
+                              color: selectedIndex.value == 2
+                                  ? brytepurple
+                                  : bryteGreyLight)),
+                      Text(
+                        'Calendar',
+                        style: selectedIndex.value == 2
+                            ? brytStylebtnActive
+                            : brytStylebtnNonActive,
+                      )
+                    ],
+                  ),
+                  label: ''),
+              BottomNavigationBarItem(
+                  icon: Column(
+                    children: [
+                      Container(
+                          margin: const EdgeInsets.only(top: 6),
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: selectedIndex.value == 3
+                                ? Palette.purple
+                                : Palette.lightGrey,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: Image.network(
+                              profileUrl ??
+                                  'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                              width: 19,
+                              fit: BoxFit.cover,
+                            ),
+                          )),
                       Text(
                         'Profile',
                         style: selectedIndex.value == 3

@@ -1,4 +1,8 @@
+import 'package:bryte/core/blocs/gpa_grade/gpa_grade_bloc.dart';
+import 'package:bryte/core/blocs/score/score_bloc.dart';
+import 'package:bryte/core/data/model/course/response/score_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 import '../../../../components/utils/palette.dart';
@@ -8,10 +12,35 @@ import '../all_scores_page.dart';
 class ScoreContent extends StatelessWidget {
   const ScoreContent({
     Key? key,
+    required this.gpaGradeBloc,
+    required this.idCourse,
   }) : super(key: key);
+
+  final GpaGradeBloc gpaGradeBloc;
+  final String idCourse;
 
   @override
   Widget build(BuildContext context) {
+    return BlocConsumer<ScoreBloc, ScoreState>(
+      listener: (context, state) {
+        if (state is ScoreSuccess) {
+        } else if (state is ScoreFailure) {}
+      },
+      builder: (context, state) {
+        if (state is ScoreSuccess) {
+          return _buildScoreSuccess(state.response);
+        } else if (state is ScoreLoading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
+    );
+  }
+
+  Column _buildScoreSuccess(ScoreModel data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -20,26 +49,29 @@ class ScoreContent extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Scores',
-                style: BryteTypography.headerExtraBold,
+                style: BryteTypography.headerExtraBold
+                    .copyWith(fontWeight: FontWeight.w800, fontSize: 18),
               ),
               InkWell(
                 onTap: () => Get.to(
-                  () => const AllScorePage(),
+                  () => AllScorePage(
+                    gpaGradeBloc: gpaGradeBloc,
+                  ),
                 ),
                 child: Row(
                   children: [
                     Text(
                       'All Scores',
                       style: BryteTypography.titleSemiBold.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Palette.purple,
-                      ),
+                          fontWeight: FontWeight.w700,
+                          color: Palette.purple,
+                          fontSize: 11),
                     ),
                     const Icon(
                       Icons.chevron_right,
-                      size: 20,
+                      size: 15,
                       color: Palette.purple,
                     )
                   ],
@@ -48,9 +80,12 @@ class ScoreContent extends StatelessWidget {
             ],
           ),
         ),
-        const Divider(
-          thickness: 1,
-          height: 0,
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            thickness: 1,
+            height: 0,
+          ),
         ),
         Container(
           padding: const EdgeInsets.all(15),
@@ -80,7 +115,9 @@ class ScoreContent extends StatelessWidget {
                 ],
               ),
               Text(
-                'A',
+                data.data[0].studentScore.isNotEmpty
+                    ? data.data[0].studentScore[0].finalGrade
+                    : '-',
                 style: BryteTypography.headerExtraBold.copyWith(
                   fontSize: 70,
                   color: Palette.purple,
@@ -89,9 +126,12 @@ class ScoreContent extends StatelessWidget {
             ],
           ),
         ),
-        const Divider(
-          height: 0,
-          thickness: 1,
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 0,
+            thickness: 1,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -122,30 +162,27 @@ class ScoreContent extends StatelessWidget {
                               .copyWith(fontSize: 18),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(width: 5),
-                        const Icon(
-                          Icons.info_outline,
-                          size: 18,
-                          color: Palette.grey,
-                        )
                       ],
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     Text(
-                      '88',
+                      data.data[0].studentScore.isNotEmpty
+                          ? data.data[0].studentScore[0].teachingAssessment
+                              .toString()
+                          : '-',
                       style: BryteTypography.headerExtraBold.copyWith(
                         fontSize: 70,
                         fontWeight: FontWeight.w500,
                         color: Palette.purple,
                       ),
                     ),
-                    Text(
-                      'Weight 30%',
-                      style: BryteTypography.titleMedium
-                          .copyWith(fontStyle: FontStyle.italic),
-                    ),
+                    // Text(
+                    //   'Weight 30%',
+                    //   style: BryteTypography.titleMedium
+                    //       .copyWith(fontStyle: FontStyle.italic),
+                    // ),
                     const SizedBox(
                       height: 10,
                     ),
@@ -154,7 +191,7 @@ class ScoreContent extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: VerticalDivider(
-                    thickness: 2,
+                    thickness: 1,
                   ),
                 ),
                 Column(
@@ -180,30 +217,26 @@ class ScoreContent extends StatelessWidget {
                               .copyWith(fontSize: 18),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(width: 5),
-                        const Icon(
-                          Icons.info_outline,
-                          size: 18,
-                          color: Palette.grey,
-                        )
                       ],
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     Text(
-                      '91',
+                      data.data[0].studentScore.isNotEmpty
+                          ? data.data[0].studentScore[0].midSemMarks.toString()
+                          : '-',
                       style: BryteTypography.headerExtraBold.copyWith(
                         fontSize: 70,
                         fontWeight: FontWeight.w500,
                         color: Palette.purple,
                       ),
                     ),
-                    Text(
-                      'Weight 35%',
-                      style: BryteTypography.titleMedium
-                          .copyWith(fontStyle: FontStyle.italic),
-                    ),
+                    // Text(
+                    //   'Weight 35%',
+                    //   style: BryteTypography.titleMedium
+                    //       .copyWith(fontStyle: FontStyle.italic),
+                    // ),
                     const SizedBox(
                       height: 10,
                     ),
@@ -213,9 +246,12 @@ class ScoreContent extends StatelessWidget {
             ),
           ),
         ),
-        const Divider(
-          height: 0,
-          thickness: 1,
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(
+            height: 0,
+            thickness: 1,
+          ),
         ),
         const SizedBox(
           height: 10,
@@ -229,12 +265,6 @@ class ScoreContent extends StatelessWidget {
               style: BryteTypography.headerSemiBold.copyWith(fontSize: 18),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(width: 5),
-            const Icon(
-              Icons.info_outline,
-              size: 18,
-              color: Palette.grey,
-            ),
           ],
         ),
         Center(
@@ -243,18 +273,20 @@ class ScoreContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '100',
+                data.data[0].studentScore.isNotEmpty
+                    ? data.data[0].studentScore[0].endSemMarks.toString()
+                    : '-',
                 style: BryteTypography.headerExtraBold.copyWith(
                   fontSize: 70,
                   fontWeight: FontWeight.w500,
                   color: Palette.purple,
                 ),
               ),
-              Text(
-                'Weight 35%',
-                style: BryteTypography.titleMedium
-                    .copyWith(fontStyle: FontStyle.italic),
-              ),
+              // Text(
+              //   'Weight 35%',
+              //   style: BryteTypography.titleMedium
+              //       .copyWith(fontStyle: FontStyle.italic),
+              // ),
             ],
           ),
         ),

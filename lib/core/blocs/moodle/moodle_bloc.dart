@@ -51,7 +51,7 @@ class MoodleBloc extends Bloc<MoodleEvent, MoodleState> {
         } else {
           emit(
             AssignSaveFailure(
-              msg: 'Assign Save Failed',
+              msg: data[0].message,
             ),
           );
         }
@@ -74,7 +74,7 @@ class MoodleBloc extends Bloc<MoodleEvent, MoodleState> {
         } else {
           emit(
             AssignSubmitFailure(
-              msg: 'Assign Save Failed',
+              msg: data[0].message,
             ),
           );
         }

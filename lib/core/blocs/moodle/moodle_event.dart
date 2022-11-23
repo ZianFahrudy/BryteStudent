@@ -28,3 +28,5 @@ class AssignSubmitEvent extends MoodleEvent {
     required this.jsonBody,
   });
 }
+
+class GetEditSubmissionEvent extends MoodleEvent {}

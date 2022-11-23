@@ -12,7 +12,10 @@ class EmptyCourseBryte extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 100),
       child: Center(
-        child: Image.asset(AssetConstant.emptyCourseAssignmentMan),
+        child: Image.asset(
+          AssetConstant.emptyCourseAssignmentMan,
+          width: 210,
+        ),
       ),
     );
   }

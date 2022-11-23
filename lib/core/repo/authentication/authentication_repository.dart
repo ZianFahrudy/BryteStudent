@@ -20,7 +20,7 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
   Dio _getDio() {
     final options = BaseOptions(
         receiveDataWhenStatusError: true,
-        baseUrl: Url.baseUrlProdProd,
+        baseUrl: Url.baseUrlDev,
         sendTimeout: 60000,
         followRedirects: false,
         headers: {

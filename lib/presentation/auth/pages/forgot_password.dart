@@ -62,87 +62,46 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   @override
   Widget build(BuildContext context) {
-    // Widget btnDisable() {
-    //   return Padding(
-    //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-    //     child: TextButton(
-    //       style: TextButton.styleFrom(
-    //           backgroundColor: bryteDarkPurple,
-    //           padding: const EdgeInsets.symmetric(vertical: 17),
-    //           side: BorderSide(
-    //               color: bryteDarkPurple, width: 1, style: BorderStyle.solid),
-    //           shape: RoundedRectangleBorder(
-    //               borderRadius: BorderRadius.circular(12))),
-    //       onPressed: () {},
-    //       child:
-    //           Text('Next', style: brytStylebtn.copyWith(color: Colors.white)),
-    //     ),
-    //   );
-    // }
-
     Widget btn() {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: SizedBox(
-          width: double.infinity,
-          child: TextButton(
-            style: TextButton.styleFrom(
-                backgroundColor:
-                    textFieldNotEmpty ? bryteDarkPurple : bryteFooterForm,
-                padding: const EdgeInsets.symmetric(vertical: 17),
-                side: BorderSide(
-                    color: bryteDarkPurple, width: 1, style: BorderStyle.solid),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12))),
-            onPressed: () {
-              if (ctrlUsername.text == '') {
-                showCustomToast('please enter a valid username');
-              } else {
-                authBloc.add(SubmitedForgotPassword(email: ctrlUsername.text));
-              }
-            },
-            child: Text('Next',
-                style: brytStylebtn.copyWith(
-                  color: textFieldNotEmpty ? Colors.white : bryteDarkPurple,
-                )),
+      return Container(
+        color: const Color(0xffFDF7FF),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                  backgroundColor:
+                      textFieldNotEmpty ? bryteDarkPurple : bryteFooterForm,
+                  padding: const EdgeInsets.symmetric(vertical: 17),
+                  side: BorderSide(
+                      color: bryteDarkPurple,
+                      width: 1,
+                      style: BorderStyle.solid),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12))),
+              onPressed: () {
+                if (ctrlUsername.text == '') {
+                  showCustomToast('please enter a valid username');
+                } else {
+                  authBloc
+                      .add(SubmitedForgotPassword(email: ctrlUsername.text));
+                }
+              },
+              child: Text('Next',
+                  style: brytStylebtn.copyWith(
+                    color: textFieldNotEmpty ? Colors.white : bryteDarkPurple,
+                  )),
+            ),
           ),
         ),
       );
     }
 
-    // Widget footer(BuildContext context) {
-    //   return BlocListener<AuthBloc, AuthState>(listener: (context, state) {
-    //     if (state is AuthForgotPasswordError) {
-    //       showCustomToast(state.msg);
-    //     }
-    //     if (state is AuthForgotPasswordSubmited) {
-    //       String? email = state.forgotPasswordModel!.email;
-    //       Navigator.pushAndRemoveUntil(
-    //           context,
-    //           MaterialPageRoute(
-    //               builder: (context) => CheckOtpPasswordPage(
-    //                     email: email!,
-    //                     username: ctrlUsername.text,
-    //                   )),
-    //           ModalRoute.withName('OtpPassword'));
-    //     }
-    //   }, child: BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-    //     if (state is AuthWaiting) {
-    //       // return btnDisable();
-    //     }
-    //     if (state is AuthError) {
-    //       return btn();
-    //     }
-    //     return btn();
-    //   }));
-    // }
-
     return BlocProvider(
       create: (context) => authBloc,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        // bottomSheet: footer(context),
-        // bottomNavigationBar: btn(),
         backgroundColor: Colors.white,
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
@@ -151,60 +110,77 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               Get.off(() => CheckOtpPasswordPage(
                   email: state.forgotPasswordModel!.email!,
                   username: ctrlUsername.text));
-            } else if (state is AuthForgotPasswordError) {}
+            } else if (state is AuthForgotPasswordError) {
+              bryteToast('You’ve entered a wrong username!', context,
+                  'Please check and re-enter your username.', fToast);
+            }
           },
           builder: (context, state) {
-            return Column(
+            return Stack(
               children: [
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        const SizedBox(height: 130),
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: const BoxDecoration(
-                              image: DecorationImage(
-                                  image: AssetImage('assets/email_rec.png'))),
+                Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            const SizedBox(height: 130),
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: const BoxDecoration(
+                                  image: DecorationImage(
+                                      image:
+                                          AssetImage('assets/email_rec.png'))),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Forgot your password?',
+                              style: brytStylebtnBlack.copyWith(
+                                  fontSize: 20, fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              'No worries! Please enter your username below.',
+                              style: brytStylegrey,
+                            ),
+                            const SizedBox(height: 32),
+                            TextFieldWidget(
+                              onChanged: (text) {
+                                if (text.isNotEmpty) {
+                                  setState(() {
+                                    textFieldNotEmpty = true;
+                                  });
+                                } else {
+                                  setState(() {
+                                    textFieldNotEmpty = false;
+                                  });
+                                }
+                              },
+                              labelText: 'Username',
+                              textEditingController: ctrlUsername,
+                              inputType: TextInputType.emailAddress,
+                            ),
+                            // Spacer(),
+                          ],
                         ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Forgot your password?',
-                          style: brytStylebtnBlack.copyWith(
-                              fontSize: 20, fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'No worries! Please enter your username below.',
-                          style: brytStylegrey,
-                        ),
-                        const SizedBox(height: 32),
-                        TextFieldWidget(
-                          onChanged: (text) {
-                            if (text.isNotEmpty) {
-                              setState(() {
-                                textFieldNotEmpty = true;
-                              });
-                            } else {
-                              setState(() {
-                                textFieldNotEmpty = false;
-                              });
-                            }
-                          },
-                          labelText: 'Username',
-                          textEditingController: ctrlUsername,
-                          inputType: TextInputType.emailAddress,
-                        ),
-                        // Spacer(),
-                      ],
+                      ),
                     ),
-                  ),
+                    btn(),
+                  ],
                 ),
-                btn()
+                BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
+                  if (state is AuthWaiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
+                })
               ],
             );
           },

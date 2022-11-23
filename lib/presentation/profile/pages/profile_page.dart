@@ -1,489 +1,158 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:developer';
 
 import 'package:bryte/components/utils/constant.dart';
-import 'package:bryte/components/utils/palette.dart';
-import 'package:bryte/components/utils/theme.dart';
-import 'package:bryte/components/utils/typography.dart';
+import 'package:bryte/core/blocs/attendance_rate/attendance_rate_bloc.dart';
+import 'package:bryte/core/blocs/gpa_grade/gpa_grade_bloc.dart';
+import 'package:bryte/core/blocs/list_semester_student/list_semester_student_bloc.dart';
 import 'package:bryte/core/blocs/profile/profile_bloc.dart';
+import 'package:bryte/core/data/model/profile/request/gpa_grade_body.dart';
 import 'package:bryte/core/data/model/profile/request/profile_body.dart';
+import 'package:bryte/core/data/model/profile/response/profile_model.dart';
 import 'package:bryte/core/di/injection.dart';
-import 'package:bryte/presentation/course/pages/all_scores_page.dart';
-import 'package:bryte/presentation/profile/pages/all_attendance_page.dart';
-import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:step_progress_indicator/step_progress_indicator.dart';
+import '../../../core/data/model/profile/request/attendance_rate_student.dart';
+import '../local_widgets/profile_content.dart';
+import '../local_widgets/segmented_profile.dart';
+import '../local_widgets/setting_button.dart';
 
-import '../../auth/pages/signin.dart';
-import '../local_widgets/profile_student.dart';
-
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final selectedTab = ValueNotifier<ProfileTabType>(ProfileTabType.academic);
+  final profileBloc = getIt<ProfileBloc>();
+  final attendanceRateBloc = getIt<AttendanceRateBloc>();
+  final listSemesterStudentBloc = getIt<ListSemesterStudentBloc>();
+  final gpaGradeBloc = getIt<GpaGradeBloc>();
+  List<String> currentAttd = [];
+  double gpaScore = 0.0;
+  String totalSks = '';
+  UserModel? user;
 
   @override
   Widget build(BuildContext context) {
     final box = GetStorage();
-
-    final selectedTab = ValueNotifier(ProfileTabType.proggress);
-
-    final profileBloc = getIt<ProfileBloc>();
-
     final token = box.read(KeyConstant.token);
     final userId = box.read(KeyConstant.userId);
 
-    return BlocProvider(
-      create: (context) => profileBloc
-        ..add(GetUserProfileEvent(
-          body: ProfileBody(
-            wstoken: token,
-            wsfunction: 'core_user_get_users',
-            moodlewsrestformat: 'json',
-            criteriaid: 'id',
-            criteriauserid: int.parse(userId),
-          ),
-        )),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => profileBloc
+            ..add(GetUserProfileEvent(
+              body: ProfileBody(
+                wstoken: token,
+                wsfunction: 'core_user_get_users',
+                moodlewsrestformat: 'json',
+                criteriaid: 'id',
+                criteriauserid: int.parse(userId),
+              ),
+            )),
+        ),
+        BlocProvider(
+          create: (context) => attendanceRateBloc
+            ..add(
+              GetAttendanceRateStudentEvent(
+                body: AttendanceRateStudentBody(
+                  token: token,
+                  userid: userId,
+                  idAperiod: '',
+                ),
+              ),
+            ),
+        ),
+        BlocProvider(
+          create: (context) => gpaGradeBloc
+            ..add(
+              GetGpaGradeEvent(
+                body: GpaGradeBody(
+                  token: token,
+                  userid: userId,
+                  semester: '0',
+                ),
+              ),
+            ),
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Image.asset(AssetConstant.bryteLogoWhite),
+          title: Image.asset(
+            AssetConstant.bryteLogoWhite,
+            width: 59,
+          ),
           actions: [
-            InkWell(
-              onTap: () {
-                box.remove(KeyConstant.token);
-                Get.off(() => const Signin());
-                // Get.to<void>(() => const SettingPage());
+            SettingButton(user: user),
+          ],
+        ),
+        body: MultiBlocListener(
+          listeners: [
+            BlocListener<ProfileBloc, ProfileState>(
+              listener: (context, state) {
+                if (state is ProfileSuccess) {
+                  user = state.response.users[0];
+                  log('Profile Success');
+                  box.write(KeyConstant.profileImage,
+                      state.response.users[0].profileimageurl);
+                } else if (state is ProfileFailure) {
+                  log('Profile Gagal');
+                }
               },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Logout',
-                    style: BryteTypography.bodyExtraBold
-                        .copyWith(color: Colors.white),
-                  ),
-                  const SizedBox(width: 5),
-                  const Icon(
-                    Icons.logout,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-            )
-          ],
-        ),
-        body: BlocConsumer<ProfileBloc, ProfileState>(
-          listener: (context, state) {
-            if (state is ProfileSuccess) {
-              log('Profile Success');
-            } else if (state is ProfileFailure) {
-              log('Profile Gagal');
-            }
-          },
-          builder: (context, state) {
-            if (state is ProfileSuccess) {
-              return SingleChildScrollView(
-                child: ValueListenableBuilder(
-                  valueListenable: selectedTab,
-                  builder: (context, v, c) => Column(children: [
-                    const SizedBox(height: 20),
-                    ProfileStudent(
-                      imageUrl: state.response.users[0].profileimageurl!,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      state.response.users[0].username!,
-                      style: BryteTypography.titleExtraBold.copyWith(
-                        color: Palette.darkPurple,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(state.response.users[0].department!),
-                    const SizedBox(height: 20),
-                    // SegmentedProfile(
-                    //   selectedValue: selectedTab,
-                    // ),
-                    // if (v == ProfileTabType.academic)
-                    //   Column(
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     children: const [
-                    //       CumulativeCard(),
-                    //       AttendanceRateCard(),
-                    //     ],
-                    //   )
-                    // else if (v == ProfileTabType.personal)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'NAME',
-                            style: BryteTypography.titleMedium
-                                .copyWith(color: Palette.lightGrey),
-                          ),
-                          Text(
-                            state.response.users[0].fullname!,
-                            style: BryteTypography.titleSemiBold,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'EMAIL',
-                            style: BryteTypography.titleMedium
-                                .copyWith(color: Palette.lightGrey),
-                          ),
-                          Text(
-                            state.response.users[0].email!,
-                            style: BryteTypography.titleSemiBold,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'STUDENT NUMBER (NUM)',
-                            style: BryteTypography.titleMedium
-                                .copyWith(color: Palette.lightGrey),
-                          ),
-                          Text(
-                            state.response.users[0].firstaccess!.toString(),
-                            style: BryteTypography.titleSemiBold,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'PROGRAM',
-                            style: BryteTypography.titleMedium
-                                .copyWith(color: Palette.lightGrey),
-                          ),
-                          Text(
-                            state.response.users[0].department!,
-                            style: BryteTypography.titleSemiBold,
-                          ),
-                        ],
-                      ),
-                    )
-                  ]),
-                ),
-              );
-            } else if (state is ProfileLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              return const Center(
-                child: Text('Smoething Error'),
-              );
-            }
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class CumulativeCard extends StatelessWidget {
-  const CumulativeCard({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      margin: const EdgeInsets.all(10),
-      shadowColor: Palette.lightPurple,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 15,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  child: Text(
-                    'Cumulative GPA',
-                    style:
-                        BryteTypography.headerSemiBold.copyWith(fontSize: 15),
-                  ),
-                ),
-                Text(
-                  '3.98',
-                  style: BryteTypography.headerExtraBold.copyWith(
-                    fontSize: 48,
-                    color: Palette.purple,
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () => Get.to(
-                        () => const AllScorePage(),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            'All Scores',
-                            style: BryteTypography.titleSemiBold.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Palette.purple,
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right,
-                            size: 20,
-                            color: Palette.purple,
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ),
-            CircularStepProgressIndicator(
-              totalSteps: 100,
-              currentStep: 80,
-              stepSize: 10,
-              selectedColor: Palette.purple,
-              unselectedColor: Colors.grey[200],
-              padding: 0,
-              width: 100,
-              height: 100,
-              selectedStepSize: 15,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '3.81',
-                      style: BryteTypography.titleExtraBold
-                          .copyWith(color: Palette.purple),
-                    ),
-                    Text(
-                      '/4.00',
-                      style: BryteTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Palette.grey1),
-                    ),
-                  ],
-                ),
-              ),
-              roundedCap: (_, __) => true,
+            BlocListener<AttendanceRateBloc, AttendanceRateState>(
+              listener: (context, state) {
+                if (state is AttendanceRateSuccess) {
+                  currentAttd = state.response.data[0].attdRate;
+
+                  log(state.response.data[0].attdRate.first,
+                      name: 'ATTENDANCE RATE LOG');
+                  setState(() {});
+                }
+              },
+            ),
+            BlocListener<GpaGradeBloc, GpaGradeState>(
+              listener: (context, state) {
+                if (state is GpaGradeSuccess) {
+                  gpaScore = state.response.data[0].finalGpa;
+                  totalSks = state.response.data[0].totSks.toString();
+                  setState(() {});
+                  log(gpaScore.toString(), name: 'GPA SKOR');
+                }
+              },
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class AttendanceRateCard extends StatelessWidget {
-  const AttendanceRateCard({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      margin: const EdgeInsets.all(10),
-      shadowColor: Palette.lightPurple,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  child: Text(
-                    'Current\nAttendance Rate',
-                    style:
-                        BryteTypography.headerSemiBold.copyWith(fontSize: 15),
-                  ),
-                ),
-                Text(
-                  '90%',
-                  style: BryteTypography.headerExtraBold.copyWith(
-                    fontSize: 48,
-                    color: Palette.purple,
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () => Get.to(
-                        () => const AllAttendancePage(),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            'All Attendance',
-                            style: BryteTypography.titleSemiBold.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Palette.purple,
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right,
-                            size: 20,
-                            color: Palette.purple,
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            CircularStepProgressIndicator(
-              totalSteps: 100,
-              currentStep: 80,
-              stepSize: 10,
-              selectedColor: Palette.purple,
-              unselectedColor: Colors.grey[200],
-              padding: 0,
-              width: 100,
-              height: 100,
-              selectedStepSize: 15,
-              child: Center(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '90',
-                    style: BryteTypography.titleExtraBold
-                        .copyWith(color: Palette.purple),
-                  ),
-                  Text(
-                    '/100',
-                    style: BryteTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Palette.grey1),
-                  ),
-                ],
-              )),
-              roundedCap: (_, __) => true,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-enum ProfileTabType { proggress, academic, personal }
-
-class SegmentedProfile extends StatelessWidget {
-  const SegmentedProfile({
-    Key? key,
-    required this.selectedValue,
-  }) : super(key: key);
-
-  final ValueNotifier<ProfileTabType> selectedValue;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Divider(
-          thickness: 1,
-          height: 0,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          child: CustomSlidingSegmentedControl<ProfileTabType>(
-            height: 30,
-            innerPadding: const EdgeInsets.all(0),
-            children: {
-              ProfileTabType.proggress: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  'Proggress',
-                  style: brytStylebtn.copyWith(
-                      color: selectedValue.value != ProfileTabType.proggress
-                          ? Palette.headerSpecial
-                          : Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              ProfileTabType.academic: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  'Academic',
-                  style: brytStylebtn.copyWith(
-                      color: selectedValue.value != ProfileTabType.academic
-                          ? Palette.darkPurple
-                          : Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              ProfileTabType.personal: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  'Personal',
-                  style: brytStylebtn.copyWith(
-                      color: selectedValue.value != ProfileTabType.personal
-                          ? Palette.darkPurple
-                          : Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            },
-            decoration: BoxDecoration(
-              color: Palette.secondary,
-              borderRadius: BorderRadius.circular(27),
-            ),
-            thumbDecoration: BoxDecoration(
-              color: Palette.headerSpecial,
-              borderRadius: BorderRadius.circular(27),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(.3),
-                  blurRadius: 4.0,
-                  spreadRadius: 1.0,
-                  offset: const Offset(
-                    0.0,
-                    2.0,
-                  ),
-                ),
-              ],
-            ),
-            onValueChanged: (ProfileTabType value) {
-              selectedValue.value = value;
+          child: BlocBuilder<ProfileBloc, ProfileState>(
+            builder: (context, state) {
+              if (state is ProfileSuccess) {
+                return ProfileContent(
+                  state: state,
+                  selectedTab: selectedTab,
+                  gpaGradeBloc: gpaGradeBloc,
+                  gpaScore: gpaScore,
+                  totalSks: totalSks,
+                  currentAttd: currentAttd,
+                );
+              } else if (state is ProfileLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                return const Center(
+                  child: Text('Something Error'),
+                );
+              }
             },
           ),
         ),
-        const Divider(
-          thickness: 1,
-          height: 0,
-        ),
-      ],
+      ),
     );
   }
 }

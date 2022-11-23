@@ -1,250 +1,312 @@
+import 'dart:developer';
+
 import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/components/widgets/back_button.dart';
+import 'package:bryte/core/blocs/gpa_grade/gpa_grade_bloc.dart';
+import 'package:bryte/core/data/model/profile/response/gpa_grade_model.dart';
+import 'package:bryte/core/di/injection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:bryte/components/utils/palette.dart';
 import 'package:bryte/components/utils/typography.dart';
+import 'package:get_storage/get_storage.dart';
 
-import '../local_widget/dropdown_semester.dart';
+import '../../../core/data/model/profile/request/gpa_grade_body.dart';
+import '../../profile/local_widgets/dropdown_score_semester.dart';
 
-class AllScorePage extends StatelessWidget {
-  const AllScorePage({Key? key}) : super(key: key);
+class AllScorePage extends StatefulWidget {
+  const AllScorePage({
+    Key? key,
+    required this.gpaGradeBloc,
+  }) : super(key: key);
+
+  final GpaGradeBloc gpaGradeBloc;
+
+  @override
+  State<AllScorePage> createState() => _AllScorePageState();
+}
+
+class _AllScorePageState extends State<AllScorePage> {
+  final selectedValue = ValueNotifier<String>('0');
+
+  List<DataGpaGradeModel> dataGradeList = [];
+
+  double cumulativeGpa = 0;
+  int totalCredits = 0;
+
+  final gpaGradeBloc = getIt<GpaGradeBloc>();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const BackButtonAppBar(),
-        title: Image.asset(AssetConstant.bryteLogoWhite),
-        centerTitle: true,
+    final box = GetStorage();
+
+    final token = box.read(KeyConstant.token);
+    final userId = box.read(KeyConstant.userId);
+
+    return BlocProvider(
+      create: (context) => gpaGradeBloc
+        ..add(GetGpaGradeEvent(
+            body: GpaGradeBody(
+          token: token,
+          userid: userId,
+          semester: selectedValue.value,
+        ))),
+      child: Scaffold(
+        appBar: AppBar(
+          leading: const BackButtonAppBar(),
+          title: Image.asset(
+            AssetConstant.bryteLogoWhite,
+            width: 59,
+          ),
+          centerTitle: true,
+        ),
+        body: BlocListener<GpaGradeBloc, GpaGradeState>(
+          listener: (context, state) {
+            if (state is GpaGradeSuccess) {
+              log('gpa grade success');
+              dataGradeList = state.response.data;
+              cumulativeGpa = state.response.data[0].finalGpa;
+              totalCredits = state.response.data[0].totSks;
+
+              setState(() {});
+              log(cumulativeGpa.toString());
+            } else if (state is GpaGradeFailure) {
+              log('gpa grade gagal');
+            }
+          },
+          child: ValueListenableBuilder(
+            valueListenable: selectedValue,
+            builder: (context, value, __) => SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeaderCard(),
+                  const Divider(
+                    height: 0,
+                    thickness: 1,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  DropdownScoreSemester(
+                    selectedValue: selectedValue,
+                    gradeBloc: gpaGradeBloc,
+                  ),
+                  const Divider(
+                    height: 0,
+                    thickness: 1,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  if (value != '' && dataGradeList.isNotEmpty)
+                    _buildFinalGradeList()
+                  else
+                    const SizedBox()
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
+    );
+  }
+
+  Widget _buildHeaderCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: EdgeInsets.zero,
+            shadowColor: Palette.lightPurple,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                15,
+                10,
+                55,
+                10,
+              ),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: Get.width / 2 - 105,
+                      child: Text(
+                        'Cumulative GPA',
+                        style: BryteTypography.headerSemiBold.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      cumulativeGpa.toString(),
+                      style: BryteTypography.headerExtraBold.copyWith(
+                        fontSize: 48,
+                        fontWeight: FontWeight.w700,
+                        color: Palette.purple,
+                      ),
+                    )
+                  ]),
+            ),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          Card(
+            margin: EdgeInsets.zero,
+            elevation: 2,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shadowColor: Palette.lightPurple,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(15, 10, 55, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: Get.width / 2 - 105,
+                    child: Text(
+                      'Total Credits Taken',
+                      style:
+                          BryteTypography.headerSemiBold.copyWith(fontSize: 15),
+                    ),
+                  ),
+                  Text(
+                    totalCredits.toString(),
+                    style: BryteTypography.headerExtraBold.copyWith(
+                      fontSize: 48,
+                      color: Palette.purple,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFinalGradeList() {
+    return Column(
+      children: List.generate(
+        dataGradeList[0].finalGrade.length,
+        (index) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      margin: EdgeInsets.zero,
-                      shadowColor: Palette.lightPurple,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          15,
-                          10,
-                          55,
-                          10,
-                        ),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: Get.width / 2 - 105,
-                                child: Text(
-                                  'Cumulative GPA',
-                                  style: BryteTypography.headerSemiBold
-                                      .copyWith(fontSize: 15),
-                                ),
-                              ),
-                              Text(
-                                '3.98',
-                                style: BryteTypography.headerExtraBold.copyWith(
-                                  fontSize: 48,
-                                  color: Palette.purple,
-                                ),
-                              )
-                            ]),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Semester ' +
+                            dataGradeList[0]
+                                .finalGrade[index]
+                                .semester
+                                .toString(),
+                        style: BryteTypography.titleSemiBold,
                       ),
+                      // Text(
+                      //   ' • ' +
+                      //       'dataGradeList[0].finalGrade[index].sks.toString()' +
+                      //       ' credits',
+                      //   style: BryteTypography.titleSemiBold
+                      //       .copyWith(fontWeight: FontWeight.normal),
+                      // ),
+                    ],
+                  ),
+                  Text(
+                    dataGradeList[0].finalGpa.toString(),
+                    style: BryteTypography.titleSemiBold.copyWith(
+                      color: Palette.purple,
                     ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Card(
-                      margin: EdgeInsets.zero,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      shadowColor: Palette.lightPurple,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 10, 55, 10),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: Get.width / 2 - 105,
-                                child: Text(
-                                  'Total Credits Taken',
-                                  style: BryteTypography.headerSemiBold
-                                      .copyWith(fontSize: 15),
-                                ),
-                              ),
-                              Text(
-                                '119',
-                                style: BryteTypography.headerExtraBold.copyWith(
-                                  fontSize: 48,
-                                  color: Palette.purple,
-                                ),
-                              )
-                            ]),
-                      ),
-                    )
-                  ],
-                ),
+                    textAlign: TextAlign.right,
+                  )
+                ],
               ),
-            ),
-            const Divider(
-              height: 0,
-              thickness: 1,
-            ),
-            const DropdownSemester(),
-            const Divider(
-              height: 0,
-              thickness: 1,
             ),
             const SizedBox(
               height: 10,
             ),
             Column(
               children: List.generate(
-                semesters.length,
-                (index) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Semester ' +
-                                    semesters[index].numberSemester.toString(),
-                                style: BryteTypography.titleSemiBold,
-                              ),
-                              Text(
-                                ' • ' +
-                                    semesters[index].credits.toString() +
-                                    ' credits',
-                                style: BryteTypography.titleSemiBold
-                                    .copyWith(fontWeight: FontWeight.normal),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Text(
-                            semesters[index].grade,
-                            style: BryteTypography.titleSemiBold
-                                .copyWith(color: Palette.purple),
-                          ),
-                        ],
+                dataGradeList[0].finalGrade[index].grade.length,
+                (ind) => Padding(
+                  padding: const EdgeInsets.only(
+                    right: 20,
+                    left: 30,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${dataGradeList[0].finalGrade[index].grade[ind].course} • ${dataGradeList[0].finalGrade[index].grade[ind].sks}',
+                        style: BryteTypography.titleMedium.copyWith(
+                            color: const Color(
+                              0xffA2A2A2,
+                            ),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 15),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(30, 10, 20, 30),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(
-                            semesters[index].courseSemesters.length,
-                            (i) => Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(semesters[index]
-                                          .courseSemesters[i]
-                                          .name),
-                                    ),
-                                    Text(
-                                      semesters[index].courseSemesters[i].grade,
-                                      style: BryteTypography.titleSemiBold,
-                                    ),
-                                  ],
-                                )),
+                      Text(
+                        dataGradeList[0].finalGrade[index].grade[ind].grade,
+                        style: BryteTypography.titleSemiBold.copyWith(
+                            color: const Color(0xffA2A2A2),
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15),
                       ),
-                    )
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            )
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 30),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Text(
+            //         'dataGradeList[0].finalGrade[index].course',
+            //         style: BryteTypography.titleMedium.copyWith(
+            //             color: const Color(
+            //               0xffA2A2A2,
+            //             ),
+            //             fontWeight: FontWeight.w500,
+            //             fontSize: 15),
+            //       ),
+            //       Text(
+            //         'dataGradeList[0].finalGrade[index].grade',
+            //         style: BryteTypography.titleSemiBold.copyWith(
+            //             color: const Color(0xffA2A2A2),
+            //             fontWeight: FontWeight.w800,
+            //             fontSize: 15),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            const SizedBox(
+              height: 5,
+            ),
           ],
         ),
       ),
     );
   }
 }
-
-List<SemesterModel> semesters = [
-  SemesterModel(
-    numberSemester: 7,
-    credits: 14,
-    courseSemesters: courseSemesters,
-    grade: '3.40',
-  ),
-  SemesterModel(
-    numberSemester: 6,
-    credits: 20,
-    courseSemesters: courseSemesters,
-    grade: '3.50',
-  ),
-  SemesterModel(
-    numberSemester: 5,
-    credits: 18,
-    courseSemesters: courseSemesters,
-    grade: '3.81',
-  ),
-  SemesterModel(
-    numberSemester: 4,
-    credits: 31,
-    courseSemesters: courseSemesters,
-    grade: '3.90',
-  ),
-];
-
-class SemesterModel {
-  final int numberSemester;
-  final int credits;
-  final List<CourseScoreModel> courseSemesters;
-  final String grade;
-  SemesterModel({
-    required this.numberSemester,
-    required this.credits,
-    required this.courseSemesters,
-    required this.grade,
-  });
-}
-
-class CourseScoreModel {
-  final String name;
-  final int sks;
-  final String grade;
-
-  CourseScoreModel({
-    required this.name,
-    required this.sks,
-    required this.grade,
-  });
-}
-
-List<CourseScoreModel> courseSemesters = [
-  CourseScoreModel(
-    name: 'Computer Aided Engineering',
-    sks: 3,
-    grade: 'A',
-  ),
-  CourseScoreModel(
-    name: 'Design for Meaning',
-    sks: 4,
-    grade: 'AB',
-  ),
-  CourseScoreModel(
-    name: 'Design for Manufacturing',
-    sks: 2,
-    grade: 'B',
-  ),
-];

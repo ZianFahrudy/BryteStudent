@@ -2,7 +2,11 @@ import 'package:bryte/components/utils/constant.dart';
 import 'package:bryte/core/data/model/calendar/request/event_body.dart';
 import 'package:bryte/core/data/model/calendar/response/event_model.dart';
 import 'package:bryte/core/data/model/course/request/attendance_body.dart';
+import 'package:bryte/core/data/model/course/request/participant_body.dart';
+import 'package:bryte/core/data/model/course/request/score_body.dart';
 import 'package:bryte/core/data/model/course/response/attendance_model.dart';
+import 'package:bryte/core/data/model/course/response/participant_model.dart';
+import 'package:bryte/core/data/model/course/response/score_model.dart';
 import 'package:bryte/core/data/model/student/request/announcement_body.dart';
 import 'package:bryte/core/data/model/student/request/class_summary_student_body.dart';
 import 'package:bryte/core/data/model/student/request/submit_attendance_body.dart';
@@ -29,6 +33,8 @@ abstract class StudentRepository {
   Future<CalendarEventModel> getCalendarEvent(EventBody body);
   Future<String> submitAttendance(SubmitAttendanceBody body);
   Future<AttendanceModel> getAttendance(AttendanceBody body);
+  Future<ParticipantModel> getParticipant(ParticipantBody body);
+  Future<ScoreModel> getScore(ScoreBody body);
 }
 
 @LazySingleton(as: StudentRepository)
@@ -38,7 +44,7 @@ class StudentRepositoryImpl extends StudentRepository {
   Dio _getDio() {
     final options = BaseOptions(
         receiveDataWhenStatusError: true,
-        baseUrl: Url.baseUrlProdProd,
+        baseUrl: Url.baseUrlDev,
         sendTimeout: 60000,
         followRedirects: false,
         headers: {
@@ -48,18 +54,26 @@ class StudentRepositoryImpl extends StudentRepository {
 
     final dio = Dio(options);
 
-    dio.interceptors.add(PrettyDioLogger(
+    dio.interceptors.add(
+      PrettyDioLogger(
         requestHeader: true,
         requestBody: true,
         responseBody: true,
         responseHeader: false,
         error: true,
         compact: true,
-        maxWidth: 300));
+        maxWidth: 300,
+      ),
+    );
 
-    dio.interceptors.add(RetryOnConnectionChangeInterceptor(
+    dio.interceptors.add(
+      RetryOnConnectionChangeInterceptor(
         requestRetrier: DioConnectivityRequestRetrier(
-            dio: dio, connectivity: Connectivity())));
+          dio: dio,
+          connectivity: Connectivity(),
+        ),
+      ),
+    );
 
     return dio;
   }
@@ -164,8 +178,10 @@ class StudentRepositoryImpl extends StudentRepository {
   @override
   Future<CalendarEventModel> getCalendarEvent(EventBody body) async {
     try {
-      Response response =
-          await dio.post(Url.calendarEvent, data: body.toJson());
+      Response response = await dio.post(
+        Url.calendarEvent,
+        data: body.toJson(),
+      );
       return CalendarEventModel.fromJson(response.data);
     } catch (e) {
       if (e is DioError) {
@@ -183,8 +199,10 @@ class StudentRepositoryImpl extends StudentRepository {
   @override
   Future<String> submitAttendance(SubmitAttendanceBody body) async {
     try {
-      Response response =
-          await dio.post(Url.attendance, queryParameters: body.toJson());
+      Response response = await dio.post(
+        Url.attendance,
+        queryParameters: body.toJson(),
+      );
 
       if (response.data != null) {
         return "Gagal";
@@ -215,6 +233,48 @@ class StudentRepositoryImpl extends StudentRepository {
       if (e is DioError) {
         if (e.type == DioErrorType.response) {
           return AttendanceModel.fromJson(e.response?.data);
+        } else {
+          throw Exception(e.message);
+        }
+      } else {
+        throw Exception("Error");
+      }
+    }
+  }
+
+  @override
+  Future<ParticipantModel> getParticipant(ParticipantBody body) async {
+    try {
+      Response response = await dio.post(
+        Url.courseParticipant,
+        data: body.toJson(),
+      );
+      return ParticipantModel.fromJson(response.data);
+    } catch (e) {
+      if (e is DioError) {
+        if (e.type == DioErrorType.response) {
+          return ParticipantModel.fromJson(e.response?.data);
+        } else {
+          throw Exception(e.message);
+        }
+      } else {
+        throw Exception("Error");
+      }
+    }
+  }
+
+  @override
+  Future<ScoreModel> getScore(ScoreBody body) async {
+    try {
+      Response response = await dio.post(
+        Url.courseScore,
+        data: body.toJson(),
+      );
+      return ScoreModel.fromJson(response.data);
+    } catch (e) {
+      if (e is DioError) {
+        if (e.type == DioErrorType.response) {
+          return ScoreModel.fromJson(e.response?.data);
         } else {
           throw Exception(e.message);
         }

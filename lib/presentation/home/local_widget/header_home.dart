@@ -333,7 +333,10 @@ class _HeaderHomeState extends State<HeaderHome> {
             children: [
               Text(
                 DateFormat('EEEE, d MMMM').format(today),
-                style: brytStylebtnBlack,
+                style: brytStylebtnBlack.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    fontFamily: 'SF Pro Bold'),
               ),
               const SizedBox(
                 height: 6,

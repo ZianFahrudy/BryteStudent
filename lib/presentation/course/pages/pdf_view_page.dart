@@ -19,12 +19,7 @@ class _PdfViewPageState extends State<PdfViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pdf Viewer'),
-      ),
-      body: Center(
-          child: SfPdfViewer.network(
-              'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf')),
+      body: SafeArea(child: Center(child: SfPdfViewer.network(widget.pdfUrl))),
     );
   }
 }

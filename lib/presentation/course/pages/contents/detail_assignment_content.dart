@@ -156,10 +156,20 @@ class _DetailAssignmentContentState extends State<DetailAssignmentContent> {
           );
         } else if (state is AssignSaveFailure) {
           log('assign file failure');
+          Get.snackbar('Gagal', state.msg,
+              backgroundColor: Palette.red, colorText: Colors.white);
+          _file = null;
+          _image = null;
         } else if (state is AssignSubmitFileSuccess) {
           log('assign submit file success');
+          Get.snackbar('Berhasil', 'Submit File Berhasil',
+              backgroundColor: Palette.green, colorText: Colors.white);
           Get.dialog<void>(const AsssignmentDialogSuccess());
         } else if (state is AssignSubmitFailure) {
+          // _file = null;
+          // _image = null;
+          Get.snackbar('Gagal', state.msg,
+              backgroundColor: Palette.red, colorText: Colors.white);
           log('assign submit file failure');
         }
       },
@@ -171,25 +181,38 @@ class _DetailAssignmentContentState extends State<DetailAssignmentContent> {
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: Text(
                 widget.state.response.data[0].assignments[0].assignName,
-                style: BryteTypography.headerExtraBold,
+                style: BryteTypography.headerExtraBold.copyWith(
+                    fontFamily: 'SF Pro Bold',
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xff333333),
+                    fontSize: 18),
               ),
             ),
-            const Divider(
-              height: 0,
-              thickness: 1,
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Divider(
+                height: 0,
+                thickness: 1,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Instructions',
-                    style: BryteTypography.titleSemiBold,
+                    style: BryteTypography.titleSemiBold.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: const Color(0xff5F5F5F),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     widget.state.response.data[0].assignments[0].assignDescp,
+                    style: BryteTypography.bodyRegular
+                        .copyWith(fontWeight: FontWeight.w400, fontSize: 14),
                   ),
                   const SizedBox(height: 10),
                   LabelAssignment(
@@ -219,9 +242,12 @@ class _DetailAssignmentContentState extends State<DetailAssignmentContent> {
                 ],
               ),
             ),
-            const Divider(
-              height: 0,
-              thickness: 1,
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Divider(
+                height: 0,
+                thickness: 1,
+              ),
             ),
             if (_image != null)
               FileCard(
@@ -245,13 +271,20 @@ class _DetailAssignmentContentState extends State<DetailAssignmentContent> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Submission',
-                        style: BryteTypography.titleSemiBold,
+                        style: BryteTypography.titleSemiBold.copyWith(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xff5F5F5F)),
                       ),
                       InkWell(
                         onTap: () => Get.to(
                           () => EditSubmissionPage(
+                            assignId: widget
+                                .state.response.data[0].assignments[0].idAssign,
+                            userId: widget.userid,
+                            token: widget.token,
                             assignDeadline: widget.state.response.data[0]
                                 .assignments[0].assignDeadline,
                             assignFile: widget.state.response.data[0]
@@ -265,12 +298,14 @@ class _DetailAssignmentContentState extends State<DetailAssignmentContent> {
                             const Icon(
                               Icons.edit,
                               color: Palette.purple,
-                              size: 15,
+                              size: 13,
                             ),
                             Text(
                               'Edit',
-                              style: BryteTypography.titleSemiBold
-                                  .copyWith(color: Palette.purple),
+                              style: BryteTypography.titleSemiBold.copyWith(
+                                  color: Palette.purple,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14),
                             ),
                           ],
                         ),
@@ -282,28 +317,34 @@ class _DetailAssignmentContentState extends State<DetailAssignmentContent> {
                   ),
                   Text(
                     'Maximum size',
-                    style: BryteTypography.titleRegular.copyWith(fontSize: 14),
+                    style: BryteTypography.titleRegular.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xff5F5F5F)),
                   ),
                   Text(
                     widget.state.response.data[0].assignments[0].assignMaxSize,
                     style: BryteTypography.titleRegular.copyWith(
                         fontSize: 14,
                         color: Palette.purple,
-                        fontWeight: FontWeight.bold),
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(
                     height: 20,
                   ),
                   Text(
                     'Allowed file formats',
-                    style: BryteTypography.titleRegular.copyWith(fontSize: 14),
+                    style: BryteTypography.titleRegular.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xff5F5F5F)),
                   ),
                   Text(
                     'All document files',
                     style: BryteTypography.titleRegular.copyWith(
                         fontSize: 14,
                         color: Palette.purple,
-                        fontWeight: FontWeight.bold),
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(
                     height: 20,

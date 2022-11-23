@@ -29,8 +29,10 @@ class LabelAssignment extends StatelessWidget {
               flex: 1,
               child: Text(
                 label,
-                style: BryteTypography.titleSemiBold
-                    .copyWith(color: Palette.purple),
+                style: BryteTypography.titleSemiBold.copyWith(
+                    color: const Color(0xffB742FF),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14),
               ),
             ),
             const SizedBox(
@@ -46,7 +48,10 @@ class LabelAssignment extends StatelessWidget {
               flex: 1,
               child: Text(
                 description,
-                style: BryteTypography.titleMedium,
+                style: BryteTypography.titleMedium.copyWith(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    color: const Color(0xff000000).withOpacity(0.6)),
               ),
             ),
           ],

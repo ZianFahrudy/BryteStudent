@@ -110,13 +110,11 @@ class CardClasses extends StatelessWidget {
                     blurRadius: 10,
                   )
                 ],
-                color: status == 'ongoing' || status == 'today'
-                    ? Palette.purple
-                    : Colors.transparent,
+                color:
+                    status == 'ongoing' ? Palette.purple : Colors.transparent,
                 borderRadius: BorderRadius.circular(18),
               ),
             ),
-
             Container(
               margin: const EdgeInsets.only(
                 top: 14,
@@ -235,8 +233,9 @@ class CardClasses extends StatelessWidget {
                                   TextSpan(
                                     text: ' • $startTime - $endTime',
                                     style: brytStyleWhite.copyWith(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w800),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -286,23 +285,23 @@ class CardClasses extends StatelessWidget {
                 ],
               ),
             ),
-            // if (status == 'ongoing')
-            Positioned(
-              top: 0,
-              left: 20,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: brytepurple,
-                  borderRadius: BorderRadius.circular(20),
+            if (status == 'ongoing')
+              Positioned(
+                top: 0,
+                left: 20,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: brytepurple,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Now',
+                    style: brytStyleWhite.copyWith(fontSize: 10),
+                  ),
                 ),
-                child: Text(
-                  'Now',
-                  style: brytStyleWhite.copyWith(fontSize: 10),
-                ),
-              ),
-            )
+              )
           ],
         ),
       ),

@@ -15,11 +15,19 @@ import '../../../components/utils/enum.dart';
 import '../../../components/widgets/app_bar.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/repo/auth/auth_repository.dart';
+import '../../navigation/cubits/nav_course/nav_course_cubit.dart';
+import '../local_widget/announcement.dart';
 import '../local_widget/header_home.dart';
 import '../local_widget/today_classes.dart';
+import '../local_widget/upcoming_assignments.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage(
+      {Key? key, required this.selectedIndex, required this.navCourseCubit})
+      : super(key: key);
+
+  final ValueNotifier<int> selectedIndex;
+  final NavCourseCubit navCourseCubit;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -73,6 +81,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: appbar(context),
+      extendBodyBehindAppBar: true,
       body: MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -118,6 +127,9 @@ class _HomePageState extends State<HomePage> {
           BlocProvider(
             create: (context) => attendBloc,
           ),
+          BlocProvider(
+            create: (context) => widget.navCourseCubit,
+          ),
         ],
         child: RefreshIndicator(
           onRefresh: () async => onRefresh(),
@@ -130,12 +142,18 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 60),
                   const HeaderHome(),
                   TodayClasses(
+                    selectedIndex: widget.selectedIndex,
+                    classBloc: classBloc,
                     attendBloc: attendBloc,
                   ),
-                  // const UpcomingAssignments(),
-                  // const Announcements(),
+                  UpcomingAssignments(
+                    navCourseCubit: widget.navCourseCubit,
+                    selectedIndex: widget.selectedIndex,
+                  ),
+                  const Announcements(),
                   const SizedBox(height: 100)
                 ],
               ),

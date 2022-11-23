@@ -22,5 +22,5 @@ DataMasterCourseSectionModel _$DataMasterCourseSectionModelFromJson(
     DataMasterCourseSectionModel(
       id: json['id'] as int,
       sectionNo: json['section_no'] as int,
-      sectionName: json['section_name'] as String,
+      sectionName: json['section_name'] as String?,
     );

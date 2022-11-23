@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../components/utils/palette.dart';
 import '../../../components/utils/typography.dart';
-import '../pages/course_section_page.dart';
 import 'badge_card.dart';
 
 class ProfileParticipant extends StatelessWidget {
@@ -29,10 +28,10 @@ class ProfileParticipant extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: 1 < 3 ? Palette.grey2 : Palette.orange2,
                       ),
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         radius: 50,
                         backgroundImage: NetworkImage(
-                          listParticipants[0].imageUrl,
+                          'https://randomuser.me/api/portraits/men/3.jpg',
                         ),
                       ),
                     ),
@@ -55,8 +54,9 @@ class ProfileParticipant extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                              color: 1 < 3 ? Palette.grey1 : Palette.orange1,
-                              borderRadius: BorderRadius.circular(10)),
+                            color: 1 < 3 ? Palette.grey1 : Palette.orange1,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,

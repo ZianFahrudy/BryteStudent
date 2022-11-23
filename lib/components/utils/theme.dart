@@ -61,7 +61,8 @@ TextStyle brytStylebtnBlack = TextStyle(
     fontFamily: 'SF Pro',
     color: bryteBlack,
     fontSize: 18,
-    fontWeight: FontWeight.w800);
+    letterSpacing: 1,
+    fontWeight: FontWeight.bold);
 
 TextStyle brytStyleDarkPurlple = TextStyle(
     fontFamily: 'SF Pro',
