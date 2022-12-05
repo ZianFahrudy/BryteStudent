@@ -65,18 +65,20 @@ class _DropdownScoreSemesterState extends State<DropdownScoreSemester> {
               builder: (context, _, __) => DropdownButton2(
                 isExpanded: true,
                 items: listSemesterStudents
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item.semester,
-                          child: Text(
-                            item.semesterDescp,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Palette.darkPurple,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                    .map(
+                      (item) => DropdownMenuItem<String>(
+                        value: item.semester,
+                        child: Text(
+                          item.semesterDescp,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Palette.darkPurple,
                           ),
-                        ))
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
                     .toList(),
                 value: widget.selectedValue.value == ''
                     ? null

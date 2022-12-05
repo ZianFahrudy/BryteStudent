@@ -390,6 +390,7 @@ class _CalenderPageState extends State<CalenderPage> {
       markerBuilder: (BuildContext context, date, events) {
         bool eventAssignment =
             events.every((element) => element.type == 'assignment');
+
         bool eventClass = events.every((element) => element.type == 'class');
 
         if (events.isEmpty) return const SizedBox();
@@ -402,7 +403,7 @@ class _CalenderPageState extends State<CalenderPage> {
                   ? 1
                   : 2,
           itemBuilder: (context, index) {
-            return events[index].type == 'class'
+            return events[index].type.contains('class')
                 ? const Padding(
                     padding: EdgeInsets.only(top: 30),
                     child: Icon(
@@ -411,14 +412,16 @@ class _CalenderPageState extends State<CalenderPage> {
                       size: 15,
                     ),
                   )
-                : const Padding(
-                    padding: EdgeInsets.only(top: 30),
-                    child: Icon(
-                      Icons.assignment,
-                      size: 15,
-                      color: Palette.darkPurple,
-                    ),
-                  );
+                : events[index].type.contains('assignment')
+                    ? const Padding(
+                        padding: EdgeInsets.only(top: 30),
+                        child: Icon(
+                          Icons.assignment,
+                          size: 15,
+                          color: Palette.darkPurple,
+                        ),
+                      )
+                    : const SizedBox();
           },
         );
       },

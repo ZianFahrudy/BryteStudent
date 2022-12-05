@@ -24,17 +24,25 @@ class CourseBryteList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
         data.length,
-        (index) => CourseCard(
-          selectedFilterValue: selectedFilterValue,
-          onTap: () => Get.to(
-            () => SectionGeneralPage(
-              dataCourse: data[index],
+        (index) => Column(
+          children: [
+            CourseCard(
+              selectedFilterValue: selectedFilterValue,
+              onTap: () => Get.to(
+                () => SectionGeneralPage(
+                  dataCourse: data[index],
+                ),
+              ),
+              shadowColor: HexColor(data[index].dropShadow),
+              name: data[index].teacherName,
+              title: data[index].course,
+              color: HexColor(data[index].bgColor_1),
             ),
-          ),
-          shadowColor: HexColor(data[index].dropShadow),
-          name: data[index].teacherName,
-          title: data[index].course,
-          color: HexColor(data[index].bgColor_1),
+            if (index == data.length - 1)
+              const SizedBox(
+                height: 100,
+              )
+          ],
         ),
       ),
     );

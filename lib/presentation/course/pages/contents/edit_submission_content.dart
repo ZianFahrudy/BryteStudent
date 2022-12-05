@@ -339,10 +339,15 @@ class _EditSubmissionContentState extends State<EditSubmissionContent> {
                                           ),
                                         ),
                                         InkWell(
-                                          onTap: () => Get.to(() => PdfViewPage(
+                                          onTap: () {
+                                            Get.to(
+                                              () => PdfViewPage(
                                                 pdfUrl:
-                                                    '${state.response.lastattempt!.submission.plugins[0].fileareas![0].files[0].fileurl}?token=${widget.token}}',
-                                              )),
+                                                    '${state.response.lastattempt!.submission.plugins[0].fileareas![0].files[0].fileurl}?token=${widget.token}',
+                                              ),
+                                            );
+                                            log('${state.response.lastattempt!.submission.plugins[0].fileareas![0].files[0].fileurl}?token=${widget.token}');
+                                          },
                                           child: Text(
                                             'VIEW',
                                             style: BryteTypography.bodyExtraBold

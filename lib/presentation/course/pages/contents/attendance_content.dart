@@ -191,10 +191,10 @@ class AttendanceContent extends StatelessWidget {
                             Text(
                               '${DateFormat('EEE dd MMM yyyy').format(DateTime.parse(e.attdEndDate))} ${DateFormat('HHa').format(DateTime.parse(e.attdStartDate))}-${DateFormat('HH:mma').format(DateTime.parse(e.attdEndDate))}',
                               style: BryteTypography.titleMedium.copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                  color:
-                                      const Color(0xff000000).withOpacity(0.6)),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14,
+                                color: const Color(0xff000000).withOpacity(0.6),
+                              ),
                             ),
                           ],
                         ),

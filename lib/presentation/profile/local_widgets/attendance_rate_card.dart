@@ -2,7 +2,6 @@ import 'package:bryte/presentation/course/pages/all_attendance_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
-
 import '../../../components/utils/palette.dart';
 import '../../../components/utils/typography.dart';
 
@@ -95,23 +94,25 @@ class AttendanceRateCard extends StatelessWidget {
               height: 100,
               selectedStepSize: 15,
               child: Center(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    currentAtt.replaceFirst('%', ''),
-                    style: BryteTypography.titleExtraBold
-                        .copyWith(color: Palette.purple),
-                  ),
-                  Text(
-                    '/100',
-                    style: BryteTypography.titleMedium.copyWith(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      currentAtt.replaceFirst('%', ''),
+                      style: BryteTypography.titleExtraBold
+                          .copyWith(color: Palette.purple),
+                    ),
+                    Text(
+                      '/100',
+                      style: BryteTypography.titleMedium.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
-                        color: Palette.grey1),
-                  ),
-                ],
-              )),
+                        color: Palette.grey1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               roundedCap: (_, __) => true,
             ),
           ],
