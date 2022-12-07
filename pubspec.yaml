@@ -9,7 +9,6 @@ environment:
   sdk: ">=2.14.0 <3.0.0"
 
 dependencies:
-  advance_pdf_viewer: ^2.0.1
   animated_segmented_tab_control: ^1.0.1
   carousel_slider: ^4.0.0
   connectivity: ^3.0.6
@@ -38,7 +37,6 @@ dependencies:
   intl: ^0.17.0
   jiffy: ^5.0.0
   path_provider: ^2.0.11
-  pdf: ^3.8.1
   pin_code_fields: ^7.3.0
   pretty_dio_logger: ^1.1.1
   readmore: ^2.1.0

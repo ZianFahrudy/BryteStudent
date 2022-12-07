@@ -19,7 +19,6 @@ import 'package:intl/intl.dart';
 
 import '../../../../components/utils/constant.dart';
 import '../../../../components/utils/palette.dart';
-import '../../../../core/data/model/moodle/request/assign_save_body.dart';
 import '../../../../core/data/model/moodle/request/assign_save_json_body.dart';
 import '../../../../core/data/model/moodle/request/assign_submit_file.dart';
 import '../../../../core/data/model/moodle/request/upload_file_body.dart';
@@ -38,6 +37,8 @@ class EditSubmissionContent extends StatefulWidget {
     required this.userId,
     required this.assignId,
     required this.editSubmissionBloc,
+    required this.isUploadSuccess,
+    required this.itemId,
   }) : super(key: key);
 
   final String assignMaxSize;
@@ -48,6 +49,8 @@ class EditSubmissionContent extends StatefulWidget {
   final String token;
   final String userId;
   final String assignId;
+  final ValueNotifier<bool> isUploadSuccess;
+  final ValueNotifier<int> itemId;
 
   @override
   State<EditSubmissionContent> createState() => _EditSubmissionContentState();
@@ -84,6 +87,8 @@ class _EditSubmissionContentState extends State<EditSubmissionContent> {
 
   File? _file;
   XFile? _image;
+
+  bool isUploadSuccess = false;
 
   String? fileName;
   getFile() async {
@@ -162,27 +167,35 @@ class _EditSubmissionContentState extends State<EditSubmissionContent> {
           BlocListener<MoodleBloc, MoodleState>(
             listener: (context, state) {
               if (state is UploadFileSuccess) {
+                Get.snackbar('berhasil', 'upload success');
+                widget.isUploadSuccess.value = true;
+                widget.itemId.value = state.response.itemid;
                 log('upload success');
-                widget.moodleBloc.add(
-                  AssignSaveEvent(
-                    body: AssignSaveBody(
-                      wstoken: widget.token,
-                      wsfunction: 'mod_assign_save_submission',
-                      moodlewsrestformat: 'json',
-                      assignmentid: int.parse(
-                        widget.assignId,
-                      ),
-                      plugindataText: 'pdf',
-                      plugindataFormat: 1,
-                      plugindataItemId: state.response.itemid,
-                      plugindataFilesManager: state.response.itemid,
-                    ),
-                    jsonBody: AssignSaveJsonBody(
-                      token: widget.token,
-                      userid: widget.userId,
-                    ),
-                  ),
-                );
+                log(widget.isUploadSuccess.value.toString());
+                log(widget.itemId.value.toString());
+
+                // setState(() {});
+
+                // widget.moodleBloc.add(
+                //   AssignSaveEvent(
+                //     body: AssignSaveBody(
+                //       wstoken: widget.token,
+                //       wsfunction: 'mod_assign_save_submission',
+                //       moodlewsrestformat: 'json',
+                //       assignmentid: int.parse(
+                //         widget.assignId,
+                //       ),
+                //       plugindataText: 'pdf',
+                //       plugindataFormat: 1,
+                //       plugindataItemId: state.response.itemid,
+                //       plugindataFilesManager: state.response.itemid,
+                //     ),
+                //     jsonBody: AssignSaveJsonBody(
+                //       token: widget.token,
+                //       userid: widget.userId,
+                //     ),
+                //   ),
+                // );
               } else if (state is MoodleFailure) {
                 log('gagaaaaalllll');
               } else if (state is AssignSaveFileSuccess) {
@@ -362,60 +375,61 @@ class _EditSubmissionContentState extends State<EditSubmissionContent> {
                                   ),
                                 ),
                                 PopupMenuButton(
-                                    child: const Icon(Icons.more_horiz),
-                                    itemBuilder: (context) => [
-                                          // PopupMenuItem(
-                                          //   child: Row(
-                                          //     children: const [
-                                          //       Icon(
-                                          //         Icons.edit,
-                                          //         color: Palette.darkPurple,
-                                          //       ),
-                                          //       SizedBox(width: 10),
-                                          //       Text('Rename'),
-                                          //     ],
-                                          //   ),
-                                          //   value: 1,
-                                          // ),
-                                          // PopupMenuItem(
-                                          //   child: Row(
-                                          //     children: const [
-                                          //       Icon(
-                                          //         Icons.delete,
-                                          //         color: Palette.darkPurple,
-                                          //       ),
-                                          //       SizedBox(width: 10),
-                                          //       Text('Delete'),
-                                          //     ],
-                                          //   ),
-                                          //   value: 2,
-                                          // ),
-                                          PopupMenuItem(
-                                            onTap: () async {
-                                              //   await FlDownloader.download(
-                                              //       widget.assignFileModel[0]
-                                              //           .fileUrl,
-                                              //       fileName: widget
-                                              //           .assignFileModel[0]
-                                              //           .fileName);
+                                  child: const Icon(Icons.more_horiz),
+                                  itemBuilder: (context) => [
+                                    // PopupMenuItem(
+                                    //   child: Row(
+                                    //     children: const [
+                                    //       Icon(
+                                    //         Icons.edit,
+                                    //         color: Palette.darkPurple,
+                                    //       ),
+                                    //       SizedBox(width: 10),
+                                    //       Text('Rename'),
+                                    //     ],
+                                    //   ),
+                                    //   value: 1,
+                                    // ),
+                                    // PopupMenuItem(
+                                    //   child: Row(
+                                    //     children: const [
+                                    //       Icon(
+                                    //         Icons.delete,
+                                    //         color: Palette.darkPurple,
+                                    //       ),
+                                    //       SizedBox(width: 10),
+                                    //       Text('Delete'),
+                                    //     ],
+                                    //   ),
+                                    //   value: 2,
+                                    // ),
+                                    PopupMenuItem(
+                                      onTap: () async {
+                                        //   await FlDownloader.download(
+                                        //       widget.assignFileModel[0]
+                                        //           .fileUrl,
+                                        //       fileName: widget
+                                        //           .assignFileModel[0]
+                                        //           .fileName);
 
-                                              await FlDownloader.download(
-                                                  '${state.response.lastattempt!.submission.plugins[0].fileareas![0].files[0].fileurl}?token=${widget.token}}');
-                                            },
-                                            // },
-                                            child: Row(
-                                              children: const [
-                                                Icon(
-                                                  Icons.download,
-                                                  color: Palette.darkPurple,
-                                                ),
-                                                SizedBox(width: 10),
-                                                Text('Download'),
-                                              ],
-                                            ),
-                                            value: 3,
-                                          )
-                                        ])
+                                        await FlDownloader.download(
+                                            '${state.response.lastattempt!.submission.plugins[0].fileareas![0].files[0].fileurl}?token=${widget.token}}');
+                                      },
+                                      // },
+                                      child: Row(
+                                        children: const [
+                                          Icon(
+                                            Icons.download,
+                                            color: Palette.darkPurple,
+                                          ),
+                                          SizedBox(width: 10),
+                                          Text('Download'),
+                                        ],
+                                      ),
+                                      value: 3,
+                                    )
+                                  ],
+                                )
                               ],
                             ),
                           )
