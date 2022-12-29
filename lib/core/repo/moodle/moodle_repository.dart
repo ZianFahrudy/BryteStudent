@@ -15,6 +15,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../../../components/network/interceptor/dio_connectivity_request_retry.dart';
 import '../../../components/network/interceptor/retry_interceptor.dart';
 import '../../../components/utils/constant.dart';
+import '../../../flavors.dart';
 
 abstract class MoodleRepository {
   Future<UploadFileModel> uploadFile(UploadFileBody body);
@@ -35,7 +36,7 @@ class MoodleRepositoryImpl extends MoodleRepository {
   Dio _getDio() {
     final options = BaseOptions(
         receiveDataWhenStatusError: true,
-        baseUrl: Url.baseUrlDev,
+        baseUrl: F.apiUrl,
         sendTimeout: 60000,
         followRedirects: false,
         headers: {

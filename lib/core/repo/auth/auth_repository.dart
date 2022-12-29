@@ -7,6 +7,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
+import '../../../flavors.dart';
+
 final box = GetStorage();
 
 @lazySingleton
@@ -16,7 +18,7 @@ class AuthRepository {
   Dio get dio => Dio(
         BaseOptions(
             receiveDataWhenStatusError: true,
-            baseUrl: Url.baseUrlDev,
+            baseUrl: F.apiUrl,
             sendTimeout: 60000,
             followRedirects: false,
             headers: {

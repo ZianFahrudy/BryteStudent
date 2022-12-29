@@ -16,6 +16,7 @@ import 'package:bryte/core/data/model/student/response/announcement_model.dart';
 import 'package:bryte/core/data/model/student/response/class_summary_student_model.dart';
 import 'package:bryte/core/data/model/student/response/today_classes_model.dart';
 import 'package:bryte/core/data/model/student/response/upcoming_assign_model.dart';
+import 'package:bryte/flavors.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
@@ -44,7 +45,7 @@ class StudentRepositoryImpl extends StudentRepository {
   Dio _getDio() {
     final options = BaseOptions(
         receiveDataWhenStatusError: true,
-        baseUrl: Url.baseUrlDev,
+        baseUrl: F.apiUrl,
         sendTimeout: 60000,
         followRedirects: false,
         headers: {

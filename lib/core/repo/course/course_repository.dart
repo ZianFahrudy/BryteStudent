@@ -19,6 +19,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import '../../../components/network/interceptor/retry_interceptor.dart';
 import '../../../components/utils/constant.dart';
+import '../../../flavors.dart';
 
 abstract class CourseRepository {
   Future<List<CourseGeneralModel>> getGeneralCourse(GeneralCourseBody body);
@@ -39,7 +40,7 @@ class CourseRepositoryImpl extends CourseRepository {
   Dio _getDio() {
     final options = BaseOptions(
         receiveDataWhenStatusError: true,
-        baseUrl: Url.baseUrlDev,
+        baseUrl: F.apiUrl,
         sendTimeout: 60000,
         followRedirects: false,
         headers: {

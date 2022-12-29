@@ -50,17 +50,22 @@ class _AppState extends State<App> {
       title: 'Bryte',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          appBarTheme: AppBarTheme(
-              color: const Color(0xff58329C).withOpacity(0.8),
-              systemOverlayStyle: const SystemUiOverlayStyle(
-                  statusBarColor: Colors.white,
-                  statusBarIconBrightness: Brightness.dark,
-                  statusBarBrightness: Brightness.light),
-              iconTheme: const IconThemeData(color: Palette.darkPurple)),
-          scaffoldBackgroundColor: Colors.white,
-          primarySwatch: Colors.purple,
-          primaryColor: Palette.darkPurple,
-          visualDensity: VisualDensity.adaptivePlatformDensity),
+        appBarTheme: AppBarTheme(
+          color: const Color(0xff58329C).withOpacity(0.8),
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.white,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+          ),
+          iconTheme: const IconThemeData(
+            color: Palette.darkPurple,
+          ),
+        ),
+        scaffoldBackgroundColor: Colors.white,
+        primarySwatch: Colors.purple,
+        primaryColor: Palette.darkPurple,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       initialRoute: initialRoute(),
       navigatorObservers: [routeObserver],
       getPages: Routes.page.map((page) => page).toList(),

@@ -91,7 +91,9 @@ class _CoursePageState extends State<CoursePage> {
                 ),
               ),
           ),
-          BlocProvider(create: (context) => widget.navCourseCubit),
+          BlocProvider(
+            create: (context) => widget.navCourseCubit,
+          ),
         ],
         child: BlocListener<NavCourseCubit, NavCourseState>(
           listener: (context, state) {
@@ -188,12 +190,13 @@ class _CoursePageState extends State<CoursePage> {
                 child: Text(
                   'Courses',
                   style: BryteTypography.bodyMedium.copyWith(
-                      color: !widget.navCourseCubit.isCourse
-                          ? Palette.darkPurple
-                          : Colors.white,
-                      fontSize: 14,
-                      fontFamily: 'SF Pro Bold',
-                      fontWeight: FontWeight.w500),
+                    color: !widget.navCourseCubit.isCourse
+                        ? Palette.darkPurple
+                        : Colors.white,
+                    fontSize: 14,
+                    fontFamily: 'SF Pro Bold',
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -223,12 +226,13 @@ class _CoursePageState extends State<CoursePage> {
                   child: Text(
                     'Assigments',
                     style: BryteTypography.bodyMedium.copyWith(
-                        color: widget.navCourseCubit.isCourse
-                            ? Palette.darkPurple
-                            : Colors.white,
-                        fontSize: 14,
-                        fontFamily: 'SF Pro Bold',
-                        fontWeight: FontWeight.w500),
+                      color: widget.navCourseCubit.isCourse
+                          ? Palette.darkPurple
+                          : Colors.white,
+                      fontSize: 14,
+                      fontFamily: 'SF Pro Bold',
+                      fontWeight: FontWeight.w500,
+                    ),
                   )),
             ),
           ),

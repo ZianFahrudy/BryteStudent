@@ -6,45 +6,38 @@ class Url {
   static const String baseUrlMoodleProd = "https://lms.prasetiyamulya.ac.id/";
 
   static const String login = baseUrlMoodleDev + "moodle/login/token.php";
-  static const String forgotPassword =
-      baseUrlDev + "ws-bryte/public/forgotPassword";
-  static const String verifyOtp = baseUrlDev + "ws-bryte/public/verifyOtp";
-  static const String resetPass = baseUrlDev + "ws-bryte/public/resetPassword";
-  static const String resenOTP = baseUrlDev + "ws-bryte/public/resendOtp";
+
+  static const String forgotPassword = "ws-bryte/public/forgotPassword";
+  static const String verifyOtp = "ws-bryte/public/verifyOtp";
+  static const String resetPass = "ws-bryte/public/resetPassword";
+  static const String resenOTP = "ws-bryte/public/resendOtp";
 
   static const String classSummaryStudent =
-      baseUrlDev + "ws-bryte/public/classesSummaryStudent";
+      "ws-bryte/public/classesSummaryStudent";
 
-  static const String announcement =
-      baseUrlDev + "ws-bryte/public/announcement";
-  static const String classesDetStudent =
-      baseUrlDev + "ws-bryte/public/classesDetStudent";
+  static const String announcement = "ws-bryte/public/announcement";
+  static const String classesDetStudent = "ws-bryte/public/classesDetStudent";
   static const String upcomingAssignStudent =
-      baseUrlDev + "ws-bryte/public/upcomingAssignStudent";
-  static const String authorization =
-      baseUrlDev + "ws-bryte/public/authorization";
-  static const String calendarEvent =
-      baseUrlDev + "ws-bryte/public/calendarEventDet";
+      "ws-bryte/public/upcomingAssignStudent";
+  static const String authorization = "ws-bryte/public/authorization";
+  static const String calendarEvent = "ws-bryte/public/calendarEventDet";
   static const String attendance =
       baseUrlMoodleDev + "moodle/webservice/rest/server.php";
 
   static const String generalCourse =
       baseUrlMoodleDev + "moodle/webservice/rest/server.php";
 
-  static const String course = baseUrlDev + "ws-bryte/public/courseStudent";
-  static const String assignment =
-      baseUrlDev + "ws-bryte/public/courseAssignStudent";
+  static const String course = "ws-bryte/public/courseStudent";
+  static const String assignment = "ws-bryte/public/courseAssignStudent";
 
   static const String profile =
       baseUrlMoodleDev + "moodle/webservice/rest/server.php";
-  static const String detailAssignment =
-      baseUrlDev + "ws-bryte/public/assignDetStudent";
+  static const String detailAssignment = "ws-bryte/public/assignDetStudent";
 
   static const String assignmentPerCourse =
-      baseUrlDev + "ws-bryte/public/assignPerCourseStudent";
+      "ws-bryte/public/assignPerCourseStudent";
 
-  static const String attendanceCourse =
-      baseUrlDev + "ws-bryte/attdDetPerCourseStudent";
+  static const String attendanceCourse = "ws-bryte/attdDetPerCourseStudent";
 
   static const String uploadFile =
       baseUrlMoodleDev + "moodle/webservice/upload.php";

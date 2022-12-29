@@ -1,5 +1,6 @@
 import 'package:bryte/core/data/model/auth/auth_model.dart';
 import 'package:bryte/core/data/model/auth/request/login_body.dart';
+import 'package:bryte/flavors.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
@@ -20,7 +21,7 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
   Dio _getDio() {
     final options = BaseOptions(
         receiveDataWhenStatusError: true,
-        baseUrl: Url.baseUrlDev,
+        baseUrl: F.apiUrl,
         sendTimeout: 60000,
         followRedirects: false,
         headers: {
