@@ -37,15 +37,12 @@ class _CalenderPageState extends State<CalenderPage> {
   late final ValueNotifier<List<Event>> _selectedEvents;
   final _calendarFormatWeek = CalendarFormat.week;
   CalendarFormat _calendarFormatMonth = CalendarFormat.month;
-
   final RangeSelectionMode _rangeSelectionMode = RangeSelectionMode
       .toggledOff; // Can be toggled on/off by longpressing a date
   DateTime _focusedDay = DateTime.now();
-
   DateTime? _selectedDay;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
-
   DateTime? lastDay;
   DateTime? firstDay;
 
